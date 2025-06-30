@@ -27,9 +27,8 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-2">
-            {/* O caminho para a imagem pode precisar de ajuste dependendo da sua estrutura de build */}
-            <img src='/ZeBeeManager.png' className="sm:h-8 sm:w-8 md:h-10 md:w-10 lg:h-14 lg:w-14" alt="ZeBee.Manager Logo" style={{ filter: 'brightness(0) saturate(100%) invert(29%) sepia(90%) saturate(1470%) hue-rotate(200deg) brightness(96%) contrast(93%)' }} />
-            <span className="md:text-lg\4 md:text-lg lg:text-xl font-bold text-foreground">ZeBee.Manager</span>
+            <img src='/ZeBeeManager.png' className="h-10 w-10 sm:h-8 sm:w-8 md:h-10 md:w-10 lg:h-14 lg:w-14" alt="ZeBee.Manager Logo" style={{ filter: 'brightness(0) saturate(100%) invert(29%) sepia(90%) saturate(1470%) hue-rotate(200deg) brightness(96%) contrast(93%)' }} />
+            <span className="text-base md:text-lg lg:text-xl font-bold text-foreground">ZeBee.Manager</span>
           </div>
           
           <div className="flex-1 flex justify-center px-8">
