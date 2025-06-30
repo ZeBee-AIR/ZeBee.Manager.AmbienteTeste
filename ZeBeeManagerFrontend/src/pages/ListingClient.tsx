@@ -41,7 +41,7 @@ const ListingClient = () => {
     useEffect(() => {
         const fetchClients = async () => {
             try {
-                const response = await fetch('{import.meta.env.VITE_API_URL}/clients/');
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/clients/`);
                 if (!response.ok) throw new Error('Falha ao buscar clientes.');
                 setClients(await response.json());
             } catch (err) {

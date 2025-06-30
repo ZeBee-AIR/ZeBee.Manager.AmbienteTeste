@@ -45,8 +45,8 @@ const ClientRegistration = () => {
     useEffect(() => {
         const searchParams = new URLSearchParams(window.location.search);
         const idToEdit = searchParams.get('id');
-        const fetchSquads = fetch('{import.meta.env.VITE_API_URL}/squads/').then(res => res.json());
-        const fetchClientData = idToEdit ? fetch(`{import.meta.env.VITE_API_URL}/clients/${idToEdit}/`).then(res => res.ok ? res.json() : Promise.reject('Cliente não encontrado')) : Promise.resolve(null);
+        const fetchSquads = fetch(`${import.meta.env.VITE_API_URL}/squads/`).then(res => res.json());
+        const fetchClientData = idToEdit ? fetch(`${import.meta.env.VITE_API_URL}/clients/${idToEdit}/`).then(res => res.ok ? res.json() : Promise.reject('Cliente não encontrado')) : Promise.resolve(null);
 
         Promise.all([fetchSquads, fetchClientData])
             .then(([squadsData, clientData]) => {
