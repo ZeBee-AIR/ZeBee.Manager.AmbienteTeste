@@ -40,7 +40,7 @@ const Navigation = () => {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-2">
             <img src='/ZeBeeManager.png' className="h-10 w-10 md:h-12 md:w-12" alt="ZeBee.Manager Logo" style={{ filter: 'brightness(0) saturate(100%) invert(29%) sepia(90%) saturate(1470%) hue-rotate(200deg) brightness(96%) contrast(93%)' }} />
-            <span className="text-base md:text-lg lg:text-xl font-bold text-foreground">ZeBee.Manager</span>
+            <span className="hidden md:flex md:text-lg lg:text-xl font-bold text-foreground">ZeBee.Manager</span>
           </div>
           
           {/* --- BARRA DE PESQUISA --- */}
