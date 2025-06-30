@@ -25,7 +25,9 @@ SECRET_KEY = 'django-insecure-%95(3+#6ksc-6#py5j)asdtg-3t3l()5di5jkfxnav4b&q@l&0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'zebee-manager.onrender.com',
+]
 
 
 # Application definition
