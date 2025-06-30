@@ -211,7 +211,7 @@ const ListingClient = () => {
 
                 {paginatedClients.length === 0 && (
                     <div className="text-center py-12 text-muted-foreground">
-                        Nenhum cliente corresponde aos filtros selecionados.
+                        Nenhum cliente retornado.
                     </div>
                 )}
 
