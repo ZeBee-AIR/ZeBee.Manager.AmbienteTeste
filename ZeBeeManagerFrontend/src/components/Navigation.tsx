@@ -44,7 +44,7 @@ const Navigation = () => {
           </div>
           
           {/* --- BARRA DE PESQUISA --- */}
-          <div className="flex-1 hidden sm:flex justify-center px-8">
+          <div className="flex-1 sm:flex justify-center px-8">
             <form onSubmit={handleSearchSubmit} className="w-full max-w-lg">
                 <div className="relative">
                     <Input
