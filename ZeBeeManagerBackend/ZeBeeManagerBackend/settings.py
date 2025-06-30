@@ -129,6 +129,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "https://ze-bee-manager.vercel.app/",
+    "https://ze-bee-manager.vercel.app",
 ]
 CORS_ALLOW_ALL_ORIGINS = True 
