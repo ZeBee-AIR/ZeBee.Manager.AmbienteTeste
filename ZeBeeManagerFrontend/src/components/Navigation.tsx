@@ -84,32 +84,33 @@ const Navigation = () => {
                   <span className="sr-only">Abrir menu</span>
                 </Button>
               </SheetTrigger>
+              {/* --- ESTRUTURA DE LAYOUT CORRIGIDA E ROBUSTA --- */}
               <SheetContent side="right" className="w-[300px] flex flex-col p-0">
+                {/* 1. Cabeçalho Fixo */}
                 <SheetHeader className="p-4 border-b">
-                  <SheetTitle className="text-left">Menu</SheetTitle>
+                  <SheetTitle className="text-left text-lg">Menu</SheetTitle>
                 </SheetHeader>
                 
-                {/* Área de conteúdo principal do menu */}
-                <div className="flex-1 flex flex-col justify-between overflow-y-auto">
-                  {/* Links de navegação */}
+                {/* 2. Área de Conteúdo Principal (com rolagem se necessário) */}
+                <div className="flex-1 overflow-y-auto">
                   <nav className="p-4 space-y-2">
-                    <Link to="/" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-lg ${ isActive('/') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
+                    <Link to="/" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-base ${ isActive('/') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
                       <BarChart3 className="h-5 w-5" />
                       Dashboard
                     </Link>
-                    <Link to="/registrar" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-lg ${ isActive('/registrar') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
+                    <Link to="/registrar" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-base ${ isActive('/registrar') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
                       <UserPlus className="h-5 w-5" />
                       Registrar
                     </Link>
-                    <Link to="/lista-clientes" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-lg ${ isActive('/lista-clientes') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
+                    <Link to="/lista-clientes" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-base ${ isActive('/lista-clientes') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
                       <Building2 className="h-5 w-5" />
                       Clientes
                     </Link>
                   </nav>
                 </div>
 
-                {/* Rodapé do menu */}
-                <div className="p-4 border-t">
+                {/* 3. Rodapé Fixo */}
+                <div className="p-4 border-t mt-auto">
                   <div className="flex justify-end">
                     <ThemeToggle />
                   </div>
