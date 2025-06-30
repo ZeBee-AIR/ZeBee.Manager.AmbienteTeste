@@ -40,16 +40,15 @@ const Navigation = () => {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-2">
             <img src='/ZeBeeManager.png' className="h-10 w-10 md:h-12 md:w-12" alt="ZeBee.Manager Logo" style={{ filter: 'brightness(0) saturate(100%) invert(29%) sepia(90%) saturate(1470%) hue-rotate(200deg) brightness(96%) contrast(93%)' }} />
-            <span className="hidden md:flex md:text-lg lg:text-xl font-bold text-foreground">ZeBee.Manager</span>
+            <span className="hidden sm:block text-lg lg:text-xl font-bold text-foreground">ZeBee.Manager</span>
           </div>
           
-          {/* --- BARRA DE PESQUISA --- */}
-          <div className="flex-1 sm:flex justify-center px-8">
+          <div className="flex-1 flex justify-center px-4 sm:px-8">
             <form onSubmit={handleSearchSubmit} className="w-full max-w-lg">
                 <div className="relative">
                     <Input
                         type="search"
-                        placeholder="Pesquisar empresa pelo nome..."
+                        placeholder="Pesquisar..."
                         className="pl-10 w-full"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -61,7 +60,6 @@ const Navigation = () => {
             </form>
           </div>
 
-          {/* --- NAVEGAÇÃO DESKTOP --- */}
           <div className="hidden md:flex items-center space-x-2">
             <Link to="/" className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-colors ${ isActive('/') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'}`}>
               <BarChart3 className="h-4 w-4" />
@@ -78,7 +76,6 @@ const Navigation = () => {
             <ThemeToggle />
           </div>
 
-          {/* --- BOTÃO DE MENU MOBILE --- */}
           <div className="md:hidden">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
@@ -87,13 +84,17 @@ const Navigation = () => {
                   <span className="sr-only">Abrir menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="flex flex-col w-[310px]">
-                <SheetHeader>
+              {/* --- CORREÇÃO DEFINITIVA DO LAYOUT DO MENU --- */}
+              <SheetContent side="right" className="w-[300px] sm:w-[340px] flex flex-col p-0">
+                <SheetHeader className="p-6 pb-4">
                   <SheetTitle className="text-left">Menu</SheetTitle>
                 </SheetHeader>
                 
-                <div className="flex-grow flex flex-col justify-between pt-6">
-                  <div className="flex flex-col space-y-3">
+                {/* Container principal que ocupa todo o espaço restante */}
+                <div className="flex-1 flex flex-col justify-between overflow-y-auto">
+                  
+                  {/* Links de navegação */}
+                  <div className="flex flex-col space-y-2 px-6">
                     <Link to="/" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-lg ${ isActive('/') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
                       <BarChart3 className="h-5 w-5" />
                       Dashboard
@@ -108,8 +109,11 @@ const Navigation = () => {
                     </Link>
                   </div>
                   
-                  <div className="flex justify-end p-4">
-                    <ThemeToggle />
+                  {/* Botão de tema posicionado no final */}
+                  <div className="p-6 mt-auto">
+                    <div className="flex justify-end">
+                      <ThemeToggle />
+                    </div>
                   </div>
                 </div>
               </SheetContent>
