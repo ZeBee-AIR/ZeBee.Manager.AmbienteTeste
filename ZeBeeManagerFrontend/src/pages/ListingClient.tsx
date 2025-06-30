@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,7 @@ const ListingClient = () => {
     const [query, setQuery] = useState('');
     
     // --- Novos Estados de Filtro ---
-    const [statusFilter, setStatusFilter] = useState('todos'); // 'todos', 'Ativo', 'Inativo'
+    const [statusFilter, setStatusFilter] = useState('todos');
     const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
     // --- Estados de Paginação ---
@@ -62,35 +63,24 @@ const ListingClient = () => {
         window.history.pushState({}, '', window.location.pathname);
     };
 
-    // --- Lógica de Filtro e Ordenação ---
     const filteredClients = useMemo(() => {
         let processedClients = [...clients];
-
         if (query) {
-            processedClients = processedClients.filter(c => 
-                c.store_name.toLowerCase().includes(query.toLowerCase())
-            );
+            processedClients = processedClients.filter(c => c.store_name.toLowerCase().includes(query.toLowerCase()));
         }
-        
         if (statusFilter !== 'todos') {
             processedClients = processedClients.filter(c => c.status === statusFilter);
         }
-
         if (dateRange?.from) {
-            const startDate = startOfDay(dateRange.from);
-            processedClients = processedClients.filter(c => parseISO(c.created_at) >= startDate);
+            processedClients = processedClients.filter(c => parseISO(c.created_at) >= startOfDay(dateRange.from));
         }
         if (dateRange?.to) {
-            const endDate = endOfDay(dateRange.to);
-            processedClients = processedClients.filter(c => parseISO(c.created_at) <= endDate);
+            processedClients = processedClients.filter(c => parseISO(c.created_at) <= endOfDay(dateRange.to));
         }
-        
         processedClients.sort((a, b) => a.id - b.id);
-
         return processedClients;
     }, [query, clients, statusFilter, dateRange]);
     
-    // --- Lógica de Paginação ---
     const pageCount = Math.ceil(filteredClients.length / pageSize);
     const paginatedClients = useMemo(() => {
         const start = pageIndex * pageSize;
@@ -117,15 +107,14 @@ const ListingClient = () => {
     const filtersApplied = statusFilter !== 'todos' || dateRange?.from || query;
 
     return (
-        <div className="min-h-screen bg-background p-6">
+        <div className="min-h-screen bg-background p-4 sm:p-6">
             <div className="max-w-7xl mx-auto">
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-foreground mb-2">{query ? `Resultados para "${query}"` : 'Lista de Clientes'}</h1>
-                        <p className="text-muted-foreground">{filteredClients.length} cliente(s) encontrado(s).</p>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">{query ? `Resultados para "${query}"` : 'Lista de Clientes'}</h1>
+                        <p className="text-sm text-muted-foreground">{filteredClients.length} cliente(s) encontrado(s).</p>
                     </div>
                     
-                    {/* --- BOTÃO DE FILTRO COM POPOVER --- */}
                     <div className="flex items-center gap-2">
                         <Popover>
                             <PopoverTrigger asChild>
@@ -134,21 +123,17 @@ const ListingClient = () => {
                                     Filtrar
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-100" align="end">
+                            <PopoverContent className="w-80" align="end">
                                 <div className="grid gap-4">
                                     <div className="space-y-2">
                                         <h4 className="font-medium leading-none">Filtros</h4>
-                                        <p className="text-sm text-muted-foreground">
-                                            Ajuste os filtros para a lista de clientes.
-                                        </p>
+                                        <p className="text-sm text-muted-foreground">Ajuste os filtros para a lista de clientes.</p>
                                     </div>
                                     <div className="grid gap-2">
                                         <div className="grid grid-cols-3 items-center gap-4">
                                             <Label htmlFor="status">Status</Label>
                                             <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                                <SelectTrigger id="status" className="col-span-2 h-8">
-                                                    <SelectValue />
-                                                </SelectTrigger>
+                                                <SelectTrigger id="status" className="col-span-2 h-8"><SelectValue /></SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="todos">Todos</SelectItem>
                                                     <SelectItem value="Ativo">Ativo</SelectItem>
@@ -157,16 +142,9 @@ const ListingClient = () => {
                                             </Select>
                                         </div>
                                         <div className="grid grid-cols-3 items-center gap-4">
-                                            <Label htmlFor="date-range">Cadastrados entre:</Label>
+                                            <Label htmlFor="date-range">Cadastrados:</Label>
                                             <div className="col-span-2">
-                                                <Calendar
-                                                    id="date-range"
-                                                    mode="range"
-                                                    selected={dateRange}
-                                                    onSelect={setDateRange}
-                                                    locale={ptBR}
-                                                    className="p-0"
-                                                />
+                                                <Calendar id="date-range" mode="range" selected={dateRange} onSelect={setDateRange} locale={ptBR} className="p-0" />
                                             </div>
                                         </div>
                                     </div>
@@ -174,58 +152,76 @@ const ListingClient = () => {
                             </PopoverContent>
                         </Popover>
                         {filtersApplied && (
-                            <Button variant="ghost" onClick={handleClearFilters}>
-                                <X className="mr-2 h-4 w-4" />
-                                Limpar
-                            </Button>
+                            <Button variant="ghost" onClick={handleClearFilters}><X className="mr-2 h-4 w-4" />Limpar</Button>
                         )}
                     </div>
                 </div>
 
-                <div className="rounded-lg border">
+                {/* --- VISUALIZAÇÃO EM TABELA PARA DESKTOP --- */}
+                <div className="hidden md:block rounded-lg border">
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[100px] border-r">ID</TableHead>
+                                <TableHead className="w-[100px]">ID</TableHead>
                                 <TableHead>Nome da Loja</TableHead>
                                 <TableHead>E-mail</TableHead>
                                 <TableHead>ACOS (%)</TableHead>
                                 <TableHead>TACOS (%)</TableHead>
-                                <TableHead className="text-right border-l">Status</TableHead>
+                                <TableHead className="text-right">Status</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {paginatedClients.length > 0 ? (
-                                paginatedClients.map(client => {
-                                    const metrics = getLatestMetrics(client.monthly_data);
-                                    return (
-                                        <TableRow key={client.id} className="hover:bg-muted/50">
-                                            <TableCell className="font-medium border-r">
-                                                <Link to={`/registrar?id=${client.id}`} className="text-blue-500 hover:underline">{String(client.id).padStart(4, '0')}</Link>
-                                            </TableCell>
-                                            <TableCell>{client.store_name}</TableCell>
-                                            <TableCell>{client.seller_email}</TableCell>
-                                            <TableCell>{metrics.acos}</TableCell>
-                                            <TableCell>{metrics.tacos}</TableCell>
-                                            <TableCell className="text-right border-l">
-                                                <Badge variant={client.status === 'Ativo' ? 'default' : 'destructive'} className={cn(client.status === 'Ativo' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700', 'text-white border-transparent')}>{client.status}</Badge>
-                                            </TableCell>
-                                        </TableRow>
-                                    )
-                                })
-                            ) : (
-                                <TableRow><TableCell colSpan={6} className="h-24 text-center">Nenhum cliente corresponde aos filtros selecionados.</TableCell></TableRow>
-                            )}
+                            {paginatedClients.map(client => (
+                                <TableRow key={client.id} className="hover:bg-muted/50">
+                                    <TableCell className="font-medium">
+                                        <Link to={`/registrar?id=${client.id}`} className="text-blue-500 hover:underline">{String(client.id).padStart(4, '0')}</Link>
+                                    </TableCell>
+                                    <TableCell>{client.store_name}</TableCell>
+                                    <TableCell>{client.seller_email}</TableCell>
+                                    <TableCell>{getLatestMetrics(client.monthly_data).acos}</TableCell>
+                                    <TableCell>{getLatestMetrics(client.monthly_data).tacos}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Badge variant={client.status === 'Ativo' ? 'default' : 'destructive'} className={cn(client.status === 'Ativo' ? 'bg-green-600' : 'bg-red-600', 'text-white')}>{client.status}</Badge>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
                         </TableBody>
                     </Table>
                 </div>
-                {/* Controles de Paginação */}
-                <div className="flex items-center justify-between space-x-2 py-4">
-                    <div className="flex-1 text-sm text-muted-foreground">
+
+                {/* --- VISUALIZAÇÃO EM CARTÕES PARA MOBILE --- */}
+                <div className="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {paginatedClients.map(client => (
+                        <Card key={client.id}>
+                            <CardHeader>
+                                <CardTitle className="flex justify-between items-center">
+                                    <Link to={`/registrar?id=${client.id}`} className="text-blue-500 hover:underline">{client.store_name}</Link>
+                                    <Badge variant={client.status === 'Ativo' ? 'default' : 'destructive'} className={cn(client.status === 'Ativo' ? 'bg-green-600' : 'bg-red-600', 'text-white')}>{client.status}</Badge>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-2 text-sm">
+                                <p><strong className="text-muted-foreground">ID:</strong> {String(client.id).padStart(4, '0')}</p>
+                                <p><strong className="text-muted-foreground">Email:</strong> {client.seller_email}</p>
+                                <p><strong className="text-muted-foreground">ACOS:</strong> {getLatestMetrics(client.monthly_data).acos}%</p>
+                                <p><strong className="text-muted-foreground">TACOS:</strong> {getLatestMetrics(client.monthly_data).tacos}%</p>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+
+                {paginatedClients.length === 0 && (
+                    <div className="text-center py-12 text-muted-foreground">
+                        Nenhum cliente corresponde aos filtros selecionados.
+                    </div>
+                )}
+
+                {/* --- CONTROLES DE PAGINAÇÃO RESPONSIVOS --- */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
+                    <div className="text-sm text-muted-foreground">
                         Exibindo {paginatedClients.length} de {filteredClients.length} cliente(s).
                     </div>
-                    <div className="flex items-center space-x-6 lg:space-x-8">
-                        <div className="flex items-center space-x-2">
+                    <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+                        <div className="flex items-center gap-2">
                             <p className="text-sm font-medium">Itens por página</p>
                             <Select value={`${pageSize}`} onValueChange={(value) => { setPageSize(Number(value)); setPageIndex(0); }}>
                                 <SelectTrigger className="h-8 w-[70px]"><SelectValue placeholder={`${pageSize}`} /></SelectTrigger>
@@ -234,12 +230,12 @@ const ListingClient = () => {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-                            Página {pageCount > 0 ? pageIndex + 1 : 0} de {pageCount}
-                        </div>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center gap-2">
                             <Button variant="outline" className="h-8 w-8 p-0" onClick={() => setPageIndex(0)} disabled={pageIndex === 0}><ChevronsLeft className="h-4 w-4" /></Button>
                             <Button variant="outline" className="h-8 w-8 p-0" onClick={() => setPageIndex(pageIndex - 1)} disabled={pageIndex === 0}><ChevronLeft className="h-4 w-4" /></Button>
+                            <span className="text-sm font-medium">
+                                Página {pageCount > 0 ? pageIndex + 1 : 0} de {pageCount}
+                            </span>
                             <Button variant="outline" className="h-8 w-8 p-0" onClick={() => setPageIndex(pageIndex + 1)} disabled={pageIndex >= pageCount - 1}><ChevronRight className="h-4 w-4" /></Button>
                             <Button variant="outline" className="h-8 w-8 p-0" onClick={() => setPageIndex(pageCount - 1)} disabled={pageIndex >= pageCount - 1}><ChevronsRight className="h-4 w-4" /></Button>
                         </div>
