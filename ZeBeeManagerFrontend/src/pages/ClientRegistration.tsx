@@ -98,7 +98,7 @@ const ClientRegistration = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        const url = isEditMode ? `{import.meta.env.VITE_API_URL}/clients/${formData.id}/` : '{import.meta.env.VITE_API_URL}/clients/';
+        const url = isEditMode ? `${import.meta.env.VITE_API_URL}/clients/${formData.id}/` : `${import.meta.env.VITE_API_URL}/clients/`;
         const method = isEditMode ? 'PUT' : 'POST';
 
         const payload = {
