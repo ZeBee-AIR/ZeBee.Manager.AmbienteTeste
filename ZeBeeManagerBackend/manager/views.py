@@ -4,7 +4,7 @@ from .serializers import SquadSerializer, RevenueHistorySerializer, SquadPerform
 
 # Usamos ReadOnlyModelViewSet para criar endpoints que apenas leem dados (GET)
 # Assegure que os nomes das ViewSets correspondem ao que o router espera.
-class SquadViewSet(viewsets.ReadOnlyModelViewSet):
+class SquadViewSet(viewsets.ModelViewSet):
     """API endpoint para visualizar dados dos squads."""
     queryset = Squad.objects.all()
     serializer_class = SquadSerializer
