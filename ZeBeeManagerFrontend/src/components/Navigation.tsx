@@ -91,22 +91,24 @@ const Navigation = () => {
                 <SheetHeader>
                   <SheetTitle className="text-left">Menu</SheetTitle>
                 </SheetHeader>
-                <div className="flex flex-col space-y-3 pt-6">
-                  <Link to="/" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-lg ${ isActive('/') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
-                    <BarChart3 className="h-5 w-5" />
-                    Dashboard
-                  </Link>
-                  <Link to="/registrar" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-lg ${ isActive('/registrar') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
-                    <UserPlus className="h-5 w-5" />
-                    Registrar
-                  </Link>
-                  <Link to="/lista-clientes" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-lg ${ isActive('/lista-clientes') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
-                    <Building2 className="h-5 w-5" />
-                    Clientes
-                  </Link>
-                </div>
-                <div className="absolute bottom-6 right-6">
-                  <ThemeToggle />
+                <div className="flex-grow flex flex-col justify-between pt-6">
+                  <div className="flex flex-col space-y-3 pt-6">
+                    <Link to="/" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-lg ${ isActive('/') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
+                      <BarChart3 className="h-5 w-5" />
+                      Dashboard
+                    </Link>
+                    <Link to="/registrar" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-lg ${ isActive('/registrar') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
+                      <UserPlus className="h-5 w-5" />
+                      Registrar
+                    </Link>
+                    <Link to="/lista-clientes" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-lg ${ isActive('/lista-clientes') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
+                      <Building2 className="h-5 w-5" />
+                      Clientes
+                    </Link>
+                  </div>
+                  <div className="absolute bottom-6 right-6">
+                    <ThemeToggle />
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>
