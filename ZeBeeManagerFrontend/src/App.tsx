@@ -20,15 +20,16 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <div className="bg-background">
+          <div className="flex flex-col min-h-screen bg-background">
             <Navigation />
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/registrar" element={<ClientRegistration />} />
-              <Route path="/lista-clientes" element={<ListingClient />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <main className="flex-grow">
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/registrar" element={<ClientRegistration />} />
+                <Route path="/lista-clientes" element={<ListingClient />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
             <Footer />
           </div>
         </BrowserRouter>
