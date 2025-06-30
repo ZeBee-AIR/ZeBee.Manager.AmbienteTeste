@@ -42,8 +42,8 @@ const Dashboard = () => {
         const fetchData = async () => {
             try {
                 const [clientsRes, squadsRes] = await Promise.all([
-                    fetch('http://127.0.0.1:8000/api/clients/'),
-                    fetch('http://127.0.0.1:8000/api/squads/')
+                    fetch('{import.meta.env.VITE_API_URL}/clients/'),
+                    fetch('{import.meta.env.VITE_API_URL}/squads/')
                 ]);
                 if (!clientsRes.ok || !squadsRes.ok) throw new Error('Falha ao carregar dados da API.');
                 

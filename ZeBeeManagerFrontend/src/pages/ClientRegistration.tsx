@@ -45,8 +45,8 @@ const ClientRegistration = () => {
     useEffect(() => {
         const searchParams = new URLSearchParams(window.location.search);
         const idToEdit = searchParams.get('id');
-        const fetchSquads = fetch('http://127.0.0.1:8000/api/squads/').then(res => res.json());
-        const fetchClientData = idToEdit ? fetch(`http://127.0.0.1:8000/api/clients/${idToEdit}/`).then(res => res.ok ? res.json() : Promise.reject('Cliente não encontrado')) : Promise.resolve(null);
+        const fetchSquads = fetch('{import.meta.env.VITE_API_URL}/squads/').then(res => res.json());
+        const fetchClientData = idToEdit ? fetch(`{import.meta.env.VITE_API_URL}/clients/${idToEdit}/`).then(res => res.ok ? res.json() : Promise.reject('Cliente não encontrado')) : Promise.resolve(null);
 
         Promise.all([fetchSquads, fetchClientData])
             .then(([squadsData, clientData]) => {
@@ -98,7 +98,7 @@ const ClientRegistration = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        const url = isEditMode ? `http://127.0.0.1:8000/api/clients/${formData.id}/` : 'http://127.0.0.1:8000/api/clients/';
+        const url = isEditMode ? `{import.meta.env.VITE_API_URL}/clients/${formData.id}/` : '{import.meta.env.VITE_API_URL}/clients/';
         const method = isEditMode ? 'PUT' : 'POST';
 
         const payload = {
