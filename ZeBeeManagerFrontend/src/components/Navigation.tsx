@@ -28,12 +28,12 @@ const Navigation = () => {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-2">
             {/* O caminho para a imagem pode precisar de ajuste dependendo da sua estrutura de build */}
-            <img src='/ZeBeeManager.png' className="h-14 w-14" alt="ZeBee.Manager Logo" style={{ filter: 'brightness(0) saturate(100%) invert(29%) sepia(90%) saturate(1470%) hue-rotate(200deg) brightness(96%) contrast(93%)' }} />
+            <img src='/ZeBeeManager.png' className="sm:h-6 sm:w-6 md:h-8 md:w-8 lg:h-14 lg:w-14" alt="ZeBee.Manager Logo" style={{ filter: 'brightness(0) saturate(100%) invert(29%) sepia(90%) saturate(1470%) hue-rotate(200deg) brightness(96%) contrast(93%)' }} />
             <span className="text-xl font-bold text-foreground">ZeBee.Manager</span>
           </div>
           
           <div className="flex-1 flex justify-center px-8">
-             <form onSubmit={handleSearchSubmit} className="w-full max-w-lg">
+            <form onSubmit={handleSearchSubmit} className="w-full max-w-lg">
                 <div className="relative">
                     <Input
                         type="search"
@@ -53,7 +53,7 @@ const Navigation = () => {
             <div className="flex space-x-1">
               <Link
                 to="/"
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                className={`flex items-center gap-2 sm:px-2 sm:py-1 md:px-4 md:py-2 lg:px-4 lg:py-2 rounded-lg font-medium transition-colors ${
                   isActive('/') 
                     ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' 
                     : 'text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'
