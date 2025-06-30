@@ -87,12 +87,13 @@ const Navigation = () => {
                   <span className="sr-only">Abrir menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right">
+              <SheetContent side="right" className="flex flex-col w-[310px]">
                 <SheetHeader>
                   <SheetTitle className="text-left">Menu</SheetTitle>
                 </SheetHeader>
+                
                 <div className="flex-grow flex flex-col justify-between pt-6">
-                  <div className="flex flex-col space-y-3 pt-6">
+                  <div className="flex flex-col space-y-3">
                     <Link to="/" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-lg ${ isActive('/') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
                       <BarChart3 className="h-5 w-5" />
                       Dashboard
@@ -106,7 +107,8 @@ const Navigation = () => {
                       Clientes
                     </Link>
                   </div>
-                  <div className="absolute bottom-6 right-6">
+                  
+                  <div className="flex justify-end p-4">
                     <ThemeToggle />
                   </div>
                 </div>
