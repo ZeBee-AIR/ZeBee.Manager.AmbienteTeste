@@ -4,8 +4,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./components/ThemeProvider";
-import Navigation from "./components/Navigation";
-import Footer from "./components/Footer";
+
+// Importações de componentes e páginas
+import MainLayout from "./components/MainLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ClientRegistration from "./pages/ClientRegistration";
 import ListingClient from './pages/ListingClient';
@@ -20,18 +23,22 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <div className="flex flex-col min-h-screen bg-background">
-            <Navigation />
-            <main className="flex-grow">
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
+          <Routes>
+            {/* Rota pública de Login */}
+            <Route path="/" element={<Login />} />
+
+            {/* Rotas Protegidas */}
+            <Route element={<ProtectedRoute />}>
+              <Route element={<MainLayout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/registrar" element={<ClientRegistration />} />
                 <Route path="/lista-clientes" element={<ListingClient />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
+              </Route>
+            </Route>
+
+            {/* Rota de "Não Encontrado" */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
