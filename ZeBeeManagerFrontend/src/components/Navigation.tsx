@@ -94,7 +94,7 @@ const Navigation = () => {
                 {/* 2. Área de Conteúdo Principal (com rolagem se necessário) */}
                 <div className="flex-1 overflow-y-auto">
                   <nav className="p-4 space-y-2">
-                    <Link to="/" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-base ${ isActive('/') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
+                    <Link to="/dashboard" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-base ${ isActive('/') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
                       <BarChart3 className="h-5 w-5" />
                       Dashboard
                     </Link>
