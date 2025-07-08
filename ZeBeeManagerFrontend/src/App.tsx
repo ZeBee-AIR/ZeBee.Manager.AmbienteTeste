@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./components/ThemeProvider";
 import MainLayout from "./components/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ClientRegistration from "./pages/ClientRegistration";
@@ -22,7 +23,9 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Login />} />
+            <Route element={<PublicRoute />}>
+              <Route path="/" element={<Login />} />
+            </Route>
 
             <Route element={<ProtectedRoute />}>
               <Route element={<MainLayout />}>

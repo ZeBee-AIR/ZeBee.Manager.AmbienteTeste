@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { BarChart3, UserPlus, Building2, Search, Menu } from 'lucide-react';
+import { BarChart3, UserPlus, Building2, Search, Menu, LogOut } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -34,6 +34,12 @@ const Navigation = () => {
     setIsMobileMenuOpen(false);
   };
 
+  // 2. Crie a função de logout
+  const handleLogout = () => {
+    localStorage.removeItem('authToken'); // Remove o token
+    navigate('/'); // Redireciona para a página de login
+  };
+
   return (
     <nav className="bg-background border-b sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -61,7 +67,8 @@ const Navigation = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-2">
-            <Link to="/" className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-colors ${ isActive('/') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'}`}>
+            {/* 3. Corrija o link do Dashboard */}
+            <Link to="/dashboard" className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-colors ${ isActive('/dashboard') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'}`}>
               <BarChart3 className="h-4 w-4" />
               Dashboard
             </Link>
@@ -74,6 +81,10 @@ const Navigation = () => {
               Clientes
             </Link>
             <ThemeToggle />
+            {/* 4. Adicione o botão de logout no desktop */}
+            <Button variant="ghost" size="icon" onClick={handleLogout} title="Sair">
+                <LogOut className="h-4 w-4 text-red-500"/>
+            </Button>
           </div>
 
           <div className="md:hidden">
@@ -84,17 +95,15 @@ const Navigation = () => {
                   <span className="sr-only">Abrir menu</span>
                 </Button>
               </SheetTrigger>
-              {/* --- ESTRUTURA DE LAYOUT CORRIGIDA E ROBUSTA --- */}
               <SheetContent side="right" className="w-[300px] flex flex-col p-0">
-                {/* 1. Cabeçalho Fixo */}
                 <SheetHeader className="p-4 border-b">
                   <SheetTitle className="text-left text-lg">Menu</SheetTitle>
                 </SheetHeader>
                 
-                {/* 2. Área de Conteúdo Principal (com rolagem se necessário) */}
                 <div className="flex-1 overflow-y-auto">
                   <nav className="p-4 space-y-2">
-                    <Link to="/dashboard" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-base ${ isActive('/') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
+                    {/* 3. Corrija o link do Dashboard no mobile */}
+                    <Link to="/dashboard" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-base ${ isActive('/dashboard') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
                       <BarChart3 className="h-5 w-5" />
                       Dashboard
                     </Link>
@@ -109,11 +118,13 @@ const Navigation = () => {
                   </nav>
                 </div>
 
-                {/* 3. Rodapé Fixo */}
-                <div className="p-4 border-t mt-auto">
-                  <div className="flex justify-end">
-                    <ThemeToggle />
-                  </div>
+                <div className="p-4 border-t mt-auto flex justify-between items-center">
+                  <ThemeToggle />
+                  {/* 4. Adicione o botão de logout no mobile */}
+                  <Button variant="ghost" onClick={handleLogout} className="text-red-500 hover:text-red-500 hover:bg-red-500/10">
+                    Sair
+                    <LogOut className="ml-2 h-5 w-5"/>
+                  </Button>
                 </div>
               </SheetContent>
             </Sheet>
