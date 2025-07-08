@@ -9,6 +9,7 @@ import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { format, getYear, isWithinInterval, startOfMonth, endOfMonth, eachMonthOfInterval, parseISO, subMonths } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
+import api from '@/lib/api'; // 1. Importe o cliente de API
 
 // --- Interfaces de Dados ---
 interface Squad {
@@ -28,7 +29,6 @@ interface ClientData {
 }
 
 const Dashboard = () => {
-    // --- Estados ---
     const [clients, setClients] = useState<ClientData[]>([]);
     const [squads, setSquads] = useState<Squad[]>([]);
     const [loading, setLoading] = useState(true);
@@ -41,17 +41,16 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                // 2. Substitua 'fetch' por 'api.get'
                 const [clientsRes, squadsRes] = await Promise.all([
-                    fetch(`${import.meta.env.VITE_API_URL}/clients/`),
-                    fetch(`${import.meta.env.VITE_API_URL}/squads/`)
+                    api.get('/clients/'),
+                    api.get('/squads/')
                 ]);
-                if (!clientsRes.ok || !squadsRes.ok) throw new Error('Falha ao carregar dados da API.');
                 
-                const clientsData = await clientsRes.json();
-                const squadsData = await squadsRes.json();
+                // 3. Use .data em vez de .json()
+                setClients(clientsRes.data);
+                setSquads(squadsRes.data);
 
-                setClients(clientsData);
-                setSquads(squadsData);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Ocorreu um erro desconhecido.');
             } finally {
@@ -61,7 +60,7 @@ const Dashboard = () => {
         fetchData();
     }, []);
 
-    // --- Lógica de Negócio e Cálculos ---
+    // ... (o resto do componente continua igual)
     const businessLogic = useMemo(() => {
         if (!clients.length || !squads.length || !dateRange?.from) {
             return {
@@ -101,11 +100,8 @@ const Dashboard = () => {
                 const wasActiveInMonth = createdAt <= endOfMonthDate && (client.status === 'Ativo' || (statusChangedAt && statusChangedAt > startOfMonthDate));
     
                 if (wasActiveInMonth) {
-                    // Receita Total é baseada no valor do plano.
                     monthlyRevenue += planValue;
 
-                    // *** LÓGICA DE COMISSÃO CORRIGIDA ***
-                    // A comissão é aplicada SOMENTE sobre a receita de performance do mês.
                     const yearKey = getYear(monthDate).toString();
                     const monthKey = format(monthDate, 'MMMM', { locale: enUS }).toLowerCase();
                     const revenueFromMonthlyData = client.monthly_data?.[yearKey]?.[monthKey]?.revenue;
@@ -129,7 +125,6 @@ const Dashboard = () => {
             companyHistoryData.push({ month: format(monthDate, 'MMM', { locale: ptBR }), revenue: monthlyRevenue, commission: monthlyCommission });
         });
 
-        // Contagem de clientes por squad
         clients.forEach(client => {
             if (!client.squad) return;
             const squadPerf = squadMetrics.get(client.squad);
@@ -178,7 +173,6 @@ const Dashboard = () => {
                     </Popover>
                 </div>
 
-                {/* Cards de Métricas Principais */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
                     <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Clientes Ativos</CardTitle><Users className="h-4 w-4 text-blue-500" /></CardHeader><CardContent><div className="text-2xl font-bold">{businessLogic.totalActiveClients}</div><p className="text-xs text-muted-foreground text-green-500">+{businessLogic.newClientsInPeriod} novos no período</p></CardContent></Card>
                     <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Cancelamentos</CardTitle><TrendingDown className="h-4 w-4 text-red-500" /></CardHeader><CardContent><div className="text-2xl font-bold">{businessLogic.cancelledClientsInPeriod}</div><p className="text-xs text-muted-foreground text-red-500">No período selecionado</p></CardContent></Card>
@@ -187,7 +181,6 @@ const Dashboard = () => {
                     <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Comissão Total</CardTitle><Target className="h-4 w-4 text-yellow-500" /></CardHeader><CardContent><div className="text-2xl font-bold">R$ {businessLogic.totalCommission.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-muted-foreground">Com base na performance</p></CardContent></Card>
                 </div>
                 
-                {/* Seção de Gráficos */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <Card>
                         <CardHeader><CardTitle className="text-lg font-semibold flex items-center gap-2"><DollarSign className="text-yellow-500" />Histórico de Receita e Comissão</CardTitle></CardHeader>

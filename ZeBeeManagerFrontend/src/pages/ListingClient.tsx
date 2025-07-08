@@ -18,13 +18,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Loader2, AlertCircle, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, Filter, X, Trash2 } from 'lucide-react';
 import { format, parseISO, startOfDay, endOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { DateRange } from 'react-day-picker';
+import api from '@/lib/api'; // 1. Importe o cliente de API
 
 // --- Tipos de Dados ---
 type ClientData = {
@@ -36,28 +36,24 @@ type ClientData = {
     monthly_data: { [year: string]: { [month: string]: { acos: string, tacos: string } } };
 };
 
-// Componente principal
 const ListingClient = () => {
     const [clients, setClients] = useState<ClientData[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [query, setQuery] = useState('');
-    
     const [statusFilter, setStatusFilter] = useState('todos');
     const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
-
     const [pageIndex, setPageIndex] = useState(0);
     const [pageSize, setPageSize] = useState(20);
-
-    // Estado para controlar o cliente a ser excluído
     const [clientToDelete, setClientToDelete] = useState<ClientData | null>(null);
 
     const fetchClients = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/clients/`);
-            if (!response.ok) throw new Error('Falha ao buscar clientes.');
-            setClients(await response.json());
+            // 2. Substitua 'fetch' por 'api.get'
+            const response = await api.get('/clients/');
+            // 3. Use .data em vez de .json()
+            setClients(response.data);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Ocorreu um erro.');
         } finally {
@@ -82,20 +78,14 @@ const ListingClient = () => {
         if (!clientToDelete) return;
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/clients/${clientToDelete.id}/`, {
-                method: 'DELETE',
-            });
-
-            if (!response.ok) {
-                throw new Error('Falha ao excluir o cliente.');
-            }
+            // 2. Substitua 'fetch' por 'api.delete'
+            await api.delete(`/clients/${clientToDelete.id}/`);
 
             toast({
                 title: "Sucesso!",
                 description: `Cliente "${clientToDelete.store_name}" foi excluído.`,
             });
-
-            // Atualiza a lista de clientes no estado para refletir a exclusão
+            
             setClients(prevClients => prevClients.filter(client => client.id !== clientToDelete.id));
 
         } catch (err) {
@@ -105,10 +95,11 @@ const ListingClient = () => {
                 variant: "destructive",
             });
         } finally {
-            setClientToDelete(null); // Fecha o diálogo
+            setClientToDelete(null);
         }
     };
 
+    // ... (o resto do componente continua igual)
     const filteredClients = useMemo(() => {
         let processedClients = [...clients];
         if (query) {
@@ -203,7 +194,6 @@ const ListingClient = () => {
                     </div>
                 </div>
 
-                {/* --- VISUALIZAÇÃO EM TABELA PARA DESKTOP --- */}
                 <div className="hidden md:block rounded-lg border">
                     <Table>
                         <TableHeader>
@@ -237,7 +227,6 @@ const ListingClient = () => {
                     </Table>
                 </div>
 
-                {/* --- VISUALIZAÇÃO EM CARTÕES PARA MOBILE --- */}
                 <div className="md:hidden grid grid-cols-1 gap-4">
                     {paginatedClients.map(client => (
                         <Card key={client.id} className="w-full">
@@ -292,7 +281,6 @@ const ListingClient = () => {
                     </div>
                 </div>
 
-                {/* --- DIÁLOGO DE CONFIRMAÇÃO DE EXCLUSÃO --- */}
                 <AlertDialog open={!!clientToDelete} onOpenChange={() => setClientToDelete(null)}>
                     <AlertDialogContent>
                         <AlertDialogHeader>
