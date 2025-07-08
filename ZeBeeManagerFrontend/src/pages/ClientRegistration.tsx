@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,12 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { UserPlus, DollarSign, TrendingUp, Edit, Loader2, AlertCircle, Activity, Users2,  Calendar as CalendarIcon } from 'lucide-react';
+import { UserPlus, DollarSign, TrendingUp, Edit, Loader2, AlertCircle, Activity, Users2, Calendar as CalendarIcon } from 'lucide-react';
 import { Calendar } from "@/components/ui/calendar";
-import { parseISO } from 'date-fns';
-import { format } from "date-fns";
+import { parseISO, format } from 'date-fns';
 import { cn } from "@/lib/utils";
 import { ptBR } from "date-fns/locale";
+import api from '@/lib/api'; // 1. Importe o cliente de API
 
 // --- Tipos ---
 type Squad = { id: number; name: string; };
@@ -41,17 +41,22 @@ const ClientRegistration = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         const searchParams = new URLSearchParams(window.location.search);
         const idToEdit = searchParams.get('id');
-        const fetchSquads = fetch(`${import.meta.env.VITE_API_URL}/squads/`).then(res => res.json());
-        const fetchClientData = idToEdit ? fetch(`${import.meta.env.VITE_API_URL}/clients/${idToEdit}/`).then(res => res.ok ? res.json() : Promise.reject('Cliente não encontrado')) : Promise.resolve(null);
+        
+        // 2. Substitua 'fetch' por 'api.get'
+        const fetchSquads = api.get('/squads/');
+        const fetchClientData = idToEdit ? api.get(`/clients/${idToEdit}/`) : Promise.resolve(null);
 
         Promise.all([fetchSquads, fetchClientData])
-            .then(([squadsData, clientData]) => {
-                setSquads(squadsData || []);
-                if (clientData) {
+            .then(([squadsRes, clientRes]) => {
+                // 3. Use .data em vez de .json()
+                setSquads(squadsRes.data || []);
+                if (clientRes) {
+                    const clientData = clientRes.data;
                     setIsEditMode(true);
                     setFormData({
                         id: clientData.id, squad: clientData.squad,
@@ -70,12 +75,10 @@ const ClientRegistration = () => {
     }, []);
 
     const handleDateChange = (field: 'createdAt' | 'statusChangedAt', date: Date | undefined) => {
-        if (date) {
-            setFormData(prev => ({ ...prev, [field]: date }));
-        }
+        setFormData(prev => ({ ...prev, [field]: date || null }));
     };
 
-    const handleInputChange = (field: keyof Omit<ClientFormData, 'monthlyData'>, value: string | number | null) => {
+    const handleInputChange = (field: keyof Omit<ClientFormData, 'monthlyData' | 'createdAt' | 'statusChangedAt'>, value: string | number | null) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
@@ -95,12 +98,10 @@ const ClientRegistration = () => {
         }));
     };
     
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        setIsLoading(true);
-        const url = isEditMode ? `${import.meta.env.VITE_API_URL}/clients/${formData.id}/` : `${import.meta.env.VITE_API_URL}/clients/`;
-        const method = isEditMode ? 'PUT' : 'POST';
-
+        setIsSubmitting(true);
+        
         const payload = {
             squad: formData.squad,
             seller_name: formData.sellerName,
@@ -117,19 +118,24 @@ const ClientRegistration = () => {
         };
 
         try {
-            const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            if (!response.ok) {
-                const errData = await response.json();
-                const errorMessages = Object.entries(errData).map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`).join('\n');
-                throw new Error(errorMessages || 'Erro ao salvar.');
+            let response;
+            if (isEditMode) {
+                // 2. Use api.put
+                response = await api.put(`/clients/${formData.id}/`, payload);
+            } else {
+                // 2. Use api.post
+                response = await api.post('/clients/', payload);
             }
-            const result = await response.json();
+            
+            // 3. Use .data
+            const result = response.data;
             toast({ title: "Sucesso!", description: `Cliente ${result.store_name} salvo.` });
             window.location.assign('/lista-clientes');
-        } catch (err) {
-            toast({ title: "Erro ao Salvar", description: err instanceof Error ? err.message : "Erro desconhecido", variant: "destructive" });
+        } catch (err: any) {
+            const errorMessages = err.response?.data ? Object.entries(err.response.data).map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`).join('\n') : "Erro desconhecido";
+            toast({ title: "Erro ao Salvar", description: err.message || errorMessages, variant: "destructive" });
         } finally {
-            setIsLoading(false);
+            setIsSubmitting(false);
         }
     };
     
@@ -161,7 +167,7 @@ const ClientRegistration = () => {
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0">
-                                    <Calendar mode="single" selected={formData.createdAt ?? undefined} onSelect={(date) => handleDateChange('createdAt', date ?? undefined)} initialFocus />
+                                    <Calendar mode="single" selected={formData.createdAt ?? undefined} onSelect={(date) => handleDateChange('createdAt', date)} initialFocus />
                                 </PopoverContent>
                             </Popover>
                         </div>
@@ -175,13 +181,13 @@ const ClientRegistration = () => {
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0">
-                                    <Calendar mode="single" selected={formData.statusChangedAt ?? undefined} onSelect={(date) => handleDateChange('statusChangedAt', date ?? undefined)} />
+                                    <Calendar mode="single" selected={formData.statusChangedAt ?? undefined} onSelect={(date) => handleDateChange('statusChangedAt', date)} />
                                 </PopoverContent>
                             </Popover>
                         </div>
                     </CardContent></Card>
                     <Card><CardHeader><CardTitle className="flex items-center gap-2"><DollarSign className="text-green-500"/>Contrato</CardTitle></CardHeader><CardContent className="grid md:grid-cols-3 gap-4">
-                         <div><Label>Plano *</Label><Select value={formData.contractedPlan} onValueChange={v => handleInputChange('contractedPlan', v)}><SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger><SelectContent><SelectItem value="Basic">Basic</SelectItem><SelectItem value="Standard">Standard</SelectItem><SelectItem value="Premium">Premium</SelectItem><SelectItem value="Enterprise">Enterprise</SelectItem></SelectContent></Select></div>
+                        <div><Label>Plano *</Label><Select value={formData.contractedPlan} onValueChange={v => handleInputChange('contractedPlan', v)}><SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger><SelectContent><SelectItem value="Basic">Basic</SelectItem><SelectItem value="Standard">Standard</SelectItem><SelectItem value="Premium">Premium</SelectItem><SelectItem value="Enterprise">Enterprise</SelectItem></SelectContent></Select></div>
                         <div><Label>Valor do Plano (R$)</Label><Input type="number" value={formData.planValue} onChange={e => handleInputChange('planValue', e.target.value)} /></div>
                         <div><Label>Comissão (%)</Label><Input type="number" value={formData.clientCommissionPercentage} onChange={e => handleInputChange('clientCommissionPercentage', e.target.value)} /></div>
                     </CardContent></Card>
@@ -198,11 +204,11 @@ const ClientRegistration = () => {
                                         <div><Label className="text-xs">ACOS (%)</Label><Input type="number" value={formData.monthlyData?.[selectedYear]?.[month]?.acos || ''} onChange={e => handleMonthlyDataChange(selectedYear, month, 'acos', e.target.value)} /></div>
                                         <div><Label className="text-xs">TACOS (%)</Label><Input type="number" value={formData.monthlyData?.[selectedYear]?.[month]?.tacos || ''} onChange={e => handleMonthlyDataChange(selectedYear, month, 'tacos', e.target.value)} /></div>
                                     </div>
-                                    <p className="text-xs text-muted-foreground mt-1">Aplicado Comissão de {commissionPct}% a Receita: R$ {calculatedCommission.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">Comissão sobre receita: R$ {calculatedCommission.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>
                                 </div>)
                         })}
                     </CardContent></Card>
-                    <div className="flex justify-end"><Button type="submit" size="lg" disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} {isEditMode ? 'Salvar Alterações' : 'Registrar Cliente'}</Button></div>
+                    <div className="flex justify-end"><Button type="submit" size="lg" disabled={isSubmitting}>{isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} {isEditMode ? 'Salvar Alterações' : 'Registrar Cliente'}</Button></div>
                 </form>
             </div>
         </div>
