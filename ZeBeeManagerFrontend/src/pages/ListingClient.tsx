@@ -159,7 +159,7 @@ const ListingClient = () => {
                                     Filtrar
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-80" align="end">
+                            <PopoverContent className="w-100" align="end">
                                 <div className="grid gap-4">
                                     <div className="space-y-2">
                                         <h4 className="font-medium leading-none">Filtros</h4>
