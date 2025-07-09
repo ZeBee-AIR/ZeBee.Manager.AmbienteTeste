@@ -10,25 +10,25 @@ import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Loader2, AlertCircle, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, Filter, X, Trash2 } from 'lucide-react';
 import { format, parseISO, startOfDay, endOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { DateRange } from 'react-day-picker';
-import api from '@/lib/api'; // 1. Importe o cliente de API
+import api from '@/lib/api';
 
-// --- Tipos de Dados ---
 type ClientData = {
     id: number;
+    seller_id: string;
     store_name: string;
     seller_email: string;
     status: 'Ativo' | 'Inativo';
@@ -41,18 +41,19 @@ const ListingClient = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [query, setQuery] = useState('');
+    
     const [statusFilter, setStatusFilter] = useState('todos');
     const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+
     const [pageIndex, setPageIndex] = useState(0);
     const [pageSize, setPageSize] = useState(20);
+
     const [clientToDelete, setClientToDelete] = useState<ClientData | null>(null);
 
     const fetchClients = async () => {
         setLoading(true);
         try {
-            // 2. Substitua 'fetch' por 'api.get'
             const response = await api.get('/clients/');
-            // 3. Use .data em vez de .json()
             setClients(response.data);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Ocorreu um erro.');
@@ -78,7 +79,6 @@ const ListingClient = () => {
         if (!clientToDelete) return;
 
         try {
-            // 2. Substitua 'fetch' por 'api.delete'
             await api.delete(`/clients/${clientToDelete.id}/`);
 
             toast({
@@ -99,7 +99,6 @@ const ListingClient = () => {
         }
     };
 
-    // ... (o resto do componente continua igual)
     const filteredClients = useMemo(() => {
         let processedClients = [...clients];
         if (query) {
@@ -114,7 +113,7 @@ const ListingClient = () => {
         if (dateRange?.to) {
             processedClients = processedClients.filter(c => parseISO(c.created_at) <= endOfDay(dateRange.to));
         }
-        processedClients.sort((a, b) => a.id - b.id);
+        processedClients.sort((a, b) => a.seller_id.localeCompare(b.seller_id));
         return processedClients;
     }, [query, clients, statusFilter, dateRange]);
     
@@ -198,7 +197,7 @@ const ListingClient = () => {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[80px]">ID</TableHead>
+                                <TableHead className="w-[100px]">ID</TableHead>
                                 <TableHead>Nome da Loja</TableHead>
                                 <TableHead>E-mail</TableHead>
                                 <TableHead>Status</TableHead>
@@ -209,7 +208,7 @@ const ListingClient = () => {
                             {paginatedClients.map(client => (
                                 <TableRow key={client.id} className="hover:bg-muted/50">
                                     <TableCell className="font-medium">
-                                        <Link to={`/registrar?id=${client.id}`} className="text-blue-500 hover:underline">{String(client.id).padStart(4, '0')}</Link>
+                                        <Link to={`/registrar?id=${client.id}`} className="text-blue-500 hover:underline">{client.seller_id}</Link>
                                     </TableCell>
                                     <TableCell>{client.store_name}</TableCell>
                                     <TableCell>{client.seller_email}</TableCell>
@@ -237,7 +236,7 @@ const ListingClient = () => {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-2 text-sm">
-                                <p><strong className="text-muted-foreground">ID:</strong> {String(client.id).padStart(4, '0')}</p>
+                                <p><strong className="text-muted-foreground">ID:</strong> {client.seller_id}</p>
                                 <p className="break-all"><strong className="text-muted-foreground">Email:</strong> {client.seller_email}</p>
                             </CardContent>
                             <CardFooter className="justify-end">
