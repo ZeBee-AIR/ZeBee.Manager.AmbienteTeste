@@ -9,12 +9,19 @@ import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { format, getYear, isWithinInterval, startOfMonth, endOfMonth, eachMonthOfInterval, parseISO, subMonths } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
-import api from '@/lib/api'; // 1. Importe o cliente de API
+import api from '@/lib/api';
 
-// --- Interfaces de Dados ---
 interface Squad {
     id: number;
     name: string;
+}
+
+interface MonthlyPerformanceData {
+    revenue?: string;
+    acos?: string;
+    tacos?: string;
+    waiveCommission?: boolean;
+    waiveMonthlyFee?: boolean;
 }
 
 interface ClientData {
@@ -22,7 +29,7 @@ interface ClientData {
     squad: number;
     plan_value: string;
     client_commission_percentage: string;
-    monthly_data: { [key: string]: { [key: string]: { revenue: string } } };
+    monthly_data: { [year: string]: { [month: string]: MonthlyPerformanceData } };
     status: 'Ativo' | 'Inativo';
     created_at: string;
     status_changed_at: string | null;
@@ -41,16 +48,12 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // 2. Substitua 'fetch' por 'api.get'
                 const [clientsRes, squadsRes] = await Promise.all([
                     api.get('/clients/'),
                     api.get('/squads/')
                 ]);
-                
-                // 3. Use .data em vez de .json()
                 setClients(clientsRes.data);
                 setSquads(squadsRes.data);
-
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Ocorreu um erro desconhecido.');
             } finally {
@@ -60,7 +63,6 @@ const Dashboard = () => {
         fetchData();
     }, []);
 
-    // ... (o resto do componente continua igual)
     const businessLogic = useMemo(() => {
         if (!clients.length || !squads.length || !dateRange?.from) {
             return {
@@ -90,30 +92,35 @@ const Dashboard = () => {
             let monthlyCommission = 0;
             const startOfMonthDate = startOfMonth(monthDate);
             const endOfMonthDate = endOfMonth(monthDate);
+            const yearKey = getYear(monthDate).toString();
+            const monthKey = format(monthDate, 'MMMM', { locale: enUS }).toLowerCase();
     
             clients.forEach(client => {
                 const createdAt = parseISO(client.created_at);
                 const statusChangedAt = client.status_changed_at ? parseISO(client.status_changed_at) : null;
                 const planValue = parseFloat(client.plan_value || '0');
                 const commissionPercentage = parseFloat(client.client_commission_percentage || '0') / 100;
+                
+                const monthData = client.monthly_data?.[yearKey]?.[monthKey];
     
                 const wasActiveInMonth = createdAt <= endOfMonthDate && (client.status === 'Ativo' || (statusChangedAt && statusChangedAt > startOfMonthDate));
     
                 if (wasActiveInMonth) {
-                    monthlyRevenue += planValue;
-
-                    const yearKey = getYear(monthDate).toString();
-                    const monthKey = format(monthDate, 'MMMM', { locale: enUS }).toLowerCase();
-                    const revenueFromMonthlyData = client.monthly_data?.[yearKey]?.[monthKey]?.revenue;
+                    if (!monthData?.waiveMonthlyFee) {
+                        monthlyRevenue += planValue;
+                    }
                     
-                    if (revenueFromMonthlyData && parseFloat(revenueFromMonthlyData) > 0) {
-                        const specificRevenue = parseFloat(revenueFromMonthlyData);
-                        monthlyCommission += specificRevenue * commissionPercentage;
+                    if (!monthData?.waiveCommission) {
+                        const revenueFromMonthlyData = monthData?.revenue;
+                        if (revenueFromMonthlyData && parseFloat(revenueFromMonthlyData) > 0) {
+                            const specificRevenue = parseFloat(revenueFromMonthlyData);
+                            monthlyCommission += specificRevenue * commissionPercentage;
+                        }
                     }
                     
                     if (client.squad) {
                         const squadPerf = squadMetrics.get(client.squad);
-                        if (squadPerf) {
+                        if (squadPerf && !monthData?.waiveMonthlyFee) {
                             squadPerf.revenue += planValue;
                         }
                     }
