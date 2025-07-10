@@ -208,7 +208,7 @@ const ListingClient = () => {
                             {paginatedClients.map(client => (
                                 <TableRow key={client.id} className="hover:bg-muted/50">
                                     <TableCell className="font-medium">
-                                        <Link to={`/registrar?id=${client.id}`} className="text-blue-500 hover:underline">{client.seller_id}</Link>
+                                        <Link to={`/registrar?id=${client.id}`} className="text-blue-500 hover:underline">{client.id}</Link>
                                     </TableCell>
                                     <TableCell>{client.store_name}</TableCell>
                                     <TableCell>{client.seller_email}</TableCell>

@@ -146,11 +146,33 @@ const ClientRegistration = () => {
                 <div className="mb-8"><h1 className="text-3xl font-bold">{isEditMode ? `Editando: ${formData.storeName}` : 'Registro de Cliente'}</h1></div>
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <Card><CardHeader><CardTitle className="flex items-center gap-2">{isEditMode ? <Edit className="text-blue-500"/> : <UserPlus className="text-blue-500"/>}Informações Básicas</CardTitle></CardHeader><CardContent className="grid md:grid-cols-2 gap-4">
-                        <div><Label>Nome do Cliente *</Label><Input value={formData.sellerName} onChange={e => handleInputChange('sellerName', e.target.value)} required /></div>
+                        <div>
+                            <Label>Nome do Cliente *</Label>
+                            <Input value={formData.sellerName} onChange={e => handleInputChange('sellerName', e.target.value)} required />
+                        </div>
                         <div><Label>Nome da Loja *</Label><Input value={formData.storeName} onChange={e => handleInputChange('storeName', e.target.value)} required /></div>
-                        <div><Label>ID do Cliente *</Label><Input value={formData.sellerId} onChange={e => handleInputChange('sellerId', e.target.value)} required /></div>
-                        <div><Label>Email *</Label><Input type="email" value={formData.sellerEmail} onChange={e => handleInputChange('sellerEmail', e.target.value)} required /></div>
-                        <div><Label>Squad Responsável</Label><Select value={formData.squad?.toString() || ''} onValueChange={(v) => handleInputChange('squad', v ? parseInt(v) : null)} disabled={!squads.length}><SelectTrigger><SelectValue placeholder={squads.length ? "Selecione um squad" : "Nenhum squad cadastrado"} /></SelectTrigger><SelectContent>{squads.map(s => (<SelectItem key={s.id} value={s.id.toString()}><span className="flex items-center"><Users2 className="w-4 h-4 mr-2" />{s.name}</span></SelectItem>))}</SelectContent></Select></div>
+                        <div>
+                            <Label>ID do Cliente</Label>
+                            <Input value={formData.sellerId} onChange={e => handleInputChange('sellerId', e.target.value)} />
+                        </div>
+                        <div>
+                            <Label>Email</Label>
+                            <Input type="email" value={formData.sellerEmail} onChange={e => handleInputChange('sellerEmail', e.target.value)}/>
+                        </div>
+                        <div>
+                            <Label>Squad Responsável</Label>
+                            <Select 
+                                value={formData.squad?.toString() || ''} 
+                                onValueChange={(v) => {
+                                    const numValue = parseInt(v, 10);
+                                    handleInputChange('squad', isNaN(numValue) ? null : numValue);
+                                }} 
+                                disabled={!squads.length}
+                            >
+                                <SelectTrigger><SelectValue placeholder={squads.length ? "Selecione um squad" : "Nenhum squad cadastrado"} /></SelectTrigger>
+                                <SelectContent>{squads.map(s => (<SelectItem key={s.id} value={s.id.toString()}><span className="flex items-center"><Users2 className="w-4 h-4 mr-2" />{s.name}</span></SelectItem>))}</SelectContent>
+                            </Select>
+                        </div>
                         <div><Label>Status</Label><Select value={formData.status} onValueChange={(v) => handleInputChange('status', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Ativo"><span className="flex items-center"><Activity className="text-green-500 w-4 h-4 mr-2"/>Ativo</span></SelectItem><SelectItem value="Inativo"><span className="flex items-center"><Activity className="text-red-500 w-4 h-4 mr-2"/>Inativo</span></SelectItem></SelectContent></Select></div>
                         <div>
                             <Label>Registrado em</Label>
