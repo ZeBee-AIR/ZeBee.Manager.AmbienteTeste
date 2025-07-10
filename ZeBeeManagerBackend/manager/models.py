@@ -34,7 +34,7 @@ class Client(models.Model):
         related_name='clients', verbose_name="Squad Responsável"
     )
     seller_name = models.CharField(max_length=200, verbose_name="Nome do Cliente")
-    store_name = models.CharField(max_length=200, unique=True, verbose_name="Nome da Loja")
+    store_name = models.CharField(max_length=200, verbose_name="Nome da Loja")
     seller_id = models.CharField(max_length=50, verbose_name="ID do Cliente", blank=True, null=True)
     seller_email = models.EmailField(verbose_name="Email do Cliente", blank=True, null=True)
     status = models.CharField(max_length=20, choices=[('Ativo', 'Ativo'), ('Inativo', 'Inativo')], default='Ativo')
