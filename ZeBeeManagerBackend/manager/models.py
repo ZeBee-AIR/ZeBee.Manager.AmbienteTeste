@@ -7,8 +7,6 @@ class Squad(models.Model):
     def __str__(self):
         return self.name
 
-# Opcional: Você pode remover os modelos RevenueHistory e SquadPerformance se não estiverem mais em uso,
-# para simplificar. Por enquanto, vou mantê-los.
 class RevenueHistory(models.Model):
     month = models.DateField(verbose_name="Mês")
     revenue = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Receita")
@@ -35,11 +33,10 @@ class Client(models.Model):
         Squad, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='clients', verbose_name="Squad Responsável"
     )
-    # --- Campos do Cliente ---
     seller_name = models.CharField(max_length=200, verbose_name="Nome do Cliente")
     store_name = models.CharField(max_length=200, unique=True, verbose_name="Nome da Loja")
-    seller_id = models.CharField(max_length=50, verbose_name="ID do Cliente")
-    seller_email = models.EmailField(unique=True, verbose_name="Email do Cliente")
+    seller_id = models.CharField(max_length=50, verbose_name="ID do Cliente", blank=True, null=True)
+    seller_email = models.EmailField(unique=True, verbose_name="Email do Cliente", blank=True, null=True)
     status = models.CharField(max_length=20, choices=[('Ativo', 'Ativo'), ('Inativo', 'Inativo')], default='Ativo')
     contracted_plan = models.CharField(max_length=100, verbose_name="Plano Contratado")
     plan_value = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Valor do Plano")

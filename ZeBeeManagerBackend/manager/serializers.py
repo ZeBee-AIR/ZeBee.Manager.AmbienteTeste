@@ -22,7 +22,6 @@ class SquadPerformanceSerializer(serializers.ModelSerializer):
 class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
-        # --- LISTA DE CAMPOS GARANTIDA E CORRETA ---
         fields = [
             'id',
             'squad',
