@@ -102,7 +102,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "https://zebee-manager.vercel.app",
     "https://zebee-manager.com/",
-    "https://www.zebee-manager.com/"
+    "https://www.zebee-manager.com/",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = False
