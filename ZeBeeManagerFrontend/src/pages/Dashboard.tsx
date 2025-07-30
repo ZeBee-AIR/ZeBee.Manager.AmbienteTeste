@@ -147,36 +147,32 @@ const Dashboard = () => {
             clients.forEach(client => {
                 const createdAt = parseISO(client.created_at);
                 const statusChangedAt = client.status_changed_at ? parseISO(client.status_changed_at) : null;
-                const wasActiveInMonth = createdAt <= endOfMonth(monthDate) && (client.status === 'Ativo' || (statusChangedAt && statusChangedAt > startOfMonth(monthDate)));
-    
-                if (wasActiveInMonth) {
-                    const monthData = client.monthly_data?.[yearKey]?.[monthKey];
-                    
-                    // Cálculo da Recorrência
-                    if (!monthData?.waiveMonthlyFee) {
-                        recurrenceForThisMonth += parseFloat(client.plan_value || '0');
-                    }
-                    
-                    // Cálculo da Comissão
-                    if (!monthData?.waiveCommission) {
-                        const revenue = parseFloat(monthData?.revenue || '0');
-                        if (revenue > 0) {
-                            const commissionPercentage = parseFloat(client.client_commission_percentage || '0') / 100;
-                            const hasSpecial = client.has_special_commission;
-                            const threshold = parseFloat(client.special_commission_threshold || '0');
-                            
-                            let isCommissionable = false;
-                            if (hasSpecial) {
-                                if (revenue > threshold) {
-                                    isCommissionable = true;
-                                }
-                            } else {
+                const wasActiveInMonth = createdAt <= endOfMonth(monthDate) && (!statusChangedAt || statusChangedAt > startOfMonth(monthDate));
+                
+                const monthData = client.monthly_data?.[yearKey]?.[monthKey];
+
+                if (wasActiveInMonth && !monthData?.waiveMonthlyFee) {
+                    recurrenceForThisMonth += parseFloat(client.plan_value || '0');
+                }
+
+                if (monthData && !monthData.waiveCommission) {
+                    const revenue = parseFloat(monthData.revenue || '0');
+                    if (revenue > 0) {
+                        const commissionPercentage = parseFloat(client.client_commission_percentage || '0') / 100;
+                        const hasSpecial = client.has_special_commission;
+                        const threshold = parseFloat(client.special_commission_threshold || '0');
+                        
+                        let isCommissionable = false;
+                        if (hasSpecial) {
+                            if (revenue > threshold) {
                                 isCommissionable = true;
                             }
+                        } else {
+                            isCommissionable = true;
+                        }
 
-                            if (isCommissionable) {
-                                commissionForThisMonth += revenue * commissionPercentage;
-                            }
+                        if (isCommissionable) {
+                            commissionForThisMonth += revenue * commissionPercentage;
                         }
                     }
                 }
