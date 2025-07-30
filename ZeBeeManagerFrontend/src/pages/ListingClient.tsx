@@ -1,9 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
-<<<<<<< HEAD
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-=======
-import { Link } from 'react-router-dom';
->>>>>>> 46757cb8b1c8fc51f2e90970be7ebce9a8d9feb7
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from '@/components/ui/badge';
@@ -23,11 +19,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-<<<<<<< HEAD
 import { Loader2, AlertCircle, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, Filter, X, Trash2, Pencil } from 'lucide-react';
-=======
-import { Loader2, AlertCircle, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, Filter, X, Trash2 } from 'lucide-react';
->>>>>>> 46757cb8b1c8fc51f2e90970be7ebce9a8d9feb7
 import { format, parseISO, startOfDay, endOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -40,7 +32,7 @@ type ClientData = {
     store_name: string;
     seller_email: string;
     status: 'Ativo' | 'Inativo';
-    created_at: string; 
+    created_at: string;
     monthly_data: { [year: string]: { [month: string]: { acos: string, tacos: string } } };
 };
 
@@ -49,7 +41,7 @@ const ListingClient = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [query, setQuery] = useState('');
-    
+
     const [statusFilter, setStatusFilter] = useState('todos');
     const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
@@ -57,11 +49,8 @@ const ListingClient = () => {
     const [pageSize, setPageSize] = useState(20);
 
     const [clientToDelete, setClientToDelete] = useState<ClientData | null>(null);
-<<<<<<< HEAD
     const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
-=======
->>>>>>> 46757cb8b1c8fc51f2e90970be7ebce9a8d9feb7
 
     const fetchClients = async () => {
         setLoading(true);
@@ -77,7 +66,6 @@ const ListingClient = () => {
 
     useEffect(() => {
         fetchClients();
-<<<<<<< HEAD
     }, []);
 
     useEffect(() => {
@@ -88,17 +76,6 @@ const ListingClient = () => {
         setSearchParams({});
         setStatusFilter('todos');
         setDateRange(undefined);
-=======
-        const searchParams = new URLSearchParams(window.location.search);
-        setQuery(searchParams.get('q') || '');
-    }, []);
-
-    const handleClearFilters = () => {
-        setStatusFilter('todos');
-        setDateRange(undefined);
-        setQuery('');
-        window.history.pushState({}, '', window.location.pathname);
->>>>>>> 46757cb8b1c8fc51f2e90970be7ebce9a8d9feb7
     };
 
     const handleDeleteClient = async () => {
@@ -106,21 +83,11 @@ const ListingClient = () => {
 
         try {
             await api.delete(`/clients/${clientToDelete.id}/`);
-<<<<<<< HEAD
-=======
-
->>>>>>> 46757cb8b1c8fc51f2e90970be7ebce9a8d9feb7
             toast({
                 title: "Sucesso!",
                 description: `Cliente "${clientToDelete.store_name}" foi excluído.`,
             });
-<<<<<<< HEAD
             setClients(prevClients => prevClients.filter(client => client.id !== clientToDelete.id));
-=======
-            
-            setClients(prevClients => prevClients.filter(client => client.id !== clientToDelete.id));
-
->>>>>>> 46757cb8b1c8fc51f2e90970be7ebce9a8d9feb7
         } catch (err) {
             toast({
                 title: "Erro",
@@ -149,7 +116,7 @@ const ListingClient = () => {
         processedClients.sort((a, b) => a.seller_id.localeCompare(b.seller_id));
         return processedClients;
     }, [query, clients, statusFilter, dateRange]);
-    
+
     const pageCount = Math.ceil(filteredClients.length / pageSize);
     const paginatedClients = useMemo(() => {
         const start = pageIndex * pageSize;
@@ -161,17 +128,17 @@ const ListingClient = () => {
         if (!monthlyData) return { acos: 'N/A', tacos: 'N/A' };
         const years = Object.keys(monthlyData).sort((a, b) => parseInt(b) - parseInt(a));
         for (const year of years) {
-            const months = Object.keys(monthlyData[year]).sort((a,b) => new Date(`1 ${b} 2000`).getMonth() - new Date(`1 ${a} 2000`).getMonth());
+            const months = Object.keys(monthlyData[year]).sort((a, b) => new Date(`1 ${b} 2000`).getMonth() - new Date(`1 ${a} 2000`).getMonth());
             for (const month of months) {
                 const data = monthlyData[year][month];
-                if(data.acos || data.tacos) return { acos: data.acos || 'N/A', tacos: data.tacos || 'N/A'};
+                if (data.acos || data.tacos) return { acos: data.acos || 'N/A', tacos: data.tacos || 'N/A' };
             }
         }
         return { acos: 'N/A', tacos: 'N/A' };
     }
 
     if (loading) return <div className="flex justify-center items-center h-screen"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
-    if (error) return <div className="flex justify-center items-center h-screen text-destructive"><AlertCircle className="h-12 w-12 mr-4"/>{error}</div>;
+    if (error) return <div className="flex justify-center items-center h-screen text-destructive"><AlertCircle className="h-12 w-12 mr-4" />{error}</div>;
 
     const filtersApplied = statusFilter !== 'todos' || dateRange?.from || query;
 
@@ -183,7 +150,7 @@ const ListingClient = () => {
                         <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">{query ? `Resultados para "${query}"` : 'Lista de Clientes'}</h1>
                         <p className="text-sm text-muted-foreground">{filteredClients.length} cliente(s) encontrado(s).</p>
                     </div>
-                    
+
                     <div className="flex items-center gap-2">
                         <Popover>
                             <PopoverTrigger asChild>
@@ -234,36 +201,24 @@ const ListingClient = () => {
                                 <TableHead>Nome da Loja</TableHead>
                                 <TableHead>E-mail</TableHead>
                                 <TableHead>Status</TableHead>
-<<<<<<< HEAD
                                 <TableHead className="text-center w-[120px]">Ações</TableHead>
-=======
-                                <TableHead className="text-right w-[100px]">Ações</TableHead>
->>>>>>> 46757cb8b1c8fc51f2e90970be7ebce9a8d9feb7
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {paginatedClients.map(client => (
                                 <TableRow key={client.id} className="hover:bg-muted/50">
                                     <TableCell className="font-medium">
-<<<<<<< HEAD
                                         {client.seller_id}
-=======
-                                        <Link to={`/registrar?id=${client.id}`} className="text-blue-500 hover:underline">{client.id}</Link>
->>>>>>> 46757cb8b1c8fc51f2e90970be7ebce9a8d9feb7
                                     </TableCell>
                                     <TableCell>{client.store_name}</TableCell>
                                     <TableCell>{client.seller_email}</TableCell>
                                     <TableCell>
                                         <Badge variant={client.status === 'Ativo' ? 'default' : 'destructive'} className={cn(client.status === 'Ativo' ? 'bg-green-600' : 'bg-red-600', 'text-white')}>{client.status}</Badge>
                                     </TableCell>
-<<<<<<< HEAD
                                     <TableCell className="text-right space-x-2">
                                         <Button variant="ghost" size="icon" onClick={() => navigate(`/registrar?id=${client.id}`)}>
                                             <Pencil className="h-4 w-4 text-blue-500" />
                                         </Button>
-=======
-                                    <TableCell className="text-right">
->>>>>>> 46757cb8b1c8fc51f2e90970be7ebce9a8d9feb7
                                         <Button variant="ghost" size="icon" onClick={() => setClientToDelete(client)}>
                                             <Trash2 className="h-4 w-4 text-red-500" />
                                         </Button>
@@ -279,11 +234,7 @@ const ListingClient = () => {
                         <Card key={client.id} className="w-full">
                             <CardHeader>
                                 <CardTitle className="flex justify-between items-start text-base">
-<<<<<<< HEAD
                                     <span className="break-all pr-2">{client.store_name}</span>
-=======
-                                    <Link to={`/registrar?id=${client.id}`} className="text-blue-500 hover:underline break-all pr-2">{client.store_name}</Link>
->>>>>>> 46757cb8b1c8fc51f2e90970be7ebce9a8d9feb7
                                     <Badge variant={client.status === 'Ativo' ? 'default' : 'destructive'} className={cn(client.status === 'Ativo' ? 'bg-green-600' : 'bg-red-600', 'text-white flex-shrink-0')}>{client.status}</Badge>
                                 </CardTitle>
                             </CardHeader>
@@ -291,16 +242,11 @@ const ListingClient = () => {
                                 <p><strong className="text-muted-foreground">ID:</strong> {client.seller_id}</p>
                                 <p className="break-all"><strong className="text-muted-foreground">Email:</strong> {client.seller_email}</p>
                             </CardContent>
-<<<<<<< HEAD
                             <CardFooter className="justify-end space-x-2">
                                 <Button variant="outline" size="icon" onClick={() => navigate(`/registrar?id=${client.id}`)}>
                                     <Pencil className="h-5 w-5 text-blue-500" />
                                 </Button>
                                 <Button variant="outline" size="icon" onClick={() => setClientToDelete(client)}>
-=======
-                            <CardFooter className="justify-end">
-                                <Button variant="ghost" size="icon" onClick={() => setClientToDelete(client)}>
->>>>>>> 46757cb8b1c8fc51f2e90970be7ebce9a8d9feb7
                                     <Trash2 className="h-5 w-5 text-red-500" />
                                 </Button>
                             </CardFooter>
