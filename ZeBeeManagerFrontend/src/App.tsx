@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "./components/ThemeProvider";
 import MainLayout from "./components/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -28,10 +28,20 @@ const AppRoutes = () => {
 
             <Route element={<ProtectedRoute />}>
                 <Route element={<MainLayout />}>
-                    {isSuperuser && <Route path="/dashboard" element={<Dashboard />} />}
+                    {/* Rota do Dashboard apenas para Superusuários */}
+                    {isSuperuser ? (
+                        <Route path="/dashboard" element={<Dashboard />} />
+                    ) : (
+                        // Se não for superusuário, qualquer tentativa de ir para /dashboard redireciona
+                        <Route path="/dashboard" element={<Navigate to="/lista-clientes" replace />} />
+                    )}
+                    
                     <Route path="/registrar" element={<ClientRegistration />} />
                     <Route path="/lista-clientes" element={<ListingClient />} />
-                    <Route path="/dashboard" element={isSuperuser ? <Dashboard /> : <ListingClient />} />
+                    
+                    {/* Rota inicial padrão após o login */}
+                    <Route index element={isSuperuser ? <Navigate to="/dashboard" /> : <Navigate to="/lista-clientes" />} />
+
                 </Route>
             </Route>
             
