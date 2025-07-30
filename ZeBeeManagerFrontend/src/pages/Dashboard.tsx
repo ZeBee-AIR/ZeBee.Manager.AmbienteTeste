@@ -27,13 +27,14 @@ interface MonthlyPerformanceData {
     waiveMonthlyFee?: boolean;
 }
 
+// INTERFACE CORRIGIDA: Adicionados os novos campos do cliente
 interface ClientData {
     id: number;
     squad: number;
-    seller_id: string; // Adicionado para o modal
-    store_name: string; // Adicionado para o modal
-    seller_email: string; // Adicionado para o modal
-    phone_number: string | null; // Adicionado para o modal
+    seller_id: string;
+    store_name: string;
+    seller_email: string;
+    phone_number: string | null;
     plan_value: string;
     client_commission_percentage: string;
     has_special_commission: boolean;
@@ -92,7 +93,7 @@ const Dashboard = () => {
         from: startOfMonth(subMonths(new Date(), 1)),
         to: endOfMonth(new Date()),
     });
-    const [isChurnModalOpen, setIsChurnModalOpen] = useState(false); // Estado para o modal
+    const [isChurnModalOpen, setIsChurnModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -132,49 +133,41 @@ const Dashboard = () => {
         
         const squadNameMap = new Map(squads.map(s => [s.id, s.name]));
         
-        let totalCommissionInPeriod = 0;
+        let totalRecurrenceForPeriod = 0;
+        let totalCommissionForPeriod = 0;
         const companyHistoryData: { month: string; revenue: number; commission: number }[] = [];
         const squadMetrics = new Map(squads.map(s => [s.id, { revenue: 0, activeClients: 0, newClients: 0, churns: 0 }]));
 
-        // LÓGICA CORRIGIDA: Calcula a recorrência total uma vez
-        const totalRecurrenceInPeriod = activeClientsNow.reduce((sum, client) => {
-            // Simplificado: Assume que se está ativo, paga a recorrência no período.
-            // Lógica mais complexa poderia verificar se o cliente foi ativo em algum mês do período.
-            return sum + parseFloat(client.plan_value || '0');
-        }, 0);
-
-
         monthsInInterval.forEach(monthDate => {
-            let monthlyRecurrence = 0; // Usado apenas para o gráfico
-            let monthlyCommission = 0;
-            const startOfMonthDate = startOfMonth(monthDate);
-            const endOfMonthDate = endOfMonth(monthDate);
+            let recurrenceForThisMonth = 0;
+            let commissionForThisMonth = 0;
             const yearKey = getYear(monthDate).toString();
             const monthKey = format(monthDate, 'MMMM', { locale: enUS }).toLowerCase();
     
             clients.forEach(client => {
                 const createdAt = parseISO(client.created_at);
                 const statusChangedAt = client.status_changed_at ? parseISO(client.status_changed_at) : null;
-                const planValue = parseFloat(client.plan_value || '0');
-                const commissionPercentage = parseFloat(client.client_commission_percentage || '0') / 100;
-                const hasSpecialCommission = client.has_special_commission;
-                const specialCommissionThreshold = parseFloat(client.special_commission_threshold || '0');
-                
-                const monthData = client.monthly_data?.[yearKey]?.[monthKey];
-    
-                const wasActiveInMonth = createdAt <= endOfMonthDate && (client.status === 'Ativo' || (statusChangedAt && statusChangedAt > startOfMonthDate));
+                const wasActiveInMonth = createdAt <= endOfMonth(monthDate) && (client.status === 'Ativo' || (statusChangedAt && statusChangedAt > startOfMonth(monthDate)));
     
                 if (wasActiveInMonth) {
+                    const monthData = client.monthly_data?.[yearKey]?.[monthKey];
+                    
+                    // Cálculo da Recorrência
                     if (!monthData?.waiveMonthlyFee) {
-                        monthlyRecurrence += planValue;
+                        recurrenceForThisMonth += parseFloat(client.plan_value || '0');
                     }
                     
+                    // Cálculo da Comissão
                     if (!monthData?.waiveCommission) {
-                        const revenueFromMonthlyData = parseFloat(monthData?.revenue || '0');
-                        if (revenueFromMonthlyData > 0) {
+                        const revenue = parseFloat(monthData?.revenue || '0');
+                        if (revenue > 0) {
+                            const commissionPercentage = parseFloat(client.client_commission_percentage || '0') / 100;
+                            const hasSpecial = client.has_special_commission;
+                            const threshold = parseFloat(client.special_commission_threshold || '0');
+                            
                             let isCommissionable = false;
-                            if (hasSpecialCommission) {
-                                if (revenueFromMonthlyData > specialCommissionThreshold) {
+                            if (hasSpecial) {
+                                if (revenue > threshold) {
                                     isCommissionable = true;
                                 }
                             } else {
@@ -182,29 +175,32 @@ const Dashboard = () => {
                             }
 
                             if (isCommissionable) {
-                                monthlyCommission += revenueFromMonthlyData * commissionPercentage;
+                                commissionForThisMonth += revenue * commissionPercentage;
                             }
-                        }
-                    }
-                    
-                    if (client.squad) {
-                        const squadPerf = squadMetrics.get(client.squad);
-                        if (squadPerf && !monthData?.waiveMonthlyFee) {
-                            squadPerf.revenue += planValue;
                         }
                     }
                 }
             });
             
-            totalCommissionInPeriod += monthlyCommission;
-            companyHistoryData.push({ month: format(monthDate, 'MMM', { locale: ptBR }), revenue: monthlyRecurrence + monthlyCommission, commission: monthlyCommission });
+            totalRecurrenceForPeriod += recurrenceForThisMonth;
+            totalCommissionForPeriod += commissionForThisMonth;
+            companyHistoryData.push({
+                month: format(monthDate, 'MMM', { locale: ptBR }),
+                revenue: recurrenceForThisMonth + commissionForThisMonth,
+                commission: commissionForThisMonth
+            });
         });
 
+        // Lógica para squads (mantida como no original)
         clients.forEach(client => {
             if (!client.squad) return;
             const squadPerf = squadMetrics.get(client.squad);
             if (squadPerf) {
-                if(client.status === 'Ativo') squadPerf.activeClients += 1;
+                if (client.status === 'Ativo') {
+                    squadPerf.activeClients += 1;
+                    // Soma a recorrência ao squad
+                    squadPerf.revenue += parseFloat(client.plan_value || '0');
+                }
                 if (isWithinInterval(parseISO(client.created_at), interval)) squadPerf.newClients += 1;
                 if (client.status === 'Inativo' && client.status_changed_at && isWithinInterval(parseISO(client.status_changed_at), interval)) squadPerf.churns += 1;
             }
@@ -219,8 +215,8 @@ const Dashboard = () => {
             newClientsInPeriod,
             cancelledClientsInPeriod: clientsCancelledInPeriod.length,
             totalChurnRevenueLoss,
-            totalRevenue: totalRecurrenceInPeriod + totalCommissionInPeriod,
-            totalCommission: totalCommissionInPeriod,
+            totalRevenue: totalRecurrenceForPeriod + totalCommissionForPeriod,
+            totalCommission: totalCommissionForPeriod,
             companyHistoryData,
             squadRevenueData,
             activeClientsBySquadData,
@@ -228,7 +224,6 @@ const Dashboard = () => {
             churnedClientsDetails: clientsCancelledInPeriod
         };
     }, [clients, squads, dateRange]);
-
 
     if (loading) return <div className="flex justify-center items-center h-screen"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
     if (error) return <div className="flex justify-center items-center h-screen text-destructive"><AlertCircle className="h-12 w-12 mr-4"/> {error}</div>;
