@@ -1,13 +1,14 @@
 import { useState, useEffect, FormEvent } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch"; // Importando o Switch
 import { toast } from "@/hooks/use-toast";
-import { UserPlus, DollarSign, TrendingUp, Edit, Loader2, AlertCircle, Activity, Users2, Calendar as CalendarIcon } from 'lucide-react';
+import { UserPlus, DollarSign, TrendingUp, Edit, Loader2, AlertCircle, Activity, Users2, Calendar as CalendarIcon, Phone } from 'lucide-react';
 import { Calendar } from "@/components/ui/calendar";
 import { parseISO, format } from 'date-fns';
 import { cn } from "@/lib/utils";
@@ -24,19 +25,28 @@ type MonthlyPerformance = {
 };
 type YearlyData = { [month: string]: MonthlyPerformance };
 type MonthlyData = { [year: string]: YearlyData };
+
+// Atualizando o tipo do formulário
 type ClientFormData = {
     id?: number; squad: number | null;
     sellerName: string; storeName: string; sellerId: string; sellerEmail: string;
+    phoneNumber: string; // NOVO CAMPO
     contractedPlan: string; planValue: string; clientCommissionPercentage: string;
+    hasSpecialCommission: boolean; // NOVO CAMPO
+    specialCommissionThreshold: string; // NOVO CAMPO
     monthlyData: MonthlyData; status: string;
     createdAt: Date | null;
     statusChangedAt: Date | null;
 };
 
 const createEmptyMonthlyData = (): MonthlyData => ({});
+// Atualizando o estado inicial do formulário
 const emptyFormState: ClientFormData = {
     squad: null, sellerName: '', storeName: '', sellerId: '', sellerEmail: '',
+    phoneNumber: '', // NOVO CAMPO
     contractedPlan: '', planValue: '', clientCommissionPercentage: '',
+    hasSpecialCommission: false, // NOVO CAMPO
+    specialCommissionThreshold: '', // NOVO CAMPO
     status: 'Ativo', monthlyData: createEmptyMonthlyData(), createdAt: new Date(), statusChangedAt: null
 };
 
@@ -61,12 +71,16 @@ const ClientRegistration = () => {
                 if (clientRes) {
                     const clientData = clientRes.data;
                     setIsEditMode(true);
+                    // Populando o formulário com os novos dados
                     setFormData({
                         id: clientData.id, squad: clientData.squad,
                         sellerName: clientData.seller_name, storeName: clientData.store_name,
                         sellerId: clientData.seller_id, sellerEmail: clientData.seller_email,
+                        phoneNumber: clientData.phone_number || '', // NOVO CAMPO
                         contractedPlan: clientData.contracted_plan, planValue: clientData.plan_value,
                         clientCommissionPercentage: clientData.client_commission_percentage,
+                        hasSpecialCommission: clientData.has_special_commission || false, // NOVO CAMPO
+                        specialCommissionThreshold: clientData.special_commission_threshold || '', // NOVO CAMPO
                         monthlyData: clientData.monthly_data || createEmptyMonthlyData(),
                         status: clientData.status, createdAt: clientData.created_at ? parseISO(clientData.created_at) : new Date(),
                         statusChangedAt: clientData.status_changed_at ? parseISO(clientData.status_changed_at) : null,
@@ -81,8 +95,12 @@ const ClientRegistration = () => {
         setFormData(prev => ({ ...prev, [field]: date || null }));
     };
 
-    const handleInputChange = (field: keyof Omit<ClientFormData, 'monthlyData' | 'createdAt' | 'statusChangedAt'>, value: string | number | null) => {
+    const handleInputChange = (field: keyof Omit<ClientFormData, 'monthlyData' | 'createdAt' | 'statusChangedAt' | 'hasSpecialCommission'>, value: string | number | null) => {
         setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleSwitchChange = (field: 'hasSpecialCommission', checked: boolean) => {
+        setFormData(prev => ({ ...prev, [field]: checked }));
     };
 
     const handleMonthlyDataChange = (year: number, month: string, field: keyof Omit<MonthlyPerformance, 'waiveCommission' | 'waiveMonthlyFee'>, value: string) => {
@@ -108,16 +126,20 @@ const ClientRegistration = () => {
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
+        // Enviando os novos campos no payload
         const payload = {
             squad: formData.squad,
             seller_name: formData.sellerName,
             store_name: formData.storeName,
             seller_id: formData.sellerId,
             seller_email: formData.sellerEmail,
+            phone_number: formData.phoneNumber, // NOVO CAMPO
             contracted_plan: formData.contractedPlan,
             plan_value: formData.planValue,
             client_commission_percentage: formData.clientCommissionPercentage,
-            monthly_data: formData.monthlyData, // Já contém os novos campos
+            has_special_commission: formData.hasSpecialCommission, // NOVO CAMPO
+            special_commission_threshold: formData.hasSpecialCommission ? formData.specialCommissionThreshold : null, // NOVO CAMPO
+            monthly_data: formData.monthlyData,
             status: formData.status,
             created_at: formData.createdAt?.toISOString(),
             status_changed_at: formData.statusChangedAt?.toISOString() || null
@@ -145,95 +167,58 @@ const ClientRegistration = () => {
             <div className="max-w-4xl mx-auto">
                 <div className="mb-8"><h1 className="text-3xl font-bold">{isEditMode ? `Editando: ${formData.storeName}` : 'Registro de Cliente'}</h1></div>
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    <Card><CardHeader><CardTitle className="flex items-center gap-2">{isEditMode ? <Edit className="text-blue-500"/> : <UserPlus className="text-blue-500"/>}Informações Básicas</CardTitle></CardHeader><CardContent className="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <Label>Nome do Cliente *</Label>
-                            <Input value={formData.sellerName} onChange={e => handleInputChange('sellerName', e.target.value)} required />
-                        </div>
-                        <div><Label>Nome da Loja *</Label><Input value={formData.storeName} onChange={e => handleInputChange('storeName', e.target.value)} required /></div>
-                        <div>
-                            <Label>ID do Cliente</Label>
-                            <Input value={formData.sellerId} onChange={e => handleInputChange('sellerId', e.target.value)} />
-                        </div>
-                        <div>
-                            <Label>Email</Label>
-                            <Input type="email" value={formData.sellerEmail} onChange={e => handleInputChange('sellerEmail', e.target.value)}/>
-                        </div>
-                        <div>
-                            <Label>Squad Responsável</Label>
-                            <Select 
-                                value={formData.squad?.toString() || ''} 
-                                onValueChange={(v) => {
-                                    const numValue = parseInt(v, 10);
-                                    handleInputChange('squad', isNaN(numValue) ? null : numValue);
-                                }} 
-                                disabled={!squads.length}
-                            >
-                                <SelectTrigger><SelectValue placeholder={squads.length ? "Selecione um squad" : "Nenhum squad cadastrado"} /></SelectTrigger>
-                                <SelectContent>{squads.map(s => (<SelectItem key={s.id} value={s.id.toString()}><span className="flex items-center"><Users2 className="w-4 h-4 mr-2" />{s.name}</span></SelectItem>))}</SelectContent>
-                            </Select>
-                        </div>
-                        <div><Label>Status</Label><Select value={formData.status} onValueChange={(v) => handleInputChange('status', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Ativo"><span className="flex items-center"><Activity className="text-green-500 w-4 h-4 mr-2"/>Ativo</span></SelectItem><SelectItem value="Inativo"><span className="flex items-center"><Activity className="text-red-500 w-4 h-4 mr-2"/>Inativo</span></SelectItem></SelectContent></Select></div>
-                        <div>
-                            <Label>Registrado em</Label>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !formData.createdAt && "text-muted-foreground")}>
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {formData.createdAt ? format(formData.createdAt, "PPP", { locale: ptBR }) : <span>Selecione uma data</span>}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                    <Calendar mode="single" selected={formData.createdAt ?? undefined} onSelect={(date) => handleDateChange('createdAt', date)} initialFocus />
-                                </PopoverContent>
-                            </Popover>
-                        </div>
-                        <div>
-                            <Label>Contrato Rescindido em</Label>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !formData.statusChangedAt && "text-muted-foreground")}>
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {formData.statusChangedAt ? format(formData.statusChangedAt, "PPP", { locale: ptBR }) : <span>(Não rescindido)</span>}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                    <Calendar mode="single" selected={formData.statusChangedAt ?? undefined} onSelect={(date) => handleDateChange('statusChangedAt', date)} />
-                                </PopoverContent>
-                            </Popover>
-                        </div>
-                    </CardContent></Card>
-                    <Card><CardHeader><CardTitle className="flex items-center gap-2"><DollarSign className="text-green-500"/>Contrato</CardTitle></CardHeader><CardContent className="grid md:grid-cols-3 gap-4">
-                        <div>
-                            <Label>Plano *</Label>
-                            <Select value={formData.contractedPlan} onValueChange={v => handleInputChange('contractedPlan', v)}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Selecione" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Gestão Azazuu - Pro">Gestão Azazuu - Basic</SelectItem>
-                                    <SelectItem value="Gestão Azazuu - Pro">Gestão Azazuu - Pro</SelectItem>
-                                    <SelectItem value="Gestão Azazuu - Advanced">Gestão Azazuu - Advanced</SelectItem>
-                                    <SelectItem value="Gestão de ADS - Basic">Gestão de ADS - Basic</SelectItem>
-                                    <SelectItem value="Gestão de ADS - Pro">Gestão de ADS - Pro</SelectItem>
-                                    <SelectItem value="Gestão de ADS - Advanced">Gestão de ADS - Advanced</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div><Label>Valor do Plano (R$)</Label><Input type="number" value={formData.planValue} onChange={e => handleInputChange('planValue', e.target.value)} /></div>
-                        <div><Label>Comissão (%)</Label><Input type="number" value={formData.clientCommissionPercentage} onChange={e => handleInputChange('clientCommissionPercentage', e.target.value)} /></div>
-                    </CardContent></Card>
+                    <Card>
+                        <CardHeader><CardTitle className="flex items-center gap-2">{isEditMode ? <Edit className="text-blue-500"/> : <UserPlus className="text-blue-500"/>}Informações Básicas</CardTitle></CardHeader>
+                        <CardContent className="grid md:grid-cols-2 gap-4">
+                            <div><Label>Nome do Cliente *</Label><Input value={formData.sellerName} onChange={e => handleInputChange('sellerName', e.target.value)} required /></div>
+                            <div><Label>Nome da Loja *</Label><Input value={formData.storeName} onChange={e => handleInputChange('storeName', e.target.value)} required /></div>
+                            <div><Label>ID do Cliente</Label><Input value={formData.sellerId} onChange={e => handleInputChange('sellerId', e.target.value)} /></div>
+                            <div><Label>Email</Label><Input type="email" value={formData.sellerEmail} onChange={e => handleInputChange('sellerEmail', e.target.value)}/></div>
+                            {/* NOVO CAMPO DE TELEFONE */}
+                            <div><Label className="flex items-center gap-2"><Phone className="w-4 h-4" />Telefone</Label><Input value={formData.phoneNumber} onChange={e => handleInputChange('phoneNumber', e.target.value)} placeholder="(11) 98765-4321" /></div>
+                            
+                            <div><Label>Squad Responsável</Label><Select value={formData.squad?.toString() || ''} onValueChange={(v) => { const numValue = parseInt(v, 10); handleInputChange('squad', isNaN(numValue) ? null : numValue); }} disabled={!squads.length}><SelectTrigger><SelectValue placeholder={squads.length ? "Selecione um squad" : "Nenhum squad cadastrado"} /></SelectTrigger><SelectContent>{squads.map(s => (<SelectItem key={s.id} value={s.id.toString()}><span className="flex items-center"><Users2 className="w-4 h-4 mr-2" />{s.name}</span></SelectItem>))}</SelectContent></Select></div>
+                            <div><Label>Status</Label><Select value={formData.status} onValueChange={(v) => handleInputChange('status', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Ativo"><span className="flex items-center"><Activity className="text-green-500 w-4 h-4 mr-2"/>Ativo</span></SelectItem><SelectItem value="Inativo"><span className="flex items-center"><Activity className="text-red-500 w-4 h-4 mr-2"/>Inativo</span></SelectItem></SelectContent></Select></div>
+                            <div><Label>Registrado em</Label><Popover><PopoverTrigger asChild><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !formData.createdAt && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{formData.createdAt ? format(formData.createdAt, "PPP", { locale: ptBR }) : <span>Selecione uma data</span>}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={formData.createdAt ?? undefined} onSelect={(date) => handleDateChange('createdAt', date)} initialFocus /></PopoverContent></Popover></div>
+                            <div><Label>Contrato Rescindido em</Label><Popover><PopoverTrigger asChild><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !formData.statusChangedAt && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{formData.statusChangedAt ? format(formData.statusChangedAt, "PPP", { locale: ptBR }) : <span>(Não rescindido)</span>}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={formData.statusChangedAt ?? undefined} onSelect={(date) => handleDateChange('statusChangedAt', date)} /></PopoverContent></Popover></div>
+                        </CardContent>
+                    </Card>
 
                     <Card>
-                        <CardHeader>
-                            <div className="flex justify-between items-center">
-                                <CardTitle className="flex items-center gap-2"><TrendingUp className="text-purple-500"/>Performance Mensal</CardTitle>
-                                <Select value={selectedYear.toString()} onValueChange={v => setSelectedYear(parseInt(v))}>
-                                    <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
-                                    <SelectContent>{years.map(y => <SelectItem key={y} value={y.toString()}>{y}</SelectItem>)}</SelectContent>
-                                </Select>
+                        <CardHeader><CardTitle className="flex items-center gap-2"><DollarSign className="text-green-500"/>Contrato</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="grid md:grid-cols-3 gap-4">
+                                <div><Label>Plano *</Label><Select value={formData.contractedPlan} onValueChange={v => handleInputChange('contractedPlan', v)}><SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger><SelectContent><SelectItem value="Gestão Azazuu - Basic">Gestão Azazuu - Basic</SelectItem><SelectItem value="Gestão Azazuu - Pro">Gestão Azazuu - Pro</SelectItem><SelectItem value="Gestão Azazuu - Advanced">Gestão Azazuu - Advanced</SelectItem><SelectItem value="Gestão de ADS - Basic">Gestão de ADS - Basic</SelectItem><SelectItem value="Gestão de ADS - Pro">Gestão de ADS - Pro</SelectItem><SelectItem value="Gestão de ADS - Advanced">Gestão de ADS - Advanced</SelectItem></SelectContent></Select></div>
+                                <div><Label>Valor do Plano (R$)</Label><Input type="number" value={formData.planValue} onChange={e => handleInputChange('planValue', e.target.value)} /></div>
+                                <div><Label>Comissão (%)</Label><Input type="number" value={formData.clientCommissionPercentage} onChange={e => handleInputChange('clientCommissionPercentage', e.target.value)} /></div>
                             </div>
-                        </CardHeader>
+                            
+                            {/* NOVA SEÇÃO DE COMISSÃO ESPECIAL */}
+                            <div className="border-t pt-4 space-y-4">
+                                <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                    <div className="space-y-0.5">
+                                        <Label className="text-base">Comissão Especial</Label>
+                                        <p className="text-sm text-muted-foreground">Ativar se o cliente paga comissão apenas após atingir um gatilho de faturamento.</p>
+                                    </div>
+                                    <Switch checked={formData.hasSpecialCommission} onCheckedChange={(checked) => handleSwitchChange('hasSpecialCommission', checked)} />
+                                </div>
+                                {formData.hasSpecialCommission && (
+                                    <div>
+                                        <Label>Gatilho de Faturamento para Comissão (R$)</Label>
+                                        <Input 
+                                            type="number" 
+                                            value={formData.specialCommissionThreshold} 
+                                            onChange={e => handleInputChange('specialCommissionThreshold', e.target.value)} 
+                                            placeholder="50000.00"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader><div className="flex justify-between items-center"><CardTitle className="flex items-center gap-2"><TrendingUp className="text-purple-500"/>Performance Mensal</CardTitle><Select value={selectedYear.toString()} onValueChange={v => setSelectedYear(parseInt(v))}><SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger><SelectContent>{years.map(y => <SelectItem key={y} value={y.toString()}>{y}</SelectItem>)}</SelectContent></Select></div></CardHeader>
                         <CardContent className="grid lg:grid-cols-2 gap-6">
                             {months.map(month => {
                                 const monthData = formData.monthlyData?.[selectedYear]?.[month];
@@ -249,24 +234,9 @@ const ClientRegistration = () => {
                                             <div><Label className="text-xs">TACOS (%)</Label><Input type="number" value={monthData?.tacos || ''} onChange={e => handleMonthlyDataChange(selectedYear, month, 'tacos', e.target.value)} /></div>
                                         </div>
                                         <p className="text-xs text-muted-foreground">Comissão sobre receita: R$ {calculatedCommission.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>
-                                        
                                         <div className="flex items-center space-x-4 pt-2">
-                                            <div className="flex items-center space-x-2">
-                                                <Checkbox
-                                                    id={`waiveFee-${selectedYear}-${month}`}
-                                                    checked={monthData?.waiveMonthlyFee}
-                                                    onCheckedChange={(checked) => handleMonthlyCheckboxChange(selectedYear, month, 'waiveMonthlyFee', !!checked)}
-                                                />
-                                                <Label htmlFor={`waiveFee-${selectedYear}-${month}`} className="text-xs font-normal">Isentar Mensalidade</Label>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <Checkbox
-                                                    id={`waiveComm-${selectedYear}-${month}`}
-                                                    checked={monthData?.waiveCommission}
-                                                    onCheckedChange={(checked) => handleMonthlyCheckboxChange(selectedYear, month, 'waiveCommission', !!checked)}
-                                                />
-                                                <Label htmlFor={`waiveComm-${selectedYear}-${month}`} className="text-xs font-normal">Isentar Comissão</Label>
-                                            </div>
+                                            <div className="flex items-center space-x-2"><Checkbox id={`waiveFee-${selectedYear}-${month}`} checked={monthData?.waiveMonthlyFee} onCheckedChange={(checked) => handleMonthlyCheckboxChange(selectedYear, month, 'waiveMonthlyFee', !!checked)} /><Label htmlFor={`waiveFee-${selectedYear}-${month}`} className="text-xs font-normal">Isentar Mensalidade</Label></div>
+                                            <div className="flex items-center space-x-2"><Checkbox id={`waiveComm-${selectedYear}-${month}`} checked={monthData?.waiveCommission} onCheckedChange={(checked) => handleMonthlyCheckboxChange(selectedYear, month, 'waiveCommission', !!checked)} /><Label htmlFor={`waiveComm-${selectedYear}-${month}`} className="text-xs font-normal">Isentar Comissão</Label></div>
                                         </div>
                                     </div>
                                 )

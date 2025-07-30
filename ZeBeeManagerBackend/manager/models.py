@@ -37,10 +37,16 @@ class Client(models.Model):
     store_name = models.CharField(max_length=200, verbose_name="Nome da Loja")
     seller_id = models.CharField(max_length=50, verbose_name="ID do Cliente", blank=True, null=True)
     seller_email = models.EmailField(verbose_name="Email do Cliente", blank=True, null=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True, verbose_name="Telefone") # NOVO CAMPO
+
     status = models.CharField(max_length=20, choices=[('Ativo', 'Ativo'), ('Inativo', 'Inativo')], default='Ativo')
     contracted_plan = models.CharField(max_length=100, verbose_name="Plano Contratado")
     plan_value = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Valor do Plano")
     client_commission_percentage = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Percentual de Comissão")
+
+    has_special_commission = models.BooleanField(default=False, verbose_name="Possui Comissão Especial?")
+    special_commission_threshold = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, verbose_name="Gatilho de Faturamento para Comissão Especial (R$)")
+
     monthly_data = models.JSONField(default=dict, verbose_name="Dados de Performance Mensal")
     created_at = models.DateTimeField(default=timezone.now, verbose_name="Data de Criação")
     status_changed_at = models.DateTimeField(null=True, blank=True, verbose_name="Data da Rescisão do Contrato")
