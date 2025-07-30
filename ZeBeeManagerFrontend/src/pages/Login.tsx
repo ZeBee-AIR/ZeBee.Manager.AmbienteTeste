@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Loader2 } from 'lucide-react';
+import api from '@/lib/api'; // Importar a instância do axios configurada
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -17,22 +18,22 @@ const Login = () => {
         e.preventDefault();
         setLoading(true);
 
-
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password }),
+            // Usar o novo endpoint de login do dj-rest-auth que retorna JWT
+            const response = await api.post('/auth/login/', {
+                username,
+                password,
             });
 
-            const data = await response.json();
+            // A resposta do JWT contém 'access_token' ou 'access'
+            const accessToken = response.data.access_token || response.data.access;
 
-            if (!response.ok) {
-                throw new Error(data.non_field_errors?.[0] || 'Falha no login. Verifique suas credenciais.');
+            if (!accessToken) {
+                throw new Error('Token de acesso não recebido. Tente novamente.');
             }
 
-            // Armazena o token de autenticação no localStorage
-            localStorage.setItem('authToken', data.key);
+            // Armazena o novo token JWT no localStorage
+            localStorage.setItem('authToken', accessToken);
             
             // Redireciona para o dashboard após o login
             navigate('/dashboard');
@@ -40,7 +41,7 @@ const Login = () => {
         } catch (err) {
             toast({
                 title: "Erro de Login",
-                description: err instanceof Error ? err.message : "Ocorreu um erro desconhecido.",
+                description: err instanceof Error ? err.message : "Credenciais inválidas. Por favor, verifique o seu utilizador e senha.",
                 variant: "destructive",
             });
         } finally {
@@ -58,16 +59,16 @@ const Login = () => {
                 <CardHeader className="items-center text-center">
                     <img src='/ZeBeeManager.png' className="h-16 w-16 mb-4" alt="ZeBee.Manager Logo" style={{ filter: 'brightness(0) saturate(100%) invert(29%) sepia(90%) saturate(1470%) hue-rotate(200deg) brightness(96%) contrast(93%)' }} />
                     <CardTitle className="text-2xl font-bold">Bem-vindo de volta</CardTitle>
-                    <CardDescription className="text-gray-300">Faça login para acessar seu painel.</CardDescription>
+                    <CardDescription className="text-gray-300">Faça login para aceder ao seu painel.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-2">
-                            <Label htmlFor="username">Usuário</Label>
+                            <Label htmlFor="username">Utilizador</Label>
                             <Input
                                 id="username"
                                 type="text"
-                                placeholder="seu.usuario"
+                                placeholder="seu.utilizador"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
                                 required
