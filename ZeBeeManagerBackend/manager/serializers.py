@@ -40,3 +40,13 @@ class ClientSerializer(serializers.ModelSerializer):
             'created_at',
             'status_changed_at'
         ]
+
+    def update(self, instance, validated_data):
+        monthly_data_from_request = validated_data.pop('monthly_data', None)
+        instance = super().update(instance, validated_data)
+
+        if monthly_data_from_request is not None:
+            instance.monthly_data = monthly_data_from_request
+            instance.save()
+
+        return instance
