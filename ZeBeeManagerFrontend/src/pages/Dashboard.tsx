@@ -132,13 +132,20 @@ const Dashboard = () => {
         
         const squadNameMap = new Map(squads.map(s => [s.id, s.name]));
         
-        let totalRecurrenceInPeriod = 0;
         let totalCommissionInPeriod = 0;
         const companyHistoryData: { month: string; revenue: number; commission: number }[] = [];
         const squadMetrics = new Map(squads.map(s => [s.id, { revenue: 0, activeClients: 0, newClients: 0, churns: 0 }]));
 
+        // LÓGICA CORRIGIDA: Calcula a recorrência total uma vez
+        const totalRecurrenceInPeriod = activeClientsNow.reduce((sum, client) => {
+            // Simplificado: Assume que se está ativo, paga a recorrência no período.
+            // Lógica mais complexa poderia verificar se o cliente foi ativo em algum mês do período.
+            return sum + parseFloat(client.plan_value || '0');
+        }, 0);
+
+
         monthsInInterval.forEach(monthDate => {
-            let monthlyRecurrence = 0;
+            let monthlyRecurrence = 0; // Usado apenas para o gráfico
             let monthlyCommission = 0;
             const startOfMonthDate = startOfMonth(monthDate);
             const endOfMonthDate = endOfMonth(monthDate);
@@ -158,23 +165,19 @@ const Dashboard = () => {
                 const wasActiveInMonth = createdAt <= endOfMonthDate && (client.status === 'Ativo' || (statusChangedAt && statusChangedAt > startOfMonthDate));
     
                 if (wasActiveInMonth) {
-                    // CÁLCULO DA RECORRÊNCIA (VALOR DO PLANO)
                     if (!monthData?.waiveMonthlyFee) {
                         monthlyRecurrence += planValue;
                     }
                     
-                    // CÁLCULO DA COMISSÃO (LÓGICA CORRIGIDA)
                     if (!monthData?.waiveCommission) {
                         const revenueFromMonthlyData = parseFloat(monthData?.revenue || '0');
                         if (revenueFromMonthlyData > 0) {
                             let isCommissionable = false;
                             if (hasSpecialCommission) {
-                                // Se for especial, só é comissionável se bater a meta
                                 if (revenueFromMonthlyData > specialCommissionThreshold) {
                                     isCommissionable = true;
                                 }
                             } else {
-                                // Se NÃO for especial, é sempre comissionável
                                 isCommissionable = true;
                             }
 
@@ -187,15 +190,13 @@ const Dashboard = () => {
                     if (client.squad) {
                         const squadPerf = squadMetrics.get(client.squad);
                         if (squadPerf && !monthData?.waiveMonthlyFee) {
-                            squadPerf.revenue += planValue; // Receita por squad baseada na recorrência
+                            squadPerf.revenue += planValue;
                         }
                     }
                 }
             });
             
-            totalRecurrenceInPeriod += monthlyRecurrence;
             totalCommissionInPeriod += monthlyCommission;
-            // O campo 'revenue' do gráfico agora é a soma de recorrência e comissão
             companyHistoryData.push({ month: format(monthDate, 'MMM', { locale: ptBR }), revenue: monthlyRecurrence + monthlyCommission, commission: monthlyCommission });
         });
 
@@ -218,13 +219,13 @@ const Dashboard = () => {
             newClientsInPeriod,
             cancelledClientsInPeriod: clientsCancelledInPeriod.length,
             totalChurnRevenueLoss,
-            totalRevenue: totalRecurrenceInPeriod + totalCommissionInPeriod, // Receita Total = Recorrência + Comissão
+            totalRevenue: totalRecurrenceInPeriod + totalCommissionInPeriod,
             totalCommission: totalCommissionInPeriod,
             companyHistoryData,
             squadRevenueData,
             activeClientsBySquadData,
             squadAcquisitionChurnData,
-            churnedClientsDetails: clientsCancelledInPeriod // Passando os detalhes para o modal
+            churnedClientsDetails: clientsCancelledInPeriod
         };
     }, [clients, squads, dateRange]);
 
