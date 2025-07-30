@@ -1,42 +1,43 @@
 import { useState, FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+// O useNavigate não será mais necessário para o redirecionamento principal
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Loader2 } from 'lucide-react';
-import api from '@/lib/api'; // Importar a instância do axios configurada
+import api from '@/lib/api';
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
+    // O navigate ainda pode ser útil para outras coisas, então o mantemos.
+    // const navigate = useNavigate(); 
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
         try {
-            // Usar o novo endpoint de login do dj-rest-auth que retorna JWT
             const response = await api.post('/auth/login/', {
                 username,
                 password,
             });
 
-            // A resposta do JWT contém 'access_token' ou 'access'
             const accessToken = response.data.access_token || response.data.access;
 
             if (!accessToken) {
                 throw new Error('Token de acesso não recebido. Tente novamente.');
             }
 
-            // Armazena o novo token JWT no localStorage
             localStorage.setItem('authToken', accessToken);
             
-            // Redireciona para o dashboard após o login
-            navigate('/dashboard');
+            // AQUI ESTÁ A CORREÇÃO:
+            // Força um recarregamento completo da página.
+            // Isso garante que o AuthContext e todas as rotas sejam reinicializados
+            // com o novo estado de autenticação.
+            window.location.reload();
 
         } catch (err) {
             toast({
@@ -51,7 +52,6 @@ const Login = () => {
 
     return (
         <div className="relative flex items-center justify-center min-h-screen w-full bg-[#020817] overflow-hidden">
-            {/* Focos de luz no fundo */}
             <div className="absolute top-[-10%] right-[0%] w-96 h-96 bg-blue-500/50 rounded-full filter blur-3xl opacity-30 animate-blob"></div>
             <div className="absolute bottom-[-10%] left-[5%] w-96 h-96 bg-purple-500/50 rounded-full filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
 
