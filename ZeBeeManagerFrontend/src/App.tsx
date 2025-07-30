@@ -19,6 +19,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="dark" storageKey="contract-manager-theme">
       <TooltipProvider>
+        <div className="w-100 bg-red-600 text-yellow-50 text-center text-2xl">Você está no ambiente de testes.</div>
         <Toaster />
         <Sonner />
         <BrowserRouter>
