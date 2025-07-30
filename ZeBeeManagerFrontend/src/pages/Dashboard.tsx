@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import { Users, TrendingDown, DollarSign, Target, CalendarIcon, Loader2, AlertCircle, TrendingUp, UserPlus } from 'lucide-react';
+import { Users, TrendingDown, DollarSign, Target, CalendarIcon, Loader2, AlertCircle, TrendingUp, UserPlus, HelpCircle, X } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -9,9 +9,11 @@ import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { format, getYear, isWithinInterval, startOfMonth, endOfMonth, eachMonthOfInterval, parseISO, subMonths } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
+import { Tooltip as ShadTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import api from '@/lib/api';
 
-
+// Tipos de dados
 interface Squad {
     id: number;
     name: string;
@@ -28,13 +30,58 @@ interface MonthlyPerformanceData {
 interface ClientData {
     id: number;
     squad: number;
+    seller_id: string; // Adicionado para o modal
+    store_name: string; // Adicionado para o modal
+    seller_email: string; // Adicionado para o modal
+    phone_number: string | null; // Adicionado para o modal
     plan_value: string;
     client_commission_percentage: string;
+    has_special_commission: boolean;
+    special_commission_threshold: string | null;
     monthly_data: { [year: string]: { [month: string]: MonthlyPerformanceData } };
     status: 'Ativo' | 'Inativo';
     created_at: string;
     status_changed_at: string | null;
 }
+
+// Componente do Modal de Churn
+const ChurnDetailsModal = ({ clients, onClose }: { clients: ClientData[], onClose: () => void }) => (
+    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+        <Card className="w-full max-w-4xl max-h-[90vh] flex flex-col bg-card">
+            <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Clientes em Churn no Período</CardTitle>
+                <Button variant="ghost" size="icon" onClick={onClose}>
+                    <X className="h-6 w-6" />
+                </Button>
+            </CardHeader>
+            <CardContent className="flex-grow overflow-y-auto">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>ID</TableHead>
+                            <TableHead>Nome da Loja</TableHead>
+                            <TableHead>E-mail</TableHead>
+                            <TableHead>Telefone</TableHead>
+                            <TableHead>Data do Churn</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {clients.map(client => (
+                            <TableRow key={client.id}>
+                                <TableCell>{client.seller_id}</TableCell>
+                                <TableCell>{client.store_name}</TableCell>
+                                <TableCell>{client.seller_email}</TableCell>
+                                <TableCell>{client.phone_number || 'N/A'}</TableCell>
+                                <TableCell>{client.status_changed_at ? format(parseISO(client.status_changed_at), 'dd/MM/yyyy') : 'N/A'}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+    </div>
+);
+
 
 const Dashboard = () => {
     const [clients, setClients] = useState<ClientData[]>([]);
@@ -45,6 +92,7 @@ const Dashboard = () => {
         from: startOfMonth(subMonths(new Date(), 1)),
         to: endOfMonth(new Date()),
     });
+    const [isChurnModalOpen, setIsChurnModalOpen] = useState(false); // Estado para o modal
 
     useEffect(() => {
         const fetchData = async () => {
@@ -69,7 +117,8 @@ const Dashboard = () => {
             return {
                 totalActiveClients: 0, newClientsInPeriod: 0, cancelledClientsInPeriod: 0,
                 totalChurnRevenueLoss: 0, totalRevenue: 0, totalCommission: 0,
-                companyHistoryData: [], squadRevenueData: [], activeClientsBySquadData: [], squadAcquisitionChurnData: []
+                companyHistoryData: [], squadRevenueData: [], activeClientsBySquadData: [], squadAcquisitionChurnData: [],
+                churnedClientsDetails: []
             };
         }
     
@@ -83,13 +132,13 @@ const Dashboard = () => {
         
         const squadNameMap = new Map(squads.map(s => [s.id, s.name]));
         
-        let totalRevenueInPeriod = 0;
+        let totalRecurrenceInPeriod = 0;
         let totalCommissionInPeriod = 0;
         const companyHistoryData: { month: string; revenue: number; commission: number }[] = [];
         const squadMetrics = new Map(squads.map(s => [s.id, { revenue: 0, activeClients: 0, newClients: 0, churns: 0 }]));
 
         monthsInInterval.forEach(monthDate => {
-            let monthlyRevenue = 0;
+            let monthlyRecurrence = 0;
             let monthlyCommission = 0;
             const startOfMonthDate = startOfMonth(monthDate);
             const endOfMonthDate = endOfMonth(monthDate);
@@ -101,36 +150,50 @@ const Dashboard = () => {
                 const statusChangedAt = client.status_changed_at ? parseISO(client.status_changed_at) : null;
                 const planValue = parseFloat(client.plan_value || '0');
                 const commissionPercentage = parseFloat(client.client_commission_percentage || '0') / 100;
+
+                // NOVA LÓGICA DE COMISSÃO ESPECIAL
+                const hasSpecialCommission = client.has_special_commission;
+                const specialCommissionThreshold = parseFloat(client.special_commission_threshold || '0');
                 
                 const monthData = client.monthly_data?.[yearKey]?.[monthKey];
     
                 const wasActiveInMonth = createdAt <= endOfMonthDate && (client.status === 'Ativo' || (statusChangedAt && statusChangedAt > startOfMonthDate));
     
                 if (wasActiveInMonth) {
+                    // CÁLCULO DA RECORRÊNCIA (VALOR DO PLANO)
                     if (!monthData?.waiveMonthlyFee) {
-                        monthlyRevenue += planValue;
+                        monthlyRecurrence += planValue;
                     }
                     
+                    // CÁLCULO DA COMISSÃO
                     if (!monthData?.waiveCommission) {
-                        const revenueFromMonthlyData = monthData?.revenue;
-                        if (revenueFromMonthlyData && parseFloat(revenueFromMonthlyData) > 0) {
-                            const specificRevenue = parseFloat(revenueFromMonthlyData);
-                            monthlyCommission += specificRevenue * commissionPercentage;
+                        const revenueFromMonthlyData = parseFloat(monthData?.revenue || '0');
+                        if (revenueFromMonthlyData > 0) {
+                            let commissionableValue = 0;
+                            if (hasSpecialCommission) {
+                                if (revenueFromMonthlyData > specialCommissionThreshold) {
+                                    commissionableValue = revenueFromMonthlyData;
+                                }
+                            } else {
+                                commissionableValue = revenueFromMonthlyData;
+                            }
+                            monthlyCommission += commissionableValue * commissionPercentage;
                         }
                     }
                     
                     if (client.squad) {
                         const squadPerf = squadMetrics.get(client.squad);
                         if (squadPerf && !monthData?.waiveMonthlyFee) {
-                            squadPerf.revenue += planValue;
+                            squadPerf.revenue += planValue; // Receita por squad baseada na recorrência
                         }
                     }
                 }
             });
             
-            totalRevenueInPeriod += monthlyRevenue;
+            totalRecurrenceInPeriod += monthlyRecurrence;
             totalCommissionInPeriod += monthlyCommission;
-            companyHistoryData.push({ month: format(monthDate, 'MMM', { locale: ptBR }), revenue: monthlyRevenue, commission: monthlyCommission });
+            // O campo 'revenue' do gráfico agora é a soma de recorrência e comissão
+            companyHistoryData.push({ month: format(monthDate, 'MMM', { locale: ptBR }), revenue: monthlyRecurrence + monthlyCommission, commission: monthlyCommission });
         });
 
         clients.forEach(client => {
@@ -152,12 +215,13 @@ const Dashboard = () => {
             newClientsInPeriod,
             cancelledClientsInPeriod: clientsCancelledInPeriod.length,
             totalChurnRevenueLoss,
-            totalRevenue: totalRevenueInPeriod,
+            totalRevenue: totalRecurrenceInPeriod + totalCommissionInPeriod, // Receita Total = Recorrência + Comissão
             totalCommission: totalCommissionInPeriod,
             companyHistoryData,
             squadRevenueData,
             activeClientsBySquadData,
-            squadAcquisitionChurnData
+            squadAcquisitionChurnData,
+            churnedClientsDetails: clientsCancelledInPeriod // Passando os detalhes para o modal
         };
     }, [clients, squads, dateRange]);
 
@@ -183,9 +247,27 @@ const Dashboard = () => {
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
                     <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Clientes Ativos</CardTitle><Users className="h-4 w-4 text-blue-500" /></CardHeader><CardContent><div className="text-2xl font-bold">{businessLogic.totalActiveClients}</div><p className="text-xs text-muted-foreground text-green-500">+{businessLogic.newClientsInPeriod} novos no período</p></CardContent></Card>
-                    <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Cancelamentos</CardTitle><TrendingDown className="h-4 w-4 text-red-500" /></CardHeader><CardContent><div className="text-2xl font-bold">{businessLogic.cancelledClientsInPeriod}</div><p className="text-xs text-muted-foreground text-red-500">No período selecionado</p></CardContent></Card>
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-medium">Cancelamentos</CardTitle>
+                            <div className="flex items-center gap-2">
+                                <TrendingDown className="h-4 w-4 text-red-500" />
+                                <TooltipProvider>
+                                    <ShadTooltip>
+                                        <TooltipTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setIsChurnModalOpen(true)}>
+                                                <HelpCircle className="h-4 w-4 text-blue-500" />
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent><p>Clique aqui para receber os detalhes.</p></TooltipContent>
+                                    </ShadTooltip>
+                                </TooltipProvider>
+                            </div>
+                        </CardHeader>
+                        <CardContent><div className="text-2xl font-bold">{businessLogic.cancelledClientsInPeriod}</div><p className="text-xs text-muted-foreground text-red-500">No período selecionado</p></CardContent>
+                    </Card>
                     <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Perdas (Churn)</CardTitle><DollarSign className="h-4 w-4 text-red-500" /></CardHeader><CardContent><div className="text-2xl font-bold">R$ {businessLogic.totalChurnRevenueLoss.toLocaleString('pt-BR')}</div><p className="text-xs text-muted-foreground text-red-500">Com base no plano</p></CardContent></Card>
-                    <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Receita Total</CardTitle><DollarSign className="h-4 w-4 text-green-500" /></CardHeader><CardContent><div className="text-2xl font-bold">R$ {businessLogic.totalRevenue.toLocaleString('pt-BR')}</div><p className="text-xs text-muted-foreground">Com base no plano</p></CardContent></Card>
+                    <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Receita Total</CardTitle><DollarSign className="h-4 w-4 text-green-500" /></CardHeader><CardContent><div className="text-2xl font-bold">R$ {businessLogic.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-muted-foreground">Recorrência + Comissão</p></CardContent></Card>
                     <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Comissão Total</CardTitle><Target className="h-4 w-4 text-yellow-500" /></CardHeader><CardContent><div className="text-2xl font-bold">R$ {businessLogic.totalCommission.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-muted-foreground">Com base na performance</p></CardContent></Card>
                 </div>
                 
@@ -224,6 +306,7 @@ const Dashboard = () => {
                     </Card>
                 </div>
             </div>
+            {isChurnModalOpen && <ChurnDetailsModal clients={businessLogic.churnedClientsDetails} onClose={() => setIsChurnModalOpen(false)} />}
         </div>
     );
 };
