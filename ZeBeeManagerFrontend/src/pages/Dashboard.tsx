@@ -150,8 +150,6 @@ const Dashboard = () => {
                 const statusChangedAt = client.status_changed_at ? parseISO(client.status_changed_at) : null;
                 const planValue = parseFloat(client.plan_value || '0');
                 const commissionPercentage = parseFloat(client.client_commission_percentage || '0') / 100;
-
-                // NOVA LÓGICA DE COMISSÃO ESPECIAL
                 const hasSpecialCommission = client.has_special_commission;
                 const specialCommissionThreshold = parseFloat(client.special_commission_threshold || '0');
                 
@@ -165,19 +163,24 @@ const Dashboard = () => {
                         monthlyRecurrence += planValue;
                     }
                     
-                    // CÁLCULO DA COMISSÃO
+                    // CÁLCULO DA COMISSÃO (LÓGICA CORRIGIDA)
                     if (!monthData?.waiveCommission) {
                         const revenueFromMonthlyData = parseFloat(monthData?.revenue || '0');
                         if (revenueFromMonthlyData > 0) {
-                            let commissionableValue = 0;
+                            let isCommissionable = false;
                             if (hasSpecialCommission) {
+                                // Se for especial, só é comissionável se bater a meta
                                 if (revenueFromMonthlyData > specialCommissionThreshold) {
-                                    commissionableValue = revenueFromMonthlyData;
+                                    isCommissionable = true;
                                 }
                             } else {
-                                commissionableValue = revenueFromMonthlyData;
+                                // Se NÃO for especial, é sempre comissionável
+                                isCommissionable = true;
                             }
-                            monthlyCommission += commissionableValue * commissionPercentage;
+
+                            if (isCommissionable) {
+                                monthlyCommission += revenueFromMonthlyData * commissionPercentage;
+                            }
                         }
                     }
                     
