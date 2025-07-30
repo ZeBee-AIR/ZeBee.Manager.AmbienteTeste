@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./components/ThemeProvider";
 import MainLayout from "./components/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -12,43 +12,9 @@ import Dashboard from "./pages/Dashboard";
 import ClientRegistration from "./pages/ClientRegistration";
 import ListingClient from './pages/ListingClient';
 import NotFound from "./pages/NotFound";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext";
 
 const queryClient = new QueryClient();
-
-const AppRoutes = () => {
-    const { user } = useAuth();
-    const isSuperuser = user?.is_superuser;
-
-    return (
-        <Routes>
-            <Route element={<PublicRoute />}>
-                <Route path="/" element={<Login />} />
-            </Route>
-
-            <Route element={<ProtectedRoute />}>
-                <Route element={<MainLayout />}>
-                    {/* Rota do Dashboard apenas para Superusuários */}
-                    {isSuperuser ? (
-                        <Route path="/dashboard" element={<Dashboard />} />
-                    ) : (
-                        // Se não for superusuário, qualquer tentativa de ir para /dashboard redireciona
-                        <Route path="/dashboard" element={<Navigate to="/lista-clientes" replace />} />
-                    )}
-                    
-                    <Route path="/registrar" element={<ClientRegistration />} />
-                    <Route path="/lista-clientes" element={<ListingClient />} />
-                    
-                    {/* Rota inicial padrão após o login */}
-                    <Route index element={isSuperuser ? <Navigate to="/dashboard" /> : <Navigate to="/lista-clientes" />} />
-
-                </Route>
-            </Route>
-            
-            <Route path="*" element={<NotFound />} />
-        </Routes>
-    );
-}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -58,8 +24,27 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          {/* O AuthProvider envolve TODAS as rotas para gerir o estado globalmente */}
           <AuthProvider>
-            <AppRoutes />
+            <Routes>
+              {/* Rotas Públicas (como o Login) */}
+              <Route element={<PublicRoute />}>
+                <Route path="/" element={<Login />} />
+              </Route>
+
+              {/* Rotas Protegidas */}
+              <Route element={<ProtectedRoute />}>
+                <Route element={<MainLayout />}>
+                  {/* Note que a lógica de superusuário foi movida para dentro do ProtectedRoute/PublicRoute */}
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/registrar" element={<ClientRegistration />} />
+                  <Route path="/lista-clientes" element={<ListingClient />} />
+                </Route>
+              </Route>
+              
+              {/* Rota para página não encontrada */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
