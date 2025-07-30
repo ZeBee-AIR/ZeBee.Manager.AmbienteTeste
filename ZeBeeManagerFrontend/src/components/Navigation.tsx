@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { BarChart3, UserPlus, Building2, Search, Menu, LogOut } from 'lucide-react';
+import { BarChart3, UserPlus, Building2, Search, Menu, LogOut, User } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import api from '@/lib/api';
+
 
 const Navigation = () => {
   const location = useLocation();
@@ -18,8 +21,23 @@ const Navigation = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [username, setUsername] = useState('');
 
-  // Sincroniza o campo de busca se a URL mudar
+  useEffect(() => {
+    // Busca o nome do usuário logado
+    const fetchUser = async () => {
+        try {
+            const response = await api.get('/auth/user/');
+            if (response.data.username) {
+                setUsername(response.data.username);
+            }
+        } catch (error) {
+            console.error("Erro ao buscar dados do usuário:", error);
+        }
+    };
+    fetchUser();
+  }, []);
+
   useEffect(() => {
     setSearchTerm(searchParams.get('q') || '');
   }, [searchParams]);
@@ -32,7 +50,6 @@ const Navigation = () => {
     e.preventDefault();
     const term = searchTerm.trim();
     
-    // Cria uma cópia dos parâmetros atuais para não perder outros filtros
     const newSearchParams = new URLSearchParams(searchParams);
 
     if (term) {
@@ -41,11 +58,9 @@ const Navigation = () => {
       newSearchParams.delete('q');
     }
     
-    // Se não estiver na página de clientes, navega para lá com todos os parâmetros.
     if (location.pathname !== '/lista-clientes') {
       navigate(`/lista-clientes?${newSearchParams.toString()}`);
     } else {
-      // Se já estiver na página, apenas atualiza os parâmetros da URL.
       setSearchParams(newSearchParams);
     }
   };
@@ -99,6 +114,17 @@ const Navigation = () => {
               Clientes
             </Link>
             <ThemeToggle />
+            {/* ÍCONE E NOME DO USUÁRIO */}
+            {username && (
+                <div className="flex items-center gap-2 border-l pl-2 ml-2">
+                    <Avatar className="h-8 w-8">
+                        <AvatarFallback>
+                            <User className="h-4 w-4" />
+                        </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm font-medium text-foreground">{username}</span>
+                </div>
+            )}
             <Button variant="ghost" size="icon" onClick={handleLogout} title="Sair">
                 <LogOut className="h-4 w-4 text-red-500"/>
             </Button>
@@ -134,12 +160,24 @@ const Navigation = () => {
                   </nav>
                 </div>
 
-                <div className="p-4 border-t mt-auto flex justify-between items-center">
-                  <ThemeToggle />
-                  <Button variant="ghost" onClick={handleLogout} className="text-red-500 hover:text-red-500 hover:bg-red-500/10">
-                    Sair
-                    <LogOut className="ml-2 h-5 w-5"/>
-                  </Button>
+                <div className="p-4 border-t mt-auto">
+                    {username && (
+                        <div className="flex items-center gap-3 mb-4">
+                            <Avatar className="h-9 w-9">
+                                <AvatarFallback>
+                                    <User className="h-5 w-5" />
+                                </AvatarFallback>
+                            </Avatar>
+                            <span className="text-sm font-semibold text-foreground">{username}</span>
+                        </div>
+                    )}
+                    <div className="flex justify-between items-center">
+                        <ThemeToggle />
+                        <Button variant="ghost" onClick={handleLogout} className="text-red-500 hover:text-red-500 hover:bg-red-500/10">
+                            Sair
+                            <LogOut className="ml-2 h-5 w-5"/>
+                        </Button>
+                    </div>
                 </div>
               </SheetContent>
             </Sheet>

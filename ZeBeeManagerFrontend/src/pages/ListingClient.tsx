@@ -19,30 +19,37 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, AlertCircle, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, Filter, X, Trash2, Pencil } from 'lucide-react';
+import { Loader2, AlertCircle, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, Filter, X, Trash2, Pencil, Users2 } from 'lucide-react';
 import { format, parseISO, startOfDay, endOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { DateRange } from 'react-day-picker';
 import api from '@/lib/api';
 
+type Squad = {
+    id: number;
+    name: string;
+};
+
 type ClientData = {
     id: number;
+    squad: number | null;
     seller_id: string;
     store_name: string;
     seller_email: string;
     status: 'Ativo' | 'Inativo';
     created_at: string;
-    monthly_data: { [year: string]: { [month: string]: { acos: string, tacos: string } } };
 };
 
 const ListingClient = () => {
     const [clients, setClients] = useState<ClientData[]>([]);
+    const [squads, setSquads] = useState<Squad[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [query, setQuery] = useState('');
 
     const [statusFilter, setStatusFilter] = useState('todos');
+    const [squadFilter, setSquadFilter] = useState('todos'); // Novo estado para o filtro de squad
     const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
     const [pageIndex, setPageIndex] = useState(0);
@@ -52,20 +59,23 @@ const ListingClient = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
 
-    const fetchClients = async () => {
-        setLoading(true);
-        try {
-            const response = await api.get('/clients/');
-            setClients(response.data);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Ocorreu um erro.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
-        fetchClients();
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const [clientsRes, squadsRes] = await Promise.all([
+                    api.get('/clients/'),
+                    api.get('/squads/')
+                ]);
+                setClients(clientsRes.data);
+                setSquads(squadsRes.data);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Ocorreu um erro.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
     }, []);
 
     useEffect(() => {
@@ -75,6 +85,7 @@ const ListingClient = () => {
     const handleClearFilters = () => {
         setSearchParams({});
         setStatusFilter('todos');
+        setSquadFilter('todos');
         setDateRange(undefined);
     };
 
@@ -107,15 +118,18 @@ const ListingClient = () => {
         if (statusFilter !== 'todos') {
             processedClients = processedClients.filter(c => c.status === statusFilter);
         }
+        if (squadFilter !== 'todos') {
+            processedClients = processedClients.filter(c => String(c.squad) === squadFilter);
+        }
         if (dateRange?.from) {
             processedClients = processedClients.filter(c => parseISO(c.created_at) >= startOfDay(dateRange.from));
         }
         if (dateRange?.to) {
             processedClients = processedClients.filter(c => parseISO(c.created_at) <= endOfDay(dateRange.to));
         }
-        processedClients.sort((a, b) => a.seller_id.localeCompare(b.seller_id));
+        processedClients.sort((a, b) => a.store_name.localeCompare(b.store_name));
         return processedClients;
-    }, [query, clients, statusFilter, dateRange]);
+    }, [query, clients, statusFilter, squadFilter, dateRange]);
 
     const pageCount = Math.ceil(filteredClients.length / pageSize);
     const paginatedClients = useMemo(() => {
@@ -124,23 +138,10 @@ const ListingClient = () => {
         return filteredClients.slice(start, end);
     }, [filteredClients, pageIndex, pageSize]);
 
-    const getLatestMetrics = (monthlyData: ClientData['monthly_data']) => {
-        if (!monthlyData) return { acos: 'N/A', tacos: 'N/A' };
-        const years = Object.keys(monthlyData).sort((a, b) => parseInt(b) - parseInt(a));
-        for (const year of years) {
-            const months = Object.keys(monthlyData[year]).sort((a, b) => new Date(`1 ${b} 2000`).getMonth() - new Date(`1 ${a} 2000`).getMonth());
-            for (const month of months) {
-                const data = monthlyData[year][month];
-                if (data.acos || data.tacos) return { acos: data.acos || 'N/A', tacos: data.tacos || 'N/A' };
-            }
-        }
-        return { acos: 'N/A', tacos: 'N/A' };
-    }
-
     if (loading) return <div className="flex justify-center items-center h-screen"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
     if (error) return <div className="flex justify-center items-center h-screen text-destructive"><AlertCircle className="h-12 w-12 mr-4" />{error}</div>;
 
-    const filtersApplied = statusFilter !== 'todos' || dateRange?.from || query;
+    const filtersApplied = statusFilter !== 'todos' || squadFilter !== 'todos' || dateRange?.from || query;
 
     return (
         <div className="min-h-screen bg-background p-4 sm:p-6">
@@ -177,6 +178,19 @@ const ListingClient = () => {
                                                 </SelectContent>
                                             </Select>
                                         </div>
+                                        {/* NOVO FILTRO DE SQUAD */}
+                                        <div className="grid grid-cols-3 items-center gap-4">
+                                            <Label htmlFor="squad">Squad</Label>
+                                            <Select value={squadFilter} onValueChange={setSquadFilter}>
+                                                <SelectTrigger id="squad" className="col-span-2 h-8"><SelectValue /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="todos">Todos</SelectItem>
+                                                    {squads.map(squad => (
+                                                        <SelectItem key={squad.id} value={String(squad.id)}>{squad.name}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
                                         <div className="grid grid-cols-3 items-center gap-4">
                                             <Label htmlFor="date-range">Cadastrados:</Label>
                                             <div className="col-span-2">
@@ -199,6 +213,7 @@ const ListingClient = () => {
                             <TableRow>
                                 <TableHead className="w-[100px]">ID</TableHead>
                                 <TableHead>Nome da Loja</TableHead>
+                                <TableHead>Squad</TableHead>
                                 <TableHead>E-mail</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead className="text-center w-[120px]">Ações</TableHead>
@@ -211,6 +226,7 @@ const ListingClient = () => {
                                         {client.seller_id}
                                     </TableCell>
                                     <TableCell>{client.store_name}</TableCell>
+                                    <TableCell>{squads.find(s => s.id === client.squad)?.name || 'N/A'}</TableCell>
                                     <TableCell>{client.seller_email}</TableCell>
                                     <TableCell>
                                         <Badge variant={client.status === 'Ativo' ? 'default' : 'destructive'} className={cn(client.status === 'Ativo' ? 'bg-green-600' : 'bg-red-600', 'text-white')}>{client.status}</Badge>
@@ -240,6 +256,7 @@ const ListingClient = () => {
                             </CardHeader>
                             <CardContent className="space-y-2 text-sm">
                                 <p><strong className="text-muted-foreground">ID:</strong> {client.seller_id}</p>
+                                <p><strong className="text-muted-foreground flex items-center gap-2"><Users2 className="w-4 h-4" /> Squad:</strong> {squads.find(s => s.id === client.squad)?.name || 'N/A'}</p>
                                 <p className="break-all"><strong className="text-muted-foreground">Email:</strong> {client.seller_email}</p>
                             </CardContent>
                             <CardFooter className="justify-end space-x-2">
