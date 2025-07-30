@@ -9,7 +9,7 @@ SECRET_KEY = 'django-insecure-%95(3+#6ksc-6#py5j)asdtg-3t3l()5di5jkfxnav4b&q@l&0
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'zebee-manager.onrender.com',
+    'zebee-manager-ambienteteste.onrender.com',
     '127.0.0.1',
 ]
 
@@ -100,9 +100,7 @@ SITE_ID = 1
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "https://zebee-manager.vercel.app",
-    "https://zebee-manager.com",
-    "https://www.zebee-manager.com",
+    "https://zebee-manager-ambiente-teste.vercel.app/",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = False
