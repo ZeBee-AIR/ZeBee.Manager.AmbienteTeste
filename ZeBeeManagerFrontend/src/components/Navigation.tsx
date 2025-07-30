@@ -11,32 +11,20 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useAuth } from '@/context/AuthContext'; // Importar o hook de autenticação
 import api from '@/lib/api';
 
-
 const Navigation = () => {
+  const { user } = useAuth(); // Usar o hook para obter dados do usuário
+  const isSuperuser = user?.is_superuser;
+  const username = user?.username;
+
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [username, setUsername] = useState('');
-
-  useEffect(() => {
-    // Busca o nome do usuário logado
-    const fetchUser = async () => {
-        try {
-            const response = await api.get('/auth/user/');
-            if (response.data.username) {
-                setUsername(response.data.username);
-            }
-        } catch (error) {
-            console.error("Erro ao buscar dados do usuário:", error);
-        }
-    };
-    fetchUser();
-  }, []);
 
   useEffect(() => {
     setSearchTerm(searchParams.get('q') || '');
@@ -49,7 +37,6 @@ const Navigation = () => {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const term = searchTerm.trim();
-    
     const newSearchParams = new URLSearchParams(searchParams);
 
     if (term) {
@@ -69,9 +56,15 @@ const Navigation = () => {
     setIsMobileMenuOpen(false);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+        await api.post('/auth/logout/');
+    } catch (error) {
+        console.error("Erro no logout da API, mas deslogando localmente:", error);
+    } finally {
+        localStorage.removeItem('authToken');
+        window.location.href = '/'; // Força o recarregamento para limpar o estado
+    }
   };
 
   return (
@@ -101,10 +94,13 @@ const Navigation = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-2">
-            <Link to="/dashboard" className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-colors ${ isActive('/dashboard') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'}`}>
-              <BarChart3 className="h-4 w-4" />
-              Dashboard
-            </Link>
+            {/* Link do Dashboard condicional */}
+            {isSuperuser && (
+              <Link to="/dashboard" className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-colors ${ isActive('/dashboard') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'}`}>
+                <BarChart3 className="h-4 w-4" />
+                Dashboard
+              </Link>
+            )}
             <Link to="/registrar" className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-colors ${ isActive('/registrar') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'}`}>
               <UserPlus className="h-4 w-4" />
               Registrar
@@ -114,7 +110,6 @@ const Navigation = () => {
               Clientes
             </Link>
             <ThemeToggle />
-            {/* ÍCONE E NOME DO USUÁRIO */}
             {username && (
                 <div className="flex items-center gap-2 border-l pl-2 ml-2">
                     <Avatar className="h-8 w-8">
@@ -145,10 +140,12 @@ const Navigation = () => {
                 
                 <div className="flex-1 overflow-y-auto">
                   <nav className="p-4 space-y-2">
-                    <Link to="/dashboard" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-base ${ isActive('/dashboard') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
-                      <BarChart3 className="h-5 w-5" />
-                      Dashboard
-                    </Link>
+                    {isSuperuser && (
+                      <Link to="/dashboard" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-base ${ isActive('/dashboard') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
+                        <BarChart3 className="h-5 w-5" />
+                        Dashboard
+                      </Link>
+                    )}
                     <Link to="/registrar" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-base ${ isActive('/registrar') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
                       <UserPlus className="h-5 w-5" />
                       Registrar

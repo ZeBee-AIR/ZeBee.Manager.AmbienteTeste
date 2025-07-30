@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch"; // Importando o Switch
+import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { UserPlus, DollarSign, TrendingUp, Edit, Loader2, AlertCircle, Activity, Users2, Calendar as CalendarIcon, Phone } from 'lucide-react';
 import { Calendar } from "@/components/ui/calendar";
@@ -14,6 +14,7 @@ import { parseISO, format } from 'date-fns';
 import { cn } from "@/lib/utils";
 import { ptBR } from "date-fns/locale";
 import api from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
 
 type Squad = { id: number; name: string; };
 type MonthlyPerformance = { 
@@ -26,31 +27,33 @@ type MonthlyPerformance = {
 type YearlyData = { [month: string]: MonthlyPerformance };
 type MonthlyData = { [year: string]: YearlyData };
 
-// Atualizando o tipo do formulário
 type ClientFormData = {
     id?: number; squad: number | null;
     sellerName: string; storeName: string; sellerId: string; sellerEmail: string;
-    phoneNumber: string; // NOVO CAMPO
+    phoneNumber: string;
     contractedPlan: string; planValue: string; clientCommissionPercentage: string;
-    hasSpecialCommission: boolean; // NOVO CAMPO
-    specialCommissionThreshold: string; // NOVO CAMPO
+    hasSpecialCommission: boolean;
+    specialCommissionThreshold: string;
     monthlyData: MonthlyData; status: string;
     createdAt: Date | null;
     statusChangedAt: Date | null;
 };
 
 const createEmptyMonthlyData = (): MonthlyData => ({});
-// Atualizando o estado inicial do formulário
 const emptyFormState: ClientFormData = {
     squad: null, sellerName: '', storeName: '', sellerId: '', sellerEmail: '',
-    phoneNumber: '', // NOVO CAMPO
+    phoneNumber: '',
     contractedPlan: '', planValue: '', clientCommissionPercentage: '',
-    hasSpecialCommission: false, // NOVO CAMPO
-    specialCommissionThreshold: '', // NOVO CAMPO
+    hasSpecialCommission: false,
+    specialCommissionThreshold: '',
     status: 'Ativo', monthlyData: createEmptyMonthlyData(), createdAt: new Date(), statusChangedAt: null
 };
 
 const ClientRegistration = () => {
+    const { user } = useAuth(); // Usar o hook
+    const isSuperuser = user?.is_superuser;
+    const userSquadId = user?.profile?.squad;
+
     const [formData, setFormData] = useState<ClientFormData>(emptyFormState);
     const [squads, setSquads] = useState<Squad[]>([]);
     const [isEditMode, setIsEditMode] = useState(false);
@@ -62,6 +65,8 @@ const ClientRegistration = () => {
     useEffect(() => {
         const searchParams = new URLSearchParams(window.location.search);
         const idToEdit = searchParams.get('id');
+        
+        // A API de squads agora filtra automaticamente com base no usuário
         const fetchSquads = api.get('/squads/');
         const fetchClientData = idToEdit ? api.get(`/clients/${idToEdit}/`) : Promise.resolve(null);
 
@@ -71,25 +76,26 @@ const ClientRegistration = () => {
                 if (clientRes) {
                     const clientData = clientRes.data;
                     setIsEditMode(true);
-                    // Populando o formulário com os novos dados
                     setFormData({
                         id: clientData.id, squad: clientData.squad,
                         sellerName: clientData.seller_name, storeName: clientData.store_name,
                         sellerId: clientData.seller_id, sellerEmail: clientData.seller_email,
-                        phoneNumber: clientData.phone_number || '', // NOVO CAMPO
+                        phoneNumber: clientData.phone_number || '',
                         contractedPlan: clientData.contracted_plan, planValue: clientData.plan_value,
                         clientCommissionPercentage: clientData.client_commission_percentage,
-                        hasSpecialCommission: clientData.has_special_commission || false, // NOVO CAMPO
-                        specialCommissionThreshold: clientData.special_commission_threshold || '', // NOVO CAMPO
+                        hasSpecialCommission: clientData.has_special_commission || false,
+                        specialCommissionThreshold: clientData.special_commission_threshold || '',
                         monthlyData: clientData.monthly_data || createEmptyMonthlyData(),
                         status: clientData.status, createdAt: clientData.created_at ? parseISO(clientData.created_at) : new Date(),
                         statusChangedAt: clientData.status_changed_at ? parseISO(clientData.status_changed_at) : null,
                     });
                 } else {
-                    setFormData(emptyFormState);
+                    // Se não for superusuário, pré-seleciona o squad
+                    const initialSquad = isSuperuser ? null : userSquadId || null;
+                    setFormData({...emptyFormState, squad: initialSquad});
                 }
             }).catch(err => setError(err.message)).finally(() => setIsLoading(false));
-    }, []);
+    }, [isSuperuser, userSquadId]);
 
     const handleDateChange = (field: 'createdAt' | 'statusChangedAt', date: Date | undefined) => {
         setFormData(prev => ({ ...prev, [field]: date || null }));
@@ -126,19 +132,18 @@ const ClientRegistration = () => {
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
-        // Enviando os novos campos no payload
         const payload = {
             squad: formData.squad,
             seller_name: formData.sellerName,
             store_name: formData.storeName,
             seller_id: formData.sellerId,
             seller_email: formData.sellerEmail,
-            phone_number: formData.phoneNumber, // NOVO CAMPO
+            phone_number: formData.phoneNumber,
             contracted_plan: formData.contractedPlan,
             plan_value: formData.planValue,
             client_commission_percentage: formData.clientCommissionPercentage,
-            has_special_commission: formData.hasSpecialCommission, // NOVO CAMPO
-            special_commission_threshold: formData.hasSpecialCommission ? formData.specialCommissionThreshold : null, // NOVO CAMPO
+            has_special_commission: formData.hasSpecialCommission,
+            special_commission_threshold: formData.hasSpecialCommission ? formData.specialCommissionThreshold : null,
             monthly_data: formData.monthlyData,
             status: formData.status,
             created_at: formData.createdAt?.toISOString(),
@@ -174,8 +179,23 @@ const ClientRegistration = () => {
                             <div><Label>Nome da Loja *</Label><Input value={formData.storeName} onChange={e => handleInputChange('storeName', e.target.value)} required /></div>
                             <div><Label>ID do Cliente</Label><Input value={formData.sellerId} onChange={e => handleInputChange('sellerId', e.target.value)} /></div>
                             <div><Label>Email</Label><Input type="email" value={formData.sellerEmail} onChange={e => handleInputChange('sellerEmail', e.target.value)}/></div>
-                            <div><Label>Telefone</Label><Input value={formData.phoneNumber} onChange={e => handleInputChange('phoneNumber', e.target.value)} placeholder="(11) 98765-4321" /></div>
-                            <div><Label>Squad Responsável</Label><Select value={formData.squad?.toString() || ''} onValueChange={(v) => { const numValue = parseInt(v, 10); handleInputChange('squad', isNaN(numValue) ? null : numValue); }} disabled={!squads.length}><SelectTrigger><SelectValue placeholder={squads.length ? "Selecione um squad" : "Nenhum squad cadastrado"} /></SelectTrigger><SelectContent>{squads.map(s => (<SelectItem key={s.id} value={s.id.toString()}><span className="flex items-center"><Users2 className="w-4 h-4 mr-2" />{s.name}</span></SelectItem>))}</SelectContent></Select></div>
+                            <div><Label className="flex items-center gap-2"><Phone className="w-4 h-4" />Telefone</Label><Input value={formData.phoneNumber} onChange={e => handleInputChange('phoneNumber', e.target.value)} placeholder="(11) 98765-4321" /></div>
+                            
+                            <div>
+                                <Label>Squad Responsável</Label>
+                                <Select
+                                    value={formData.squad?.toString() || ''}
+                                    onValueChange={(v) => { const numValue = parseInt(v, 10); handleInputChange('squad', isNaN(numValue) ? null : numValue); }}
+                                    disabled={!isSuperuser || !squads.length}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder={squads.length ? "Selecione um squad" : "Nenhum squad cadastrado"} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {squads.map(s => (<SelectItem key={s.id} value={s.id.toString()}><span className="flex items-center"><Users2 className="w-4 h-4 mr-2" />{s.name}</span></SelectItem>))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                             <div><Label>Status</Label><Select value={formData.status} onValueChange={(v) => handleInputChange('status', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Ativo"><span className="flex items-center"><Activity className="text-green-500 w-4 h-4 mr-2"/>Ativo</span></SelectItem><SelectItem value="Inativo"><span className="flex items-center"><Activity className="text-red-500 w-4 h-4 mr-2"/>Inativo</span></SelectItem></SelectContent></Select></div>
                             <div><Label>Registrado em</Label><Popover><PopoverTrigger asChild><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !formData.createdAt && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{formData.createdAt ? format(formData.createdAt, "PPP", { locale: ptBR }) : <span>Selecione uma data</span>}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={formData.createdAt ?? undefined} onSelect={(date) => handleDateChange('createdAt', date)} initialFocus /></PopoverContent></Popover></div>
                             <div><Label>Contrato Rescindido em</Label><Popover><PopoverTrigger asChild><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !formData.statusChangedAt && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{formData.statusChangedAt ? format(formData.statusChangedAt, "PPP", { locale: ptBR }) : <span>(Não rescindido)</span>}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={formData.statusChangedAt ?? undefined} onSelect={(date) => handleDateChange('statusChangedAt', date)} /></PopoverContent></Popover></div>
@@ -191,7 +211,6 @@ const ClientRegistration = () => {
                                 <div><Label>Comissão (%)</Label><Input type="number" value={formData.clientCommissionPercentage} onChange={e => handleInputChange('clientCommissionPercentage', e.target.value)} /></div>
                             </div>
                             
-                            {/* NOVA SEÇÃO DE COMISSÃO ESPECIAL */}
                             <div className="border-t pt-4 space-y-4">
                                 <div className="flex flex-row items-center justify-between rounded-lg border p-4">
                                     <div className="space-y-0.5">

@@ -12,8 +12,33 @@ import Dashboard from "./pages/Dashboard";
 import ClientRegistration from "./pages/ClientRegistration";
 import ListingClient from './pages/ListingClient';
 import NotFound from "./pages/NotFound";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
 const queryClient = new QueryClient();
+
+const AppRoutes = () => {
+    const { user } = useAuth();
+    const isSuperuser = user?.is_superuser;
+
+    return (
+        <Routes>
+            <Route element={<PublicRoute />}>
+                <Route path="/" element={<Login />} />
+            </Route>
+
+            <Route element={<ProtectedRoute />}>
+                <Route element={<MainLayout />}>
+                    {isSuperuser && <Route path="/dashboard" element={<Dashboard />} />}
+                    <Route path="/registrar" element={<ClientRegistration />} />
+                    <Route path="/lista-clientes" element={<ListingClient />} />
+                    <Route path="/dashboard" element={isSuperuser ? <Dashboard /> : <ListingClient />} />
+                </Route>
+            </Route>
+            
+            <Route path="*" element={<NotFound />} />
+        </Routes>
+    );
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -23,21 +48,9 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route element={<PublicRoute />}>
-              <Route path="/" element={<Login />} />
-            </Route>
-
-            <Route element={<ProtectedRoute />}>
-              <Route element={<MainLayout />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/registrar" element={<ClientRegistration />} />
-                <Route path="/lista-clientes" element={<ListingClient />} />
-              </Route>
-            </Route>
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>

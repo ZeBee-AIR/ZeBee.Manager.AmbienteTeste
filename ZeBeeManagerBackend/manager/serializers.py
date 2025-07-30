@@ -1,5 +1,19 @@
 from rest_framework import serializers
-from .models import Squad, RevenueHistory, SquadPerformance, Client
+from django.contrib.auth.models import User
+from .models import Squad, RevenueHistory, SquadPerformance, Client, UserProfile
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['squad']
+
+class UserSerializer(serializers.ModelSerializer):
+    profile = UserProfileSerializer()
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'is_superuser', 'profile']
 
 class SquadSerializer(serializers.ModelSerializer):
     class Meta:
