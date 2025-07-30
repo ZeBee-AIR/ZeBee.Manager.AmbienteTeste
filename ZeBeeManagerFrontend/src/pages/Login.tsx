@@ -17,6 +17,7 @@ const Login = () => {
         e.preventDefault();
         setLoading(true);
 
+
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login/`, {
                 method: 'POST',
