@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
-import { UserPlus, DollarSign, TrendingUp, Edit, Loader2, AlertCircle, Activity, Users2, Calendar as CalendarIcon, Phone } from 'lucide-react';
+import { UserPlus, DollarSign, TrendingUp, Edit, Loader2, AlertCircle, Activity, Users2, Calendar as CalendarIcon } from 'lucide-react';
 import { Calendar } from "@/components/ui/calendar";
 import { parseISO, format } from 'date-fns';
 import { cn } from "@/lib/utils";
@@ -179,7 +179,7 @@ const ClientRegistration = () => {
                             <div><Label>Nome da Loja *</Label><Input value={formData.storeName} onChange={e => handleInputChange('storeName', e.target.value)} required /></div>
                             <div><Label>ID do Cliente</Label><Input value={formData.sellerId} onChange={e => handleInputChange('sellerId', e.target.value)} /></div>
                             <div><Label>Email</Label><Input type="email" value={formData.sellerEmail} onChange={e => handleInputChange('sellerEmail', e.target.value)}/></div>
-                            <div><Label className="flex items-center gap-2"><Phone className="w-4 h-4" />Telefone</Label><Input value={formData.phoneNumber} onChange={e => handleInputChange('phoneNumber', e.target.value)} placeholder="(11) 98765-4321" /></div>
+                            <div><Label>Telefone</Label><Input value={formData.phoneNumber} onChange={e => handleInputChange('phoneNumber', e.target.value)} placeholder="(11) 98765-4321" /></div>
                             
                             <div>
                                 <Label>Squad Responsável</Label>
