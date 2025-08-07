@@ -237,7 +237,7 @@ const Dashboard = () => {
                     </Popover>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-8">
                     <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Clientes Ativos</CardTitle><Users className="h-4 w-4 text-blue-500" /></CardHeader><CardContent><div className="text-2xl font-bold">{businessLogic.totalActiveClients}</div><p className="text-xs text-muted-foreground text-green-500">+{businessLogic.newClientsInPeriod} novos no período</p></CardContent></Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
