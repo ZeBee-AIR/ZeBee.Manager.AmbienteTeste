@@ -1,5 +1,4 @@
 import { useState, FormEvent } from 'react';
-// O useNavigate não será mais necessário para o redirecionamento principal
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,8 +11,6 @@ const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    // O navigate ainda pode ser útil para outras coisas, então o mantemos.
-    // const navigate = useNavigate(); 
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -33,12 +30,7 @@ const Login = () => {
 
             localStorage.setItem('authToken', accessToken);
             
-            // AQUI ESTÁ A CORREÇÃO:
-            // Força um recarregamento completo da página.
-            // Isso garante que o AuthContext e todas as rotas sejam reinicializados
-            // com o novo estado de autenticação.
             window.location.reload();
-
         } catch (err) {
             toast({
                 title: "Erro de Login",

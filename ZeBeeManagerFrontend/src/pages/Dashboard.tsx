@@ -13,7 +13,6 @@ import { Tooltip as ShadTooltip, TooltipContent, TooltipProvider, TooltipTrigger
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import api from '@/lib/api';
 
-// Tipos de dados
 interface Squad {
     id: number;
     name: string;
@@ -27,7 +26,6 @@ interface MonthlyPerformanceData {
     waiveMonthlyFee?: boolean;
 }
 
-// INTERFACE CORRIGIDA: Adicionados os novos campos do cliente
 interface ClientData {
     id: number;
     squad: number;
@@ -45,7 +43,6 @@ interface ClientData {
     status_changed_at: string | null;
 }
 
-// Componente do Modal de Churn
 const ChurnDetailsModal = ({ clients, onClose }: { clients: ClientData[], onClose: () => void }) => (
     <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
         <Card className="w-full max-w-4xl max-h-[90vh] flex flex-col bg-card">
@@ -172,12 +169,12 @@ const Dashboard = () => {
                         }
 
                         if (isCommissionable) {
-                            commissionForThisMonth += revenue * commissionPercentage;
+                            commissionForThisMonth += threshold * commissionPercentage;
                         }
                     }
                 }
             });
-            
+
             totalRecurrenceForPeriod += recurrenceForThisMonth;
             totalCommissionForPeriod += commissionForThisMonth;
             companyHistoryData.push({
@@ -187,7 +184,6 @@ const Dashboard = () => {
             });
         });
 
-        // Lógica para squads (mantida como no original)
         clients.forEach(client => {
             if (!client.squad) return;
             const squadPerf = squadMetrics.get(client.squad);
@@ -211,7 +207,8 @@ const Dashboard = () => {
             newClientsInPeriod,
             cancelledClientsInPeriod: clientsCancelledInPeriod.length,
             totalChurnRevenueLoss,
-            totalRevenue: totalRecurrenceForPeriod + totalCommissionForPeriod,
+            totalRevenue: totalRecurrenceForPeriod,
+            totalRevenueComission: totalRecurrenceForPeriod + totalCommissionForPeriod,
             totalCommission: totalCommissionForPeriod,
             companyHistoryData,
             squadRevenueData,
@@ -262,21 +259,22 @@ const Dashboard = () => {
                         <CardContent><div className="text-2xl font-bold">{businessLogic.cancelledClientsInPeriod}</div><p className="text-xs text-muted-foreground text-red-500">No período selecionado</p></CardContent>
                     </Card>
                     <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Perdas (Churn)</CardTitle><DollarSign className="h-4 w-4 text-red-500" /></CardHeader><CardContent><div className="text-2xl font-bold">R$ {businessLogic.totalChurnRevenueLoss.toLocaleString('pt-BR')}</div><p className="text-xs text-muted-foreground text-red-500">Com base no plano</p></CardContent></Card>
-                    <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Receita Total</CardTitle><DollarSign className="h-4 w-4 text-green-500" /></CardHeader><CardContent><div className="text-2xl font-bold">R$ {businessLogic.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-muted-foreground">Recorrência + Comissão</p></CardContent></Card>
+                    <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Recorrência + Comissão Total</CardTitle><DollarSign className="h-4 w-4 text-green-500" /></CardHeader><CardContent><div className="text-2xl font-bold">R$ {businessLogic.totalRevenueComission.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-muted-foreground">Recorrência + Comissão</p></CardContent></Card>
                     <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Comissão Total</CardTitle><Target className="h-4 w-4 text-yellow-500" /></CardHeader><CardContent><div className="text-2xl font-bold">R$ {businessLogic.totalCommission.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-muted-foreground">Com base na performance</p></CardContent></Card>
+                    <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Recorrência Total</CardTitle><DollarSign className="h-4 w-4 text-green-500" /></CardHeader><CardContent><div className="text-2xl font-bold">R$ {businessLogic.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-muted-foreground">Com base no plano</p></CardContent></Card>
                 </div>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <Card>
-                        <CardHeader><CardTitle className="text-lg font-semibold flex items-center gap-2"><DollarSign className="text-yellow-500" />Histórico de Receita e Comissão</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="text-lg font-semibold flex items-center gap-2"><DollarSign className="text-yellow-500" />Histórico de Recorrência e Comissão</CardTitle></CardHeader>
                         <CardContent>
-                            <ResponsiveContainer width="100%" height={300}><LineChart data={businessLogic.companyHistoryData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} /><Legend /><Line type="monotone" dataKey="revenue" stroke="#3B82F6" name="Receita" /><Line type="monotone" dataKey="commission" stroke="#10B981" name="Comissão" /></LineChart></ResponsiveContainer>
+                            <ResponsiveContainer width="100%" height={300}><LineChart data={businessLogic.companyHistoryData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} /><Legend /><Line type="monotone" dataKey="revenue" stroke="#3B82F6" name="Recorrência" /><Line type="monotone" dataKey="commission" stroke="#10B981" name="Comissão" /></LineChart></ResponsiveContainer>
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardHeader><CardTitle className="text-lg font-semibold flex items-center gap-2"><TrendingUp className="text-blue-500" />Desempenho de Receita por Squad</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="text-lg font-semibold flex items-center gap-2"><TrendingUp className="text-blue-500" />Desempenho de Recorrência por Squad</CardTitle></CardHeader>
                         <CardContent>
-                            <ResponsiveContainer width="100%" height={300}><BarChart data={businessLogic.squadRevenueData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" /><YAxis /><Tooltip formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`} /><Bar dataKey="revenue" fill="#3B82F6" name="Receita" /></BarChart></ResponsiveContainer>
+                            <ResponsiveContainer width="100%" height={300}><BarChart data={businessLogic.squadRevenueData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" /><YAxis /><Tooltip formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`} /><Bar dataKey="revenue" fill="#3B82F6" name="Recorrência" /></BarChart></ResponsiveContainer>
                         </CardContent>
                     </Card>
                     <Card>
