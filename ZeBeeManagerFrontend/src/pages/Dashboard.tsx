@@ -158,10 +158,12 @@ const Dashboard = () => {
                         const commissionPercentage = parseFloat(client.client_commission_percentage || '0') / 100;
                         const hasSpecial = client.has_special_commission;
                         const threshold = parseFloat(client.special_commission_threshold || '0');
-                        
+                        let revenueComission = 0;
+
                         let isCommissionable = false;
                         if (hasSpecial) {
                             if (revenue > threshold) {
+                                revenueComission = revenue - threshold; 
                                 isCommissionable = true;
                             }
                         } else {
@@ -169,7 +171,7 @@ const Dashboard = () => {
                         }
 
                         if (isCommissionable) {
-                            commissionForThisMonth += threshold * commissionPercentage;
+                            commissionForThisMonth += revenueComission * commissionPercentage || 0;
                         }
                     }
                 }
