@@ -24,25 +24,20 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          {/* O AuthProvider envolve TODAS as rotas para gerir o estado globalmente */}
           <AuthProvider>
             <Routes>
-              {/* Rotas Públicas (como o Login) */}
               <Route element={<PublicRoute />}>
                 <Route path="/" element={<Login />} />
               </Route>
 
-              {/* Rotas Protegidas */}
               <Route element={<ProtectedRoute />}>
                 <Route element={<MainLayout />}>
-                  {/* Note que a lógica de superusuário foi movida para dentro do ProtectedRoute/PublicRoute */}
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/registrar" element={<ClientRegistration />} />
                   <Route path="/lista-clientes" element={<ListingClient />} />
                 </Route>
               </Route>
               
-              {/* Rota para página não encontrada */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>
