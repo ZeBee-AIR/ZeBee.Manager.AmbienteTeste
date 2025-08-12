@@ -210,7 +210,7 @@ const Dashboard = () => {
             cancelledClientsInPeriod: clientsCancelledInPeriod.length,
             totalChurnRevenueLoss,
             totalRevenue: totalRecurrenceForPeriod,
-            totalRevenueComission: totalRecurrenceForPeriod + totalCommissionForPeriod,
+            totalRevenueComission: totalRecurrenceForPeriod + totalCommissionForPeriod || 0,
             totalCommission: totalCommissionForPeriod,
             companyHistoryData,
             squadRevenueData,
