@@ -114,7 +114,7 @@ const Dashboard = () => {
         if (!clients.length || !squads.length || !dateRange?.from) {
             return {
                 totalActiveClients: 0, newClientsInPeriod: 0, cancelledClientsInPeriod: 0,
-                totalChurnRevenueLoss: 0, totalRevenue: 0, totalCommission: 0,
+                totalChurnRevenueLoss: 0, totalRevenue: 0, totalCommission: 0, totalRevenueComission: 0,
                 companyHistoryData: [], squadRevenueData: [], activeClientsBySquadData: [], squadAcquisitionChurnData: [],
                 churnedClientsDetails: []
             };
@@ -210,7 +210,7 @@ const Dashboard = () => {
             cancelledClientsInPeriod: clientsCancelledInPeriod.length,
             totalChurnRevenueLoss,
             totalRevenue: totalRecurrenceForPeriod,
-            totalRevenueComission: totalRecurrenceForPeriod + totalCommissionForPeriod || 0,
+            totalRevenueComission: totalRecurrenceForPeriod + totalCommissionForPeriod,
             totalCommission: totalCommissionForPeriod,
             companyHistoryData,
             squadRevenueData,
