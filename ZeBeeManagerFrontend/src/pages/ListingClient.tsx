@@ -25,7 +25,7 @@ import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { DateRange } from 'react-day-picker';
 import api from '@/lib/api';
-import { useAuth } from '@/context/AuthContext'; // Importar o hook de autenticação
+import { useAuth } from '@/context/AuthContext';
 
 type Squad = {
     id: number;
@@ -43,7 +43,7 @@ type ClientData = {
 };
 
 const ListingClient = () => {
-    const { user } = useAuth(); // Usar o hook para obter dados do usuário
+    const { user } = useAuth();
     const isSuperuser = user?.is_superuser;
 
     const [clients, setClients] = useState<ClientData[]>([]);
@@ -123,8 +123,7 @@ const ListingClient = () => {
         if (statusFilter !== 'todos') {
             processedClients = processedClients.filter(c => c.status === statusFilter);
         }
-        // Apenas aplica o filtro de squad se for superusuário
-        if (isSuperuser && squadFilter !== 'todos') {
+        if (squadFilter !== 'todos') {
             processedClients = processedClients.filter(c => String(c.squad) === squadFilter);
         }
         if (dateRange?.from) {
@@ -147,7 +146,7 @@ const ListingClient = () => {
     if (loading) return <div className="flex justify-center items-center h-screen"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
     if (error) return <div className="flex justify-center items-center h-screen text-destructive"><AlertCircle className="h-12 w-12 mr-4" />{error}</div>;
 
-    const filtersApplied = statusFilter !== 'todos' || (isSuperuser && squadFilter !== 'todos') || dateRange?.from || query;
+    const filtersApplied = statusFilter !== 'todos' ||  squadFilter !== 'todos' || dateRange?.from || query;
 
     return (
         <div className="min-h-screen bg-background p-4 sm:p-6">
@@ -184,21 +183,18 @@ const ListingClient = () => {
                                                 </SelectContent>
                                             </Select>
                                         </div>
-                                        {/* FILTRO DE SQUAD CONDICIONAL */}
-                                        {isSuperuser && (
-                                            <div className="grid grid-cols-3 items-center gap-4">
-                                                <Label htmlFor="squad">Squad</Label>
-                                                <Select value={squadFilter} onValueChange={setSquadFilter}>
-                                                    <SelectTrigger id="squad" className="col-span-2 h-8"><SelectValue /></SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="todos">Todos</SelectItem>
-                                                        {squads.map(squad => (
-                                                            <SelectItem key={squad.id} value={String(squad.id)}>{squad.name}</SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                        )}
+                                        <div className="grid grid-cols-3 items-center gap-4">
+                                            <Label htmlFor="squad">Squad</Label>
+                                            <Select value={squadFilter} onValueChange={setSquadFilter}>
+                                                <SelectTrigger id="squad" className="col-span-2 h-8"><SelectValue /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="todos">Todos</SelectItem>
+                                                    {squads.map(squad => (
+                                                        <SelectItem key={squad.id} value={String(squad.id)}>{squad.name}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
                                         <div className="grid grid-cols-3 items-center gap-4">
                                             <Label htmlFor="date-range">Cadastrados:</Label>
                                             <div className="col-span-2">

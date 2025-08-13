@@ -29,7 +29,7 @@ const Login = () => {
             }
 
             localStorage.setItem('authToken', accessToken);
-            
+
             window.location.reload();
         } catch (err) {
             toast({
