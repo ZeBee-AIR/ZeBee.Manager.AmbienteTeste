@@ -167,6 +167,7 @@ const Dashboard = () => {
                                 isCommissionable = true;
                             }
                         } else {
+                            revenueComission = revenue;
                             isCommissionable = true;
                         }
 
