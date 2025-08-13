@@ -67,13 +67,8 @@ const ListingClient = () => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                // A API já filtra os clientes e squads com base no usuário logado
-                const [clientsRes, squadsRes] = await Promise.all([
-                    api.get('/clients/'),
-                    api.get('/squads/')
-                ]);
-                setClients(clientsRes.data);
-                setSquads(squadsRes.data);
+                const response = await api.get('/clients/');
+                setClients(response.data);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Ocorreu um erro.');
             } finally {
