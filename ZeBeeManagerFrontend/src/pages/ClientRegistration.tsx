@@ -264,12 +264,14 @@ const ClientRegistration = () => {
                                             <div><Label className="text-xs">TACOS (%)</Label><Input type="number" value={monthData?.tacos || ''} onChange={e => handleMonthlyDataChange(selectedYear, month, 'tacos', e.target.value)} /></div>
                                         </div>
                                         {isSuperuser &&
-                                            <p className="text-xs text-muted-foreground">Comissão sobre receita: R$ {calculatedCommission.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>
+                                            <>
+                                                <p className="text-xs text-muted-foreground">Comissão sobre receita: R$ {calculatedCommission.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>
+                                                <div className="flex items-center space-x-4 pt-2">
+                                                    <div className="flex items-center space-x-2"><Checkbox id={`waiveFee-${selectedYear}-${month}`} checked={monthData?.waiveMonthlyFee} onCheckedChange={(checked) => handleMonthlyCheckboxChange(selectedYear, month, 'waiveMonthlyFee', !!checked)} /><Label htmlFor={`waiveFee-${selectedYear}-${month}`} className="text-xs font-normal">Isentar Mensalidade</Label></div>
+                                                    <div className="flex items-center space-x-2"><Checkbox id={`waiveComm-${selectedYear}-${month}`} checked={monthData?.waiveCommission} onCheckedChange={(checked) => handleMonthlyCheckboxChange(selectedYear, month, 'waiveCommission', !!checked)} /><Label htmlFor={`waiveComm-${selectedYear}-${month}`} className="text-xs font-normal">Isentar Comissão</Label></div>
+                                                </div>
+                                            </>
                                         }
-                                        <div className="flex items-center space-x-4 pt-2">
-                                            <div className="flex items-center space-x-2"><Checkbox id={`waiveFee-${selectedYear}-${month}`} checked={monthData?.waiveMonthlyFee} onCheckedChange={(checked) => handleMonthlyCheckboxChange(selectedYear, month, 'waiveMonthlyFee', !!checked)} /><Label htmlFor={`waiveFee-${selectedYear}-${month}`} className="text-xs font-normal">Isentar Mensalidade</Label></div>
-                                            <div className="flex items-center space-x-2"><Checkbox id={`waiveComm-${selectedYear}-${month}`} checked={monthData?.waiveCommission} onCheckedChange={(checked) => handleMonthlyCheckboxChange(selectedYear, month, 'waiveCommission', !!checked)} /><Label htmlFor={`waiveComm-${selectedYear}-${month}`} className="text-xs font-normal">Isentar Comissão</Label></div>
-                                        </div>
                                     </div>
                                 )
                             })}
