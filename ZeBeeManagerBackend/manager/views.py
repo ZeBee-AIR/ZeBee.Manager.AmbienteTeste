@@ -1,9 +1,22 @@
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.contrib.auth.models import User
 from .models import Squad, RevenueHistory, SquadPerformance, Client
-from .serializers import SquadSerializer, RevenueHistorySerializer, SquadPerformanceSerializer, ClientSerializer
+from .serializers import SquadSerializer, RevenueHistorySerializer, SquadPerformanceSerializer, ClientSerializer, UserSerializer
 
-# Usamos ReadOnlyModelViewSet para criar endpoints que apenas leem dados (GET)
-# Assegure que os nomes das ViewSets correspondem ao que o router espera.
+class UserDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+
+class SquadViewSet(viewsets.ModelViewSet):
+    serializer_class = SquadSerializer
+    queryset = Squad.objects.all()
+
 class SquadViewSet(viewsets.ModelViewSet):
     """API endpoint para visualizar dados dos squads."""
     queryset = Squad.objects.all()
@@ -20,9 +33,8 @@ class SquadPerformanceViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = SquadPerformanceSerializer
 
 class ClientViewSet(viewsets.ModelViewSet):
-    """
-    Endpoint da API que permite que clientes sejam visualizados ou editados.
-    """
-    queryset = Client.objects.all().order_by('store_name')
     serializer_class = ClientSerializer
+    queryset = Client.objects.all().order_by('store_name')
 
+    def perform_create(self, serializer):
+        serializer.save()

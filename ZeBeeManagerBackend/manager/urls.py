@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import SquadViewSet, RevenueHistoryViewSet, SquadPerformanceViewSet, ClientViewSet
+from .views import SquadViewSet, RevenueHistoryViewSet, SquadPerformanceViewSet, ClientViewSet, UserDetailView
 
 router = DefaultRouter()
 router.register(r'squads', SquadViewSet, basename='squad')
@@ -10,4 +10,5 @@ router.register(r'clients', ClientViewSet, basename='client')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('auth/user/', UserDetailView.as_view(), name='user-detail'),
 ]

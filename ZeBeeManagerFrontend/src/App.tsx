@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import ClientRegistration from "./pages/ClientRegistration";
 import ListingClient from './pages/ListingClient';
 import NotFound from "./pages/NotFound";
+import { AuthProvider } from "./context/AuthContext";
 
 const queryClient = new QueryClient();
 
@@ -19,24 +20,27 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="dark" storageKey="contract-manager-theme">
       <TooltipProvider>
+        <div className="w-100 bg-red-600 text-yellow-50 text-center text-2xl">Você está no ambiente de testes.</div>
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route element={<PublicRoute />}>
-              <Route path="/" element={<Login />} />
-            </Route>
-
-            <Route element={<ProtectedRoute />}>
-              <Route element={<MainLayout />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/registrar" element={<ClientRegistration />} />
-                <Route path="/lista-clientes" element={<ListingClient />} />
+          <AuthProvider>
+            <Routes>
+              <Route element={<PublicRoute />}>
+                <Route path="/" element={<Login />} />
               </Route>
-            </Route>
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+
+              <Route element={<ProtectedRoute />}>
+                <Route element={<MainLayout />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/registrar" element={<ClientRegistration />} />
+                  <Route path="/lista-clientes" element={<ListingClient />} />
+                </Route>
+              </Route>
+              
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>

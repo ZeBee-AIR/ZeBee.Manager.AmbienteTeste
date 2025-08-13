@@ -1,5 +1,19 @@
 from rest_framework import serializers
-from .models import Squad, RevenueHistory, SquadPerformance, Client
+from django.contrib.auth.models import User
+from .models import Squad, RevenueHistory, SquadPerformance, Client, UserProfile
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['squad']
+
+class UserSerializer(serializers.ModelSerializer):
+    profile = UserProfileSerializer()
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'is_superuser', 'profile']
 
 class SquadSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,11 +43,24 @@ class ClientSerializer(serializers.ModelSerializer):
             'store_name',
             'seller_id',
             'seller_email',
+            'phone_number',
             'contracted_plan',
             'plan_value',
             'client_commission_percentage',
+            'has_special_commission',
+            'special_commission_threshold',
             'monthly_data',
             'status',
             'created_at',
             'status_changed_at'
         ]
+
+    def update(self, instance, validated_data):
+        monthly_data_from_request = validated_data.pop('monthly_data', None)
+        instance = super().update(instance, validated_data)
+
+        if monthly_data_from_request is not None:
+            instance.monthly_data = monthly_data_from_request
+            instance.save()
+
+        return instance
