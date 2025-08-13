@@ -34,14 +34,7 @@ class SquadPerformanceViewSet(viewsets.ReadOnlyModelViewSet):
 
 class ClientViewSet(viewsets.ModelViewSet):
     serializer_class = ClientSerializer
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_superuser:
-            return Client.objects.all().order_by('store_name')
-        if hasattr(user, 'profile') and user.profile.squad:
-            return Client.objects.filter(squad=user.profile.squad).order_by('store_name')
-        return Client.objects.none()
+    queryset = Client.objects.all().order_by('store_name')
 
     def perform_create(self, serializer):
         serializer.save()

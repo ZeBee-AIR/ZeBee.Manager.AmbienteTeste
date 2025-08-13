@@ -25,7 +25,6 @@ import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { DateRange } from 'react-day-picker';
 import api from '@/lib/api';
-import { useAuth } from '@/context/AuthContext';
 
 type Squad = {
     id: number;
@@ -43,9 +42,6 @@ type ClientData = {
 };
 
 const ListingClient = () => {
-    const { user } = useAuth();
-    const isSuperuser = user?.is_superuser;
-
     const [clients, setClients] = useState<ClientData[]>([]);
     const [squads, setSquads] = useState<Squad[]>([]);
     const [loading, setLoading] = useState(true);
@@ -122,6 +118,7 @@ const ListingClient = () => {
         if (statusFilter !== 'todos') {
             processedClients = processedClients.filter(c => c.status === statusFilter);
         }
+        // O filtro de squad agora é aplicado para todos
         if (squadFilter !== 'todos') {
             processedClients = processedClients.filter(c => String(c.squad) === squadFilter);
         }
@@ -133,7 +130,7 @@ const ListingClient = () => {
         }
         processedClients.sort((a, b) => a.store_name.localeCompare(b.store_name));
         return processedClients;
-    }, [query, clients, statusFilter, squadFilter, dateRange, isSuperuser]);
+    }, [query, clients, statusFilter, squadFilter, dateRange]);
 
     const pageCount = Math.ceil(filteredClients.length / pageSize);
     const paginatedClients = useMemo(() => {
@@ -145,7 +142,7 @@ const ListingClient = () => {
     if (loading) return <div className="flex justify-center items-center h-screen"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
     if (error) return <div className="flex justify-center items-center h-screen text-destructive"><AlertCircle className="h-12 w-12 mr-4" />{error}</div>;
 
-    const filtersApplied = statusFilter !== 'todos' ||  squadFilter !== 'todos' || dateRange?.from || query;
+    const filtersApplied = statusFilter !== 'todos' || squadFilter !== 'todos' || dateRange?.from || query;
 
     return (
         <div className="min-h-screen bg-background p-4 sm:p-6">
@@ -182,6 +179,7 @@ const ListingClient = () => {
                                                 </SelectContent>
                                             </Select>
                                         </div>
+                                        {/* FILTRO DE SQUAD AGORA É VISÍVEL PARA TODOS */}
                                         <div className="grid grid-cols-3 items-center gap-4">
                                             <Label htmlFor="squad">Squad</Label>
                                             <Select value={squadFilter} onValueChange={setSquadFilter}>
