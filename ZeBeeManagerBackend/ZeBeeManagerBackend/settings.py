@@ -67,7 +67,7 @@ WSGI_APPLICATION = 'ZeBeeManagerBackend.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
+        default="postgresql://zbm_zebeemanager_5734:eH7TqNt7pu54WEcjU8b681JejkcAyI1x@dpg-d1mj6i15pdvs73d4oj60-a/zebeemanager_bd",
         conn_max_age=600
     )
 }
