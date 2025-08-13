@@ -15,15 +15,7 @@ class UserDetailView(APIView):
 
 class SquadViewSet(viewsets.ModelViewSet):
     serializer_class = SquadSerializer
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_superuser:
-            return Squad.objects.all()
-        # Se for usuário de squad, retorna apenas o seu squad
-        if hasattr(user, 'profile') and user.profile.squad:
-            return Squad.objects.filter(pk=user.profile.squad.pk)
-        return Squad.objects.none()
+    queryset = Squad.objects.all()
 
 class SquadViewSet(viewsets.ModelViewSet):
     """API endpoint para visualizar dados dos squads."""
@@ -52,8 +44,4 @@ class ClientViewSet(viewsets.ModelViewSet):
         return Client.objects.none()
 
     def perform_create(self, serializer):
-        user = self.request.user
-        if not user.is_superuser and hasattr(user, 'profile') and user.profile.squad:
-            serializer.save(squad=user.profile.squad)
-        else:
-            serializer.save()
+        serializer.save()
