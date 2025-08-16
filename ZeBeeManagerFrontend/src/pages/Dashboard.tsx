@@ -6,6 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { format, getYear, isWithinInterval, startOfMonth, endOfMonth, eachMonthOfInterval, parseISO, subMonths } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
@@ -91,10 +92,11 @@ const Dashboard = () => {
         to: endOfMonth(new Date()),
     });
 
-    const [commissionRecurencyHistory, setCommissionRecurrencyHistory] = useState<DateRange | undefined>({
-        from: startOfMonth(subMonths(new Date(), 1)),
-        to: endOfMonth(new Date()),
-    });
+    const [selectedYearInitial, setSelectedYearInitial] = useState(new Date().getFullYear());
+    const [selectedYearEnd, setSelectedYearEnd] = useState(new Date().getFullYear());
+    const yearsInitial = Array.from({ length: new Date().getFullYear() - 2009 }, (_, i) => new Date().getFullYear() - i);
+    const yearsEnd = Array.from({ length: new Date().getFullYear() - 2009 }, (_, i) => new Date().getFullYear() - i);
+
 
     const [isChurnModalOpen, setIsChurnModalOpen] = useState(false);
 
@@ -286,16 +288,27 @@ const Dashboard = () => {
                             <CardTitle className="text-lg font-semibold flex items-center gap-2">
                                 <DollarSign className="text-yellow-500" />
                                 Histórico de Recorrência e Comissão
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button variant={"outline"} className={cn("w-[280px] justify-start text-left font-normal", !commissionRecurencyHistory && "text-muted-foreground")}>
-                                            {commissionRecurencyHistory?.from ? (commissionRecurencyHistory.to ? <>{format(commissionRecurencyHistory.from, "y", { locale: ptBR })} - {format(commissionRecurencyHistory.to, "y", { locale: ptBR })}</> : format(commissionRecurencyHistory.from, "y", { locale: ptBR })) : (<span>Selecione um período</span>)}
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0" align="end">
-                                        <Calendar initialFocus mode="range" defaultMonth={commissionRecurencyHistory?.from} selected={commissionRecurencyHistory} onSelect={setDateRange} locale={ptBR} />
-                                    </PopoverContent>
-                                </Popover>
+                            </CardTitle>
+                            <CardTitle className="text-sm font-medium flex items-center gap-2 justify-items-end">
+                                Dê:
+                                <Select value={selectedYearInitial.toString()} onValueChange={v => setSelectedYearInitial(parseInt(v))}>
+                                    <SelectTrigger className="w-[180px]">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {yearsInitial.map(y => <SelectItem key={y} value={y.toString()}>{y}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+
+                                Até:
+                                <Select value={selectedYearEnd.toString()} onValueChange={v => setSelectedYearEnd(parseInt(v))}>
+                                    <SelectTrigger className="w-[180px]">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {yearsEnd.map(y => <SelectItem key={y} value={y.toString()}>{y}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
