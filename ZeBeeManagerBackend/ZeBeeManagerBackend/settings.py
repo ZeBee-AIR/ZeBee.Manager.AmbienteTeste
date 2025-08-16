@@ -11,6 +11,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     'zebee-manager-ambienteteste.onrender.com',
+    "zebee-manager-ambiente-teste.vercel.app",
     '127.0.0.1',
 ]
 
