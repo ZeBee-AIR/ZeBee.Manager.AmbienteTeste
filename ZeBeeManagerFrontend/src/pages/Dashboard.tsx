@@ -90,6 +90,12 @@ const Dashboard = () => {
         from: startOfMonth(subMonths(new Date(), 1)),
         to: endOfMonth(new Date()),
     });
+
+    const [commissionRecurencyHistory, setCommissionRecurrencyHistory] = useState<DateRange | undefined>({
+        from: startOfMonth(subMonths(new Date(), 1)),
+        to: endOfMonth(new Date()),
+    });
+
     const [isChurnModalOpen, setIsChurnModalOpen] = useState(false);
 
     useEffect(() => {
@@ -235,8 +241,15 @@ const Dashboard = () => {
                         <p className="text-muted-foreground">Monitore o desempenho de seus contratos e squads.</p>
                     </div>
                     <Popover>
-                        <PopoverTrigger asChild><Button variant={"outline"} className={cn("w-[280px] justify-start text-left font-normal", !dateRange && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{dateRange?.from ? (dateRange.to ? <>{format(dateRange.from, "LLL dd, y", { locale: ptBR })} - {format(dateRange.to, "LLL dd, y", { locale: ptBR })}</> : format(dateRange.from, "LLL dd, y", { locale: ptBR })) : (<span>Selecione um período</span>)}</Button></PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="end"><Calendar initialFocus mode="range" defaultMonth={dateRange?.from} selected={dateRange} onSelect={setDateRange} numberOfMonths={2} locale={ptBR} /></PopoverContent>
+                        <PopoverTrigger asChild>
+                            <Button variant={"outline"} className={cn("w-[280px] justify-start text-left font-normal", !dateRange && "text-muted-foreground")}>
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {dateRange?.from ? (dateRange.to ? <>{format(dateRange.from, "LLL dd, y", { locale: ptBR })} - {format(dateRange.to, "LLL dd, y", { locale: ptBR })}</> : format(dateRange.from, "LLL dd, y", { locale: ptBR })) : (<span>Selecione um período</span>)}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="end">
+                            <Calendar initialFocus mode="range" defaultMonth={dateRange?.from} selected={dateRange} onSelect={setDateRange} numberOfMonths={2} locale={ptBR} />
+                        </PopoverContent>
                     </Popover>
                 </div>
 
@@ -269,9 +282,33 @@ const Dashboard = () => {
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <Card>
-                        <CardHeader><CardTitle className="text-lg font-semibold flex items-center gap-2"><DollarSign className="text-yellow-500" />Histórico de Recorrência e Comissão</CardTitle></CardHeader>
+                        <CardHeader>
+                            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                                <DollarSign className="text-yellow-500" />
+                                Histórico de Recorrência e Comissão
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button variant={"outline"} className={cn("w-[280px] justify-start text-left font-normal", !commissionRecurencyHistory && "text-muted-foreground")}>
+                                            {commissionRecurencyHistory?.from ? (commissionRecurencyHistory.to ? <>{format(commissionRecurencyHistory.from, "y", { locale: ptBR })} - {format(commissionRecurencyHistory.to, "y", { locale: ptBR })}</> : format(commissionRecurencyHistory.from, "y", { locale: ptBR })) : (<span>Selecione um período</span>)}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="end">
+                                        <Calendar initialFocus mode="range" defaultMonth={commissionRecurencyHistory?.from} selected={commissionRecurencyHistory} onSelect={setDateRange} locale={ptBR} />
+                                    </PopoverContent>
+                                </Popover>
+                            </CardTitle>
+                        </CardHeader>
                         <CardContent>
-                            <ResponsiveContainer width="100%" height={300}><LineChart data={businessLogic.companyHistoryData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} /><Legend /><Line type="monotone" dataKey="revenue" stroke="#3B82F6" name="Recorrência" /><Line type="monotone" dataKey="commission" stroke="#10B981" name="Comissão" /></LineChart></ResponsiveContainer>
+                            <ResponsiveContainer width="100%" height={300}>
+                                <LineChart data={businessLogic.companyHistoryData}>
+                                <CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" />
+                                <YAxis />
+                                <Tooltip formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} />
+                                <Legend />
+                                <Line type="monotone" dataKey="revenue" stroke="#3B82F6" name="Recorrência" />
+                                <Line type="monotone" dataKey="commission" stroke="#10B981" name="Comissão" />
+                                </LineChart>
+                            </ResponsiveContainer>
                         </CardContent>
                     </Card>
                     <Card>
