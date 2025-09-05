@@ -166,8 +166,9 @@ const ClientRegistration = () => {
     if (error) return <div className="flex justify-center items-center h-screen text-destructive"><AlertCircle className="h-12 w-12 mr-4"/>{error}</div>;
 
     return (
-        <div className="min-h-screen bg-background p-6">
-            <div className="max-w-4xl mx-auto">
+        // A ÚNICA MUDANÇA ESTÁ AQUI NESTA LINHA:
+        <div className="min-h-screen p-6">
+            <div className="max-w-7xl mx-auto">
                 <div className="mb-8"><h1 className="text-3xl font-bold">{isEditMode ? `Editando: ${formData.storeName}` : 'Registro de Cliente'}</h1></div>
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {isSuperuser &&
@@ -180,7 +181,6 @@ const ClientRegistration = () => {
                                     <div><Label>ID do Cliente</Label><Input value={formData.sellerId} onChange={e => handleInputChange('sellerId', e.target.value)} /></div>
                                     <div><Label>Email</Label><Input type="email" value={formData.sellerEmail} onChange={e => handleInputChange('sellerEmail', e.target.value)}/></div>
                                     <div><Label>Telefone</Label><Input value={formData.phoneNumber} onChange={e => handleInputChange('phoneNumber', e.target.value)} placeholder="(11) 98765-4321" /></div>
-
                                     <div>
                                         <Label>Squad Responsável</Label>
                                         <Select

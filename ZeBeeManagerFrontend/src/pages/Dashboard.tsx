@@ -289,12 +289,12 @@ const Dashboard = () => {
     const COLORS = ['#10B981', '#F59E0B', '#3B82F6', '#EF4444', '#8B5CF6'];
 
     return (
-        <div className="min-h-screen bg-background p-6">
+        <div className="min-h-screen p-6">
             <div className="max-w-7xl mx-auto">
                 <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard de Gerenciamento</h1>
-                        <p className="text-muted-foreground">Monitore o desempenho de seus contratos e squads.</p>
+                        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-[#00f2ff] via-[#00d4e6] to-[#00f2ff] hover:from-[#006b73] hover:via-[#00f2ff] hover:to-[#006b73] bg-clip-text text-transparent bg-[length:400%_100%] transition-all duration-500 cursor-pointer" style={{animation: 'cyanDrift 4s ease-in-out infinite'}} onMouseEnter={(e) => {e.target.style.animation = 'cyanHoverWave 1.5s ease-in-out infinite';}} onMouseLeave={(e) => {e.target.style.animation = 'cyanDrift 4s ease-in-out infinite';}}>Dashboard de Gerenciamento</h1>
+                        <p className="text-[#AAA]">Monitore o desempenho de seus contratos e squads.</p>
                     </div>
                     <Popover>
                         <PopoverTrigger asChild>
@@ -310,39 +310,74 @@ const Dashboard = () => {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-8">
-                    <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Clientes Ativos</CardTitle><Users className="h-4 w-4 text-blue-500" /></CardHeader><CardContent><div className="text-2xl font-bold">{businessLogic.totalActiveClients}</div><p className="text-xs text-muted-foreground text-green-500">+{businessLogic.newClientsInPeriod} novos no período</p></CardContent></Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium">Cancelamentos</CardTitle>
-                            <div className="flex items-center gap-2">
-                                <TrendingDown className="h-4 w-4 text-red-500" />
-                                <TooltipProvider>
-                                    <ShadTooltip>
-                                        <TooltipTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setIsChurnModalOpen(true)}>
-                                                <HelpCircle className="h-4 w-4 text-blue-500" />
-                                            </Button>
-                                        </TooltipTrigger>
-                                        <TooltipContent><p>Clique aqui para receber os detalhes.</p></TooltipContent>
-                                    </ShadTooltip>
-                                </TooltipProvider>
-                            </div>
-                        </CardHeader>
-                        <CardContent><div className="text-2xl font-bold">{businessLogic.cancelledClientsInPeriod}</div><p className="text-xs text-muted-foreground text-red-500">No período selecionado</p></CardContent>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div>
+                        <div className="relative z-10">
+                            <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Clientes Ativos</CardTitle><Users className="h-4 w-4 text-[#00F5FF]" /></CardHeader>
+                            <CardContent><div className="text-2xl font-bold text-white">{businessLogic.totalActiveClients}</div><p className="text-xs text-[#AAA] text-green-400">+{businessLogic.newClientsInPeriod} novos no período</p></CardContent>
+                        </div>
                     </Card>
-                    <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Perdas (Churn)</CardTitle><DollarSign className="h-4 w-4 text-red-500" /></CardHeader><CardContent><div className="text-2xl font-bold">R$ {businessLogic.totalChurnRevenueLoss.toLocaleString('pt-BR')}</div><p className="text-xs text-muted-foreground text-red-500">Com base no plano</p></CardContent></Card>
-                    <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Recorrência + Comissão Total</CardTitle><DollarSign className="h-4 w-4 text-green-500" /></CardHeader><CardContent><div className="text-2xl font-bold">R$ {businessLogic.totalRevenueComission.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-muted-foreground">Recorrência + Comissão</p></CardContent></Card>
-                    <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Comissão Total</CardTitle><Target className="h-4 w-4 text-yellow-500" /></CardHeader><CardContent><div className="text-2xl font-bold">R$ {businessLogic.totalCommission.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-muted-foreground">Com base na performance</p></CardContent></Card>
-                    <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Recorrência Total</CardTitle><DollarSign className="h-4 w-4 text-green-500" /></CardHeader><CardContent><div className="text-2xl font-bold">R$ {businessLogic.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-muted-foreground">Com base no plano</p></CardContent></Card>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div>
+                        <div className="relative z-10">
+                            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                <CardTitle className="text-sm font-medium text-white">Cancelamentos</CardTitle>
+                                <div className="flex items-center gap-2">
+                                    <TrendingDown className="h-4 w-4 text-red-400" />
+                                    <TooltipProvider>
+                                        <ShadTooltip>
+                                            <TooltipTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="h-5 w-5 hover:bg-[#00F5FF]/20 transition-all duration-300" onClick={() => setIsChurnModalOpen(true)}>
+                                                    <HelpCircle className="h-4 w-4 text-[#00F5FF]" />
+                                                </Button>
+                                            </TooltipTrigger>
+                                            <TooltipContent><p>Clique aqui para receber os detalhes.</p></TooltipContent>
+                                        </ShadTooltip>
+                                    </TooltipProvider>
+                                </div>
+                            </CardHeader>
+                            <CardContent><div className="text-2xl font-bold text-white">{businessLogic.cancelledClientsInPeriod}</div><p className="text-xs text-[#AAA] text-red-400">No período selecionado</p></CardContent>
+                        </div>
+                    </Card>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div>
+                        <div className="relative z-10">
+                            <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Perdas (Churn)</CardTitle><DollarSign className="h-4 w-4 text-red-400" /></CardHeader>
+                            <CardContent><div className="text-2xl font-bold text-white">R$ {businessLogic.totalChurnRevenueLoss.toLocaleString('pt-BR')}</div><p className="text-xs text-[#AAA] text-red-400">Com base no plano</p></CardContent>
+                        </div>
+                    </Card>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div>
+                        <div className="relative z-10">
+                            <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Recorrência + Comissão Total</CardTitle><DollarSign className="h-4 w-4 text-[#00F5FF]" /></CardHeader>
+                            <CardContent><div className="text-2xl font-bold text-white">R$ {businessLogic.totalRevenueComission.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-[#AAA]">Recorrência + Comissão</p></CardContent>
+                        </div>
+                    </Card>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div>
+                        <div className="relative z-10">
+                            <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Comissão Total</CardTitle><Target className="h-4 w-4 text-[#00F5FF]" /></CardHeader>
+                            <CardContent><div className="text-2xl font-bold text-white">R$ {businessLogic.totalCommission.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-[#AAA]">Com base na performance</p></CardContent>
+                        </div>
+                    </Card>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div>
+                        <div className="relative z-10">
+                            <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Recorrência Total</CardTitle><DollarSign className="h-4 w-4 text-[#00F5FF]" /></CardHeader>
+                            <CardContent><div className="text-2xl font-bold text-white">R$ {businessLogic.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-[#AAA]">Com base no plano</p></CardContent>
+                        </div>
+                    </Card>
                 </div>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                                <DollarSign className="text-yellow-500" />
-                                Histórico de Recorrência e Comissão
-                            </CardTitle>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div>
+                        <div className="relative z-10">
+                            <CardHeader>
+                                <CardTitle className="text-lg font-semibold flex items-center gap-2 text-white">
+                                    <DollarSign className="text-[#00F5FF]" />
+                                    Histórico de Recorrência e Comissão
+                                </CardTitle>
                             <CardTitle className="text-sm font-medium flex items-center gap-2 justify-items-end">
                                 <Select value={selectedYearInitial.toString()} onValueChange={v => setSelectedYearInitial(parseInt(v))}>
                                     <SelectTrigger className="w-[180px]">
@@ -375,16 +410,22 @@ const Dashboard = () => {
                                 <Line type="monotone" dataKey="commission" stroke="#10B981" name="Comissão" />
                                 </LineChart>
                             </ResponsiveContainer>
-                        </CardContent>
+                            </CardContent>
+                        </div>
                     </Card>
-                    <Card>
-                        <CardHeader><CardTitle className="text-lg font-semibold flex items-center gap-2"><TrendingUp className="text-blue-500" />Desempenho de Recorrência por Squad</CardTitle></CardHeader>
-                        <CardContent>
-                            <ResponsiveContainer width="100%" height={300}><BarChart data={businessLogic.squadRevenueData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" /><YAxis /><Tooltip formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`} /><Bar dataKey="revenue" fill="#3B82F6" name="Recorrência" /></BarChart></ResponsiveContainer>
-                        </CardContent>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div>
+                        <div className="relative z-10">
+                            <CardHeader><CardTitle className="text-lg font-semibold flex items-center gap-2 text-white"><TrendingUp className="text-[#00F5FF]" />Desempenho de Recorrência por Squad</CardTitle></CardHeader>
+                            <CardContent>
+                                <ResponsiveContainer width="100%" height={300}><BarChart data={businessLogic.squadRevenueData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" /><YAxis /><Tooltip formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`} /><Bar dataKey="revenue" fill="#3B82F6" name="Recorrência" /></BarChart></ResponsiveContainer>
+                            </CardContent>
+                        </div>
                     </Card>
-                    <Card>
-                        <CardHeader><CardTitle className="text-lg font-semibold flex items-center gap-2"><Users className="text-indigo-500" />Clientes Ativos por Squad</CardTitle></CardHeader>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div>
+                        <div className="relative z-10">
+                            <CardHeader><CardTitle className="text-lg font-semibold flex items-center gap-2 text-white"><Users className="text-[#00F5FF]" />Clientes Ativos por Squad</CardTitle></CardHeader>
                         <CardContent>
                             <ResponsiveContainer width="100%" height={300}>
                                 <PieChart>
@@ -395,13 +436,17 @@ const Dashboard = () => {
                                     <Legend />
                                 </PieChart>
                             </ResponsiveContainer>
-                        </CardContent>
+                            </CardContent>
+                        </div>
                     </Card>
-                    <Card>
-                        <CardHeader><CardTitle className="text-lg font-semibold flex items-center gap-2"><UserPlus className="text-green-500" />Novos Clientes vs. Cancelamentos<TrendingDown className="text-red-500" /></CardTitle></CardHeader>
-                        <CardContent>
-                            <ResponsiveContainer width="100%" height={300}><BarChart data={businessLogic.squadAcquisitionChurnData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" /><YAxis allowDecimals={false} /><Tooltip /><Legend /><Bar dataKey="newClients" fill="#10B981" name="Novos Clientes" /><Bar dataKey="churns" fill="#EF4444" name="Cancelamentos" /></BarChart></ResponsiveContainer>
-                        </CardContent>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div>
+                        <div className="relative z-10">
+                            <CardHeader><CardTitle className="text-lg font-semibold flex items-center gap-2 text-white"><UserPlus className="text-[#00F5FF]" />Novos Clientes vs. Cancelamentos<TrendingDown className="text-red-400" /></CardTitle></CardHeader>
+                            <CardContent>
+                                <ResponsiveContainer width="100%" height={300}><BarChart data={businessLogic.squadAcquisitionChurnData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" /><YAxis allowDecimals={false} /><Tooltip /><Legend /><Bar dataKey="newClients" fill="#10B981" name="Novos Clientes" /><Bar dataKey="churns" fill="#EF4444" name="Cancelamentos" /></BarChart></ResponsiveContainer>
+                            </CardContent>
+                        </div>
                     </Card>
                 </div>
             </div>

@@ -54,41 +54,43 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Cores base personalizadas - Preto, Ciano e Branco */
+    --background: 0 0% 7.1%; /* #121212 */
+    --foreground: 0 0% 100%; /* Branco puro */
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 8.6%; /* #161616 */
+    --card-foreground: 0 0% 100%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 8.6%; /* #161616 */
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 185 100% 50%; /* #00f2ff - Ciano */
+    --primary-foreground: 0 0% 7.1%; /* #121212 */
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 0 0% 11%; /* #1c1c1c */
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 0 0% 11%; /* #1c1c1c */
+    --muted-foreground: 0 0% 70%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 185 100% 50%; /* #00f2ff - Ciano */
+    --accent-foreground: 0 0% 7.1%; /* #121212 */
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 0 0% 11%; /* #1c1c1c */
+    --input: 0 0% 11%; /* #1c1c1c */
+    --ring: 185 100% 50%; /* #00f2ff - Ciano */
+    
+    --sidebar-background: 0 0% 7.1%; /* #121212 */
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 185 100% 50%; /* #00f2ff - Ciano */
+    --sidebar-primary-foreground: 0 0% 7.1%; /* #121212 */
+    --sidebar-accent: 0 0% 8.6%; /* #161616 */
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 11%; /* #1c1c1c */
+    --sidebar-ring: 185 100% 50%; /* #00f2ff - Ciano */
   }
 }
 
@@ -99,5 +101,425 @@
 
   body {
     @apply bg-background text-foreground;
+    position: relative;
+    overflow-x: hidden;
   }
+
+  /* Efeito de gradiente com motion grain no background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+      radial-gradient(circle at 20% 50%, rgba(0, 242, 255, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(0, 242, 255, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, rgba(0, 242, 255, 0.08) 0%, transparent 50%),
+      linear-gradient(135deg, rgba(0, 242, 255, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+    animation: gradientShift 8s ease-in-out infinite alternate;
+  }
+
+  /* Efeito grain/noise */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+      radial-gradient(circle, rgba(0, 242, 255, 0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+    z-index: -1;
+    animation: grainMove 4s linear infinite;
+  }
+
+  @keyframes gradientShift {
+    0% {
+      transform: translateX(-10px) translateY(-10px) scale(1);
+      opacity: 0.8;
+    }
+    50% {
+      transform: translateX(10px) translateY(5px) scale(1.02);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(-5px) translateY(-15px) scale(0.98);
+      opacity: 0.9;
+    }
+  }
+
+  @keyframes grainMove {
+    0% {
+      transform: translate(0, 0);
+    }
+    25% {
+      transform: translate(-2px, -2px);
+    }
+    50% {
+      transform: translate(2px, -1px);
+    }
+    75% {
+      transform: translate(-1px, 2px);
+    }
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+
+  /* Animações suaves para elementos do login */
+  @keyframes floatSmoothX {
+    0% {
+      transform: translateX(-20px) translateY(0px);
+      opacity: 0.6;
+    }
+    25% {
+      transform: translateX(15px) translateY(-10px);
+      opacity: 0.8;
+    }
+    50% {
+      transform: translateX(25px) translateY(5px);
+      opacity: 1;
+    }
+    75% {
+      transform: translateX(-10px) translateY(15px);
+      opacity: 0.9;
+    }
+    100% {
+      transform: translateX(-20px) translateY(0px);
+      opacity: 0.6;
+    }
+  }
+
+  @keyframes floatSmoothY {
+    0% {
+      transform: translateX(0px) translateY(-15px);
+      opacity: 0.5;
+    }
+    33% {
+      transform: translateX(20px) translateY(10px);
+      opacity: 0.8;
+    }
+    66% {
+      transform: translateX(-15px) translateY(20px);
+      opacity: 0.9;
+    }
+    100% {
+      transform: translateX(0px) translateY(-15px);
+      opacity: 0.5;
+    }
+  }
+
+  @keyframes floatSmoothZ {
+     0% {
+       transform: translateX(10px) translateY(10px) scale(0.95);
+       opacity: 0.4;
+     }
+     50% {
+       transform: translateX(-25px) translateY(-5px) scale(1.05);
+       opacity: 0.7;
+     }
+     100% {
+       transform: translateX(10px) translateY(10px) scale(0.95);
+       opacity: 0.4;
+     }
+   }
+
+   /* Animação da outline do card de login */
+    @keyframes borderGlow {
+      0% {
+        border-color: rgba(0, 242, 255, 0.3);
+        box-shadow: 0 0 20px rgba(0, 242, 255, 0.2), 0 0 40px rgba(0, 242, 255, 0.1);
+      }
+      25% {
+        border-color: rgba(0, 242, 255, 0.6);
+        box-shadow: 0 0 30px rgba(0, 242, 255, 0.3), 0 0 60px rgba(0, 242, 255, 0.15);
+      }
+      50% {
+        border-color: rgba(0, 242, 255, 0.8);
+        box-shadow: 0 0 40px rgba(0, 242, 255, 0.4), 0 0 80px rgba(0, 242, 255, 0.2);
+      }
+      75% {
+        border-color: rgba(0, 242, 255, 0.6);
+        box-shadow: 0 0 30px rgba(0, 242, 255, 0.3), 0 0 60px rgba(0, 242, 255, 0.15);
+      }
+      100% {
+        border-color: rgba(0, 242, 255, 0.3);
+        box-shadow: 0 0 20px rgba(0, 242, 255, 0.2), 0 0 40px rgba(0, 242, 255, 0.1);
+      }
+    }
+
+    /* Animações premium para o background */
+    @keyframes premiumFloat1 {
+      0% {
+        transform: translateX(-30px) translateY(-20px) rotate(0deg) scale(1);
+        opacity: 0.4;
+      }
+      25% {
+        transform: translateX(40px) translateY(-35px) rotate(90deg) scale(1.1);
+        opacity: 0.7;
+      }
+      50% {
+        transform: translateX(60px) translateY(10px) rotate(180deg) scale(0.9);
+        opacity: 0.9;
+      }
+      75% {
+        transform: translateX(-20px) translateY(40px) rotate(270deg) scale(1.05);
+        opacity: 0.6;
+      }
+      100% {
+        transform: translateX(-30px) translateY(-20px) rotate(360deg) scale(1);
+        opacity: 0.4;
+      }
+    }
+
+    @keyframes premiumFloat2 {
+      0% {
+        transform: translateX(20px) translateY(30px) rotate(0deg) scale(0.8);
+        opacity: 0.3;
+      }
+      33% {
+        transform: translateX(-50px) translateY(-10px) rotate(120deg) scale(1.2);
+        opacity: 0.8;
+      }
+      66% {
+        transform: translateX(30px) translateY(-45px) rotate(240deg) scale(0.95);
+        opacity: 0.6;
+      }
+      100% {
+        transform: translateX(20px) translateY(30px) rotate(360deg) scale(0.8);
+        opacity: 0.3;
+      }
+    }
+
+    @keyframes premiumFloat3 {
+       0% {
+         transform: translateX(0px) translateY(0px) rotate(0deg) scale(1.1);
+         opacity: 0.2;
+       }
+       40% {
+         transform: translateX(-60px) translateY(25px) rotate(144deg) scale(0.7);
+         opacity: 0.7;
+       }
+       80% {
+         transform: translateX(45px) translateY(-30px) rotate(288deg) scale(1.3);
+         opacity: 0.5;
+       }
+       100% {
+         transform: translateX(0px) translateY(0px) rotate(360deg) scale(1.1);
+         opacity: 0.2;
+       }
+     }
+
+     /* Animações suaves para o background */
+     @keyframes softBackgroundPulse {
+       0% {
+         opacity: 0.1;
+         transform: scale(0.95);
+       }
+       50% {
+         opacity: 0.3;
+         transform: scale(1.05);
+       }
+       100% {
+         opacity: 0.1;
+         transform: scale(0.95);
+       }
+     }
+
+     @keyframes gentleFloat {
+        0% {
+          transform: translateY(0px) translateX(0px);
+          opacity: 0.4;
+        }
+        33% {
+          transform: translateY(-8px) translateX(5px);
+          opacity: 0.7;
+        }
+        66% {
+          transform: translateY(4px) translateX(-3px);
+          opacity: 0.6;
+        }
+        100% {
+          transform: translateY(0px) translateX(0px);
+          opacity: 0.4;
+        }
+      }
+
+      /* Efeito drift para texto ciano - apenas gradiente interno */
+        @keyframes cyanDrift {
+          0% {
+            background-position: 0% 50%;
+          }
+          25% {
+            background-position: 25% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          75% {
+            background-position: 75% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
+        }
+
+        /* Efeito hover ciano escuro/claro */
+         @keyframes cyanHoverWave {
+           0% {
+             background-position: -200% 50%;
+           }
+           100% {
+             background-position: 200% 50%;
+           }
+         }
+
+         /* Feixes de luz ciano subindo */
+         @keyframes lightBeamRise {
+           0% {
+             transform: translateY(100vh) translateX(-50%) rotate(-15deg);
+             opacity: 0;
+           }
+           10% {
+             opacity: 0.3;
+           }
+           90% {
+             opacity: 0.1;
+           }
+           100% {
+             transform: translateY(-100vh) translateX(-50%) rotate(-15deg);
+             opacity: 0;
+           }
+         }
+
+         @keyframes lightBeamRise2 {
+           0% {
+             transform: translateY(100vh) translateX(-50%) rotate(12deg);
+             opacity: 0;
+           }
+           15% {
+             opacity: 0.2;
+           }
+           85% {
+             opacity: 0.05;
+           }
+           100% {
+             transform: translateY(-100vh) translateX(-50%) rotate(12deg);
+             opacity: 0;
+           }
+         }
+
+         @keyframes lightBeamRise3 {
+           0% {
+             transform: translateY(100vh) translateX(-50%) rotate(-8deg);
+             opacity: 0;
+           }
+           20% {
+             opacity: 0.25;
+           }
+           80% {
+             opacity: 0.08;
+           }
+           100% {
+             transform: translateY(-100vh) translateX(-50%) rotate(-8deg);
+             opacity: 0;
+           }
+         }
+
+         /* Animações motion graphics para bolas de glow */
+         @keyframes smoothRandomFloat1 {
+           0% {
+             transform: translate(0px, 0px) scale(1);
+           }
+           25% {
+             transform: translate(15px, -20px) scale(1.05);
+           }
+           50% {
+             transform: translate(-10px, 10px) scale(0.95);
+           }
+           75% {
+             transform: translate(20px, 5px) scale(1.02);
+           }
+           100% {
+             transform: translate(0px, 0px) scale(1);
+           }
+         }
+
+         @keyframes smoothRandomFloat2 {
+           0% {
+             transform: translate(0px, 0px) scale(1);
+           }
+           30% {
+             transform: translate(-18px, 12px) scale(1.08);
+           }
+           60% {
+             transform: translate(8px, -15px) scale(0.92);
+           }
+           85% {
+             transform: translate(-5px, 8px) scale(1.03);
+           }
+           100% {
+             transform: translate(0px, 0px) scale(1);
+           }
+         }
+
+         @keyframes smoothRandomFloat3 {
+           0% {
+             transform: translate(0px, 0px) scale(1);
+           }
+           20% {
+             transform: translate(12px, 18px) scale(0.98);
+           }
+           45% {
+             transform: translate(-15px, -8px) scale(1.06);
+           }
+           70% {
+             transform: translate(22px, -12px) scale(0.94);
+           }
+           100% {
+             transform: translate(0px, 0px) scale(1);
+           }
+         }
+
+         @keyframes smoothRandomFloat4 {
+           0% {
+             transform: translate(0px, 0px) scale(1);
+           }
+           35% {
+             transform: translate(-12px, -18px) scale(1.04);
+           }
+           65% {
+             transform: translate(18px, 6px) scale(0.96);
+           }
+           90% {
+             transform: translate(-8px, 15px) scale(1.01);
+           }
+           100% {
+             transform: translate(0px, 0px) scale(1);
+           }
+         }
+
+         @keyframes smoothRandomFloat5 {
+           0% {
+             transform: translate(0px, 0px) scale(1);
+           }
+           28% {
+             transform: translate(25px, -10px) scale(1.07);
+           }
+           55% {
+             transform: translate(-20px, 20px) scale(0.93);
+           }
+           80% {
+             transform: translate(8px, -25px) scale(1.05);
+           }
+           100% {
+             transform: translate(0px, 0px) scale(1);
+           }
+         }
 }

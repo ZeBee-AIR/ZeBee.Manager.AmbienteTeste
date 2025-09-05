@@ -118,15 +118,14 @@ const ListingClient = () => {
         if (statusFilter !== 'todos') {
             processedClients = processedClients.filter(c => c.status === statusFilter);
         }
-        // O filtro de squad agora é aplicado para todos
         if (squadFilter !== 'todos') {
             processedClients = processedClients.filter(c => String(c.squad) === squadFilter);
         }
         if (dateRange?.from) {
-            processedClients = processedClients.filter(c => parseISO(c.created_at) >= startOfDay(dateRange.from));
+            processedClients = processedClients.filter(c => parseISO(c.created_at) >= startOfDay(dateRange.from!));
         }
         if (dateRange?.to) {
-            processedClients = processedClients.filter(c => parseISO(c.created_at) <= endOfDay(dateRange.to));
+            processedClients = processedClients.filter(c => parseISO(c.created_at) <= endOfDay(dateRange.to!));
         }
         processedClients.sort((a, b) => a.store_name.localeCompare(b.store_name));
         return processedClients;
@@ -142,10 +141,10 @@ const ListingClient = () => {
     if (loading) return <div className="flex justify-center items-center h-screen"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
     if (error) return <div className="flex justify-center items-center h-screen text-destructive"><AlertCircle className="h-12 w-12 mr-4" />{error}</div>;
 
-    const filtersApplied = statusFilter !== 'todos' || squadFilter !== 'todos' || dateRange?.from || query;
+    const filtersApplied = statusFilter !== 'todos' || squadFilter !== 'todos' || !!dateRange?.from || !!query;
 
     return (
-        <div className="min-h-screen bg-background p-4 sm:p-6">
+        <div className="min-h-screen p-4 sm:p-6 pt-24">
             <div className="max-w-7xl mx-auto">
                 <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-4">
                     <div>
@@ -179,7 +178,6 @@ const ListingClient = () => {
                                                 </SelectContent>
                                             </Select>
                                         </div>
-                                        {/* FILTRO DE SQUAD AGORA É VISÍVEL PARA TODOS */}
                                         <div className="grid grid-cols-3 items-center gap-4">
                                             <Label htmlFor="squad">Squad</Label>
                                             <Select value={squadFilter} onValueChange={setSquadFilter}>

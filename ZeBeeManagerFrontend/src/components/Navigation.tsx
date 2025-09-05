@@ -1,193 +1,189 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { BarChart3, UserPlus, Building2, Search, Menu, LogOut, User } from 'lucide-react';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { BarChart3, UserPlus, Building2, Search, LogOut, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useAuth } from '@/context/AuthContext'; // Importar o hook de autenticação
+import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/api';
 
 const Navigation = () => {
-  const { user } = useAuth(); // Usar o hook para obter dados do usuário
-  const isSuperuser = user?.is_superuser;
-  const username = user?.username;
+    const { user } = useAuth();
+    const isSuperuser = user?.is_superuser;
+    const username = user?.username;
 
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
+    const [expandedItem, setExpandedItem] = useState<string | null>(null);
+    const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    setSearchTerm(searchParams.get('q') || '');
-  }, [searchParams]);
+    // ... (O resto dos seus hooks e funções handle... permanecem iguais)
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const term = searchTerm.trim();
-    const newSearchParams = new URLSearchParams(searchParams);
-
-    if (term) {
-      newSearchParams.set('q', term);
-    } else {
-      newSearchParams.delete('q');
-    }
+    const navigationItems = [
+        { id: 'dashboard', icon: BarChart3, label: 'Dashboard', path: '/dashboard', requiresSuperuser: true },
+        { id: 'registrar', icon: UserPlus, label: 'Registrar', path: '/registrar', requiresSuperuser: true },
+        { id: 'clientes', icon: Building2, label: 'Clientes', path: '/lista-clientes', requiresSuperuser: false },
+    ];
     
-    if (location.pathname !== '/lista-clientes') {
-      navigate(`/lista-clientes?${newSearchParams.toString()}`);
-    } else {
-      setSearchParams(newSearchParams);
-    }
-  };
+    const userMenuItem = { id: 'user-menu', icon: User, label: username || 'Usuário' };
 
-  const handleLinkClick = () => {
-    setIsMobileMenuOpen(false);
-  };
+    const handleItemClick = (itemId: string, path?: string) => {
+        setExpandedItem(prev => (prev === itemId ? null : itemId));
+        if (path) {
+            setTimeout(() => navigate(path), 150);
+        }
+    };
 
-  const handleLogout = async () => {
-    try {
-        await api.post('/auth/logout/');
-    } catch (error) {
-        console.error("Erro no logout da API, mas deslogando localmente:", error);
-    } finally {
-        localStorage.removeItem('authToken');
-        window.location.href = '/'; // Força o recarregamento para limpar o estado
-    }
-  };
+    useEffect(() => {
+        setSearchTerm(searchParams.get('q') || '');
+    }, [searchParams]);
 
-  return (
-    <nav className="bg-background border-b sticky top-0 z-50 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center gap-2">
-            <img src='/ZeBeeManager.png' className="h-10 w-10 md:h-12 md:w-12" alt="ZeBee.Manager Logo" style={{ filter: 'brightness(0) saturate(100%) invert(29%) sepia(90%) saturate(1470%) hue-rotate(200deg) brightness(96%) contrast(93%)' }} />
-            <span className="hidden sm:block text-lg lg:text-xl font-bold text-foreground">ZeBee.Manager</span>
-          </div>
-          
-          <div className="flex-1 flex justify-center px-4 sm:px-8">
-            <form onSubmit={handleSearchSubmit} className="w-full max-w-lg">
-                <div className="relative">
-                    <Input
-                        type="search"
-                        placeholder="Pesquisar..."
-                        className="pl-10 w-full"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                    <Button type="submit" variant="ghost" size="icon" className="absolute left-1 top-1/2 -translate-y-1/2 h-8 w-8">
-                        <Search className="h-4 w-4 text-muted-foreground" />
-                    </Button>
-                </div>
-            </form>
-          </div>
+    const handleSearchSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const term = searchTerm.trim();
+        const newSearchParams = new URLSearchParams(searchParams);
 
-          <div className="hidden md:flex items-center space-x-2">
-            {/* Link do Dashboard condicional */}
-            {isSuperuser && (
-              <Link to="/dashboard" className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-colors ${ isActive('/dashboard') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'}`}>
-                <BarChart3 className="h-4 w-4" />
-                Dashboard
-              </Link>
-            )}
-            {isSuperuser && (
-              <Link to="/registrar" className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-colors ${ isActive('/registrar') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'}`}>
-                <UserPlus className="h-4 w-4" />
-                Registrar
-              </Link>
-            )}
-            <Link to="/lista-clientes" className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-colors ${ isActive('/lista-clientes') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'}`}>
-              <Building2 className="h-4 w-4" />
-              Clientes
-            </Link>
-            <ThemeToggle />
-            {username && (
-                <div className="flex items-center gap-2 border-l pl-2 ml-2">
-                    <Avatar className="h-8 w-8">
-                        <AvatarFallback>
-                            <User className="h-4 w-4" />
-                        </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm font-medium text-foreground">{username}</span>
-                </div>
-            )}
-            <Button variant="ghost" size="icon" onClick={handleLogout} title="Sair">
-                <LogOut className="h-4 w-4 text-red-500"/>
-            </Button>
-          </div>
+        if (term) {
+            newSearchParams.set('q', term);
+        } else {
+            newSearchParams.delete('q');
+        }
+        
+        if (location.pathname !== '/lista-clientes') {
+            navigate(`/lista-clientes?${newSearchParams.toString()}`);
+        } else {
+            setSearchParams(newSearchParams);
+        }
+    };
 
-          <div className="md:hidden">
-            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Menu className="h-6 w-6" />
-                  <span className="sr-only">Abrir menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] flex flex-col p-0">
-                <SheetHeader className="p-4 border-b">
-                  <SheetTitle className="text-left text-lg">Menu</SheetTitle>
-                </SheetHeader>
+    const handleLogout = async () => {
+        try {
+            await api.post('/auth/logout/');
+        } catch (error) {
+            console.error("Erro no logout da API, mas deslogando localmente:", error);
+        } finally {
+            localStorage.removeItem('authToken');
+            window.location.href = '/';
+        }
+    };
+
+    return (
+        <nav className={`fixed ${isMobile ? 'bottom-0' : 'top-0'} left-0 right-0 z-50 bg-white/5 backdrop-blur-2xl border-${isMobile ? 't' : 'b'} border-white/10 shadow-2xl`}>
+            {/* MUDANÇA 1: Adicionamos 'relative' aqui para posicionar a busca em relação a este container */}
+            <div className="relative max-w-7xl mx-auto h-20 flex items-center justify-between">
                 
-                <div className="flex-1 overflow-y-auto">
-                  <nav className="p-4 space-y-2">
-                    {isSuperuser && (
-                      <Link to="/dashboard" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-base ${ isActive('/dashboard') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
-                        <BarChart3 className="h-5 w-5" />
-                        Dashboard
-                      </Link>
-                    )}
-                    {isSuperuser && (
-                      <Link to="/registrar" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-base ${ isActive('/registrar') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
-                        <UserPlus className="h-5 w-5" />
-                        Registrar
-                      </Link>
-                    )}
-                    <Link to="/lista-clientes" onClick={handleLinkClick} className={`flex items-center gap-3 p-3 rounded-lg font-medium transition-colors text-base ${ isActive('/lista-clientes') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-muted-foreground hover:bg-muted'}`}>
-                      <Building2 className="h-5 w-5" />
-                      Clientes
-                    </Link>
-                  </nav>
+                {/* GRUPO DA ESQUERDA: LOGO */}
+                <div className="flex items-center">
+                    {/* MUDANÇA 2: Aumentamos a logo para h-12 */}
+                    <img src='/azazuucentral.png' className="h-14 w-auto object-contain" alt="Azazuu central Logo" />
                 </div>
 
-                <div className="p-4 border-t mt-auto">
-                    {username && (
-                        <div className="flex items-center gap-3 mb-4">
-                            <Avatar className="h-9 w-9">
-                                <AvatarFallback>
-                                    <User className="h-5 w-5" />
-                                </AvatarFallback>
-                            </Avatar>
-                            <span className="text-sm font-semibold text-foreground">{username}</span>
+                {/* MUDANÇA 3: BARRA DE BUSCA ABSOLUTAMENTE CENTRALIZADA */}
+                {/* Ela agora "flutua" no centro, ignorando o tamanho dos outros elementos */}
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <form onSubmit={handleSearchSubmit} className="w-80">
+                        <div className="relative group">
+                            <Input
+                                type="search"
+                                placeholder="Pesquisar..."
+                                className="pl-12 pr-4 py-2.5 w-full bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-lg focus:border-[#00F5FF]/50 focus:shadow-xl focus:shadow-[#00F5FF]/20 transition-all duration-300 text-white placeholder:text-gray-400 focus:bg-white/10"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                            <Button type="submit" variant="ghost" size="icon" className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg hover:bg-[#00F5FF]/20 transition-all duration-300">
+                                <Search className="h-4 w-4 text-gray-400 group-focus-within:text-[#00F5FF] transition-colors duration-300" />
+                            </Button>
+                            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#00F5FF]/0 via-[#00F5FF]/5 to-[#00F5FF]/0 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                        </div>
+                    </form>
+                </div>
+                
+                {/* GRUPO DA DIREITA: NAVEGAÇÃO E ÍCONES */}
+                <div className={`flex items-center gap-4`}>
+                    {navigationItems.map((item) => {
+                        if (item.requiresSuperuser && !isSuperuser) return null;
+                        const Icon = item.icon;
+                        const isActive = location.pathname === item.path;
+                        const isExpanded = expandedItem === item.id;
+                        
+                        return (
+                            <div key={item.id} className="relative">
+                                <button
+                                    onClick={() => handleItemClick(item.id, item.path)}
+                                    className={`group relative inline-flex items-center justify-start transition-all duration-300 ease-in-out hover:scale-105 ${
+                                        isActive
+                                            ? 'bg-white/10 border border-[#00F5FF]/50 shadow-lg shadow-[#00F5FF]/25'
+                                            : 'bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/25'
+                                    } rounded-full h-12 ${isExpanded ? 'px-5' : 'w-12 justify-center'}`}
+                                    style={{
+                                        width: isExpanded ? 'auto' : '3rem',
+                                        minWidth: '3rem'
+                                    }}
+                                >
+                                    <Icon className={`transition-colors duration-300 ${isActive ? 'text-[#00F5FF]' : 'text-white'} h-4 w-4 flex-shrink-0`} />
+                                    <span 
+                                        className={`whitespace-nowrap font-medium text-white transition-all duration-300 ease-out overflow-hidden ${
+                                            isExpanded ? 'opacity-100 ml-3' : 'opacity-0 w-0 ml-0'
+                                        }`}
+                                    >
+                                        {item.label}
+                                    </span>
+                                    {isActive && (
+                                        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#00F5FF]/0 via-[#00F5FF]/5 to-[#00F5FF]/0 opacity-60"></div>
+                                    )}
+                                </button>
+                            </div>
+                        );
+                    })}
+                    
+                    {!isMobile && (
+                        <div className="relative">
+                            <button
+                                onClick={() => handleItemClick(userMenuItem.id)}
+                                className={`group relative flex items-center justify-start overflow-hidden transition-all duration-300 ease-in-out hover:scale-105 ${
+                                    expandedItem === userMenuItem.id
+                                        ? 'bg-white/10 border border-white/20 shadow-lg'
+                                        : 'bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/25'
+                                } rounded-full h-12 ${expandedItem === userMenuItem.id ? 'pl-2 pr-3' : 'w-12 justify-center'}`}
+                                style={{
+                                    width: expandedItem === userMenuItem.id ? 'auto' : '3rem',
+                                    minWidth: '3rem'
+                                }}
+                            >
+                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-[#00F5FF]/30 to-[#00F5FF]/10 flex items-center justify-center">
+                                    <User className="h-4 w-4 text-[#00F5FF]" />
+                                </div>
+                                <div className={`flex items-center whitespace-nowrap transition-all duration-300 ease-out overflow-hidden ${
+                                        expandedItem === userMenuItem.id
+                                            ? 'w-auto opacity-100 ml-2'
+                                            : 'w-0 opacity-0 ml-0'
+                                    }`}
+                                >
+                                    <span className="text-sm font-medium text-white">{userMenuItem.label}</span>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        onClick={(e) => { e.stopPropagation(); handleLogout(); }}
+                                        title="Sair" 
+                                        className="group/logout relative h-8 w-8 rounded-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/40 transition-all duration-300 ease-out hover:scale-105 flex items-center justify-center ml-2"
+                                    >
+                                        <LogOut className="h-3 w-3 text-red-400 group-hover/logout:text-red-300 transition-colors duration-300" />
+                                    </Button>
+                                </div>
+                            </button>
                         </div>
                     )}
-                    <div className="flex justify-between items-center">
-                        <ThemeToggle />
-                        <Button variant="ghost" onClick={handleLogout} className="text-red-500 hover:text-red-500 hover:bg-red-500/10">
-                            Sair
-                            <LogOut className="ml-2 h-5 w-5"/>
-                        </Button>
-                    </div>
                 </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-
-        </div>
-      </div>
-    </nav>
-  );
+            </div>
+        </nav>
+    );
 };
 
 export default Navigation;
