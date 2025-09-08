@@ -498,9 +498,9 @@ const Dashboard = () => {
                                     <XAxis dataKey="name" />
                                     <YAxis />
                                     <Tooltip formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`} />
-                                    {businessLogic.activeClientsBySquadData.map((entry, index) => (
-                                        <Bar dataKey={`revenue-${index}`} fill={COLORS[index % COLORS.length]} name="Recorrência" />
-                                    ))}
+                                    <Bar dataKey="revenue"
+                                        {...businessLogic.squadRevenueData.map((entry, index) => ({fill: COLORS[index]}))}
+                                    name="Recorrência" />
                                     </BarChart>
                                 </ResponsiveContainer>
                             </CardContent>
