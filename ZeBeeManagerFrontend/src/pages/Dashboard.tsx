@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import { Users, TrendingDown, DollarSign, Target, CalendarIcon, Loader2, AlertCircle, TrendingUp, UserPlus, HelpCircle, X, Award } from 'lucide-react';
+import { Users, TrendingDown, DollarSign, Target, CalendarIcon, Loader2, AlertCircle, TrendingUp, UserPlus, HelpCircle, X } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -14,7 +14,6 @@ import { Tooltip as ShadTooltip, TooltipContent, TooltipProvider, TooltipTrigger
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import api from '@/lib/api';
 
-// Interfaces para tipagem dos dados
 interface Squad {
     id: number;
     name: string;
@@ -45,7 +44,6 @@ interface ClientData {
     status_changed_at: string | null;
 }
 
-// Modal para detalhar clientes em churn
 const ChurnDetailsModal = ({ clients, onClose }: { clients: ClientData[], onClose: () => void }) => (
     <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
         <Card className="w-full max-w-4xl max-h-[90vh] flex flex-col bg-card">
@@ -85,14 +83,13 @@ const ChurnDetailsModal = ({ clients, onClose }: { clients: ClientData[], onClos
 
 
 const Dashboard = () => {
-    // Estados do componente
     const [clients, setClients] = useState<ClientData[]>([]);
     const [squads, setSquads] = useState<Squad[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [dateRange, setDateRange] = useState<DateRange | undefined>({
         from: startOfMonth(new Date()),
-        to: new Date(),
+        to: (new Date()),
     });
 
     const [selectedYearInitial, setSelectedYearInitial] = useState(new Date().getFullYear());
@@ -109,7 +106,6 @@ const Dashboard = () => {
 
     const [isChurnModalOpen, setIsChurnModalOpen] = useState(false);
 
-    // Efeito para buscar os dados da API
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -119,7 +115,7 @@ const Dashboard = () => {
                 ]);
                 setClients(clientsRes.data);
                 setSquads(squadsRes.data);
-            } catch (err) => {
+            } catch (err) {
                 setError(err instanceof Error ? err.message : 'Ocorreu um erro desconhecido.');
             } finally {
                 setLoading(false);
@@ -128,31 +124,26 @@ const Dashboard = () => {
         fetchData();
     }, []);
 
-    // Lógica de negócio principal, memoizada para performance
     const businessLogic = useMemo(() => {
         if (!clients.length || !squads.length || !dateRange?.from) {
             return {
                 totalActiveClients: 0, newClientsInPeriod: 0, cancelledClientsInPeriod: 0,
-                totalChurnRevenueLoss: 0, totalRevenue: 0, totalCommission: 0, entries: 0,
+                totalChurnRevenueLoss: 0, totalRevenue: 0, totalCommission: 0, totalRevenueComission: 0,
                 squadRevenueData: [], activeClientsBySquadData: [], squadAcquisitionChurnData: [],
-                churnedClientsDetails: [], churnRate: 0, lifetimeValue: 0,
+                churnRate: 0, lifetimeValue: 0,
+                churnedClientsDetails: []
             };
         }
 
         const interval = { start: dateRange.from, end: dateRange.to || dateRange.from };
 
         const activeClientsNow = clients.filter(c => c.status === 'Ativo');
-        const newClientsInPeriodObjects = clients.filter(c => isWithinInterval(parseISO(c.created_at), interval));
-        const newClientsInPeriod = newClientsInPeriodObjects.length;
+        const newClientsInPeriod = clients.filter(c => isWithinInterval(parseISO(c.created_at), interval)).length;
         const clientsCancelledInPeriod = clients.filter(c => c.status === 'Inativo' && c.status_changed_at && isWithinInterval(parseISO(c.status_changed_at), interval));
         const totalChurnRevenueLoss = clientsCancelledInPeriod.reduce((sum, c) => sum + parseFloat(c.plan_value || '0'), 0);
 
-        // --- CÁLCULOS PRINCIPAIS ---
-
-        // 1. CÁLCULO DO CHURN RATE PROPORCIONAL
         const churnRate = activeClientsNow.length > 0 ? (clientsCancelledInPeriod.length / activeClientsNow.length) * 100 : 0;
 
-        // 2. CÁLCULO DO LIFETIME VALUE (LTV)
         const totalLifespanInMonths = clients.reduce((total, client) => {
             const startDate = parseISO(client.created_at);
             const endDate = client.status === 'Inativo' && client.status_changed_at
@@ -166,25 +157,21 @@ const Dashboard = () => {
         const monthsInRange = differenceInMonths(interval.end, interval.start) + 1;
         const averageNewClientsFrequency = monthsInRange > 0 ? newClientsInPeriod / monthsInRange : 0;
         const lifetimeValue = averageRecurrenceValue * averageNewClientsFrequency * averageClientLifespan;
-        
-        // 3. CÁLCULO DE ENTRADAS (SOMA DOS PLANOS DE NOVOS CLIENTES)
-        const entries = newClientsInPeriodObjects.reduce((sum, c) => sum + parseFloat(c.plan_value || '0'), 0);
 
-        // --- FIM DOS CÁLCULOS PRINCIPAIS ---
+        const entries = newClientsInPeriod.reduce((sum, c) => sum + parseFloat(c.plan_value || '0'), 0);
 
         const squadNameMap = new Map(squads.map(s => [s.id, s.name]));
 
         const monthsInInterval = eachMonthOfInterval(interval);
         let totalRecurrenceForPeriod = 0;
         let totalCommissionForPeriod = 0;
-
-        // Calcula recorrência e comissão no período para os gráficos
+        
         monthsInInterval.forEach(monthDate => {
             clients.forEach(client => {
                 const createdAt = parseISO(client.created_at);
                 const statusChangedAt = client.status_changed_at ? parseISO(client.status_changed_at) : null;
                 const wasActiveInMonth = createdAt <= endOfMonth(monthDate) && (!statusChangedAt || statusChangedAt > startOfMonth(monthDate));
-
+                
                 const yearKey = getYear(monthDate).toString();
                 const monthKey = format(monthDate, 'MMMM', { locale: enUS }).toLowerCase();
                 const monthData = client.monthly_data?.[yearKey]?.[monthKey];
@@ -203,7 +190,7 @@ const Dashboard = () => {
                         let isCommissionable = false;
 
                         if (hasSpecial && revenue > threshold) {
-                            revenueComission = revenue - threshold;
+                            revenueComission = revenue - threshold; 
                             isCommissionable = true;
                         } else if (!hasSpecial) {
                             revenueComission = revenue;
@@ -218,7 +205,6 @@ const Dashboard = () => {
             });
         });
 
-        // Agrega métricas por squad
         const squadMetrics = new Map(squads.map(s => [s.id, { revenue: 0, activeClients: 0, newClients: 0, churns: 0 }]));
         clients.forEach(client => {
             if (!client.squad) return;
@@ -232,12 +218,11 @@ const Dashboard = () => {
                 if (client.status === 'Inativo' && client.status_changed_at && isWithinInterval(parseISO(client.status_changed_at), interval)) squadPerf.churns += 1;
             }
         });
-
+    
         const squadRevenueData = Array.from(squadMetrics.entries()).map(([id, data]) => ({ name: squadNameMap.get(id) || 'N/A', revenue: data.revenue }));
         const activeClientsBySquadData = Array.from(squadMetrics.entries()).map(([id, data]) => ({ name: squadNameMap.get(id) || 'N/A', value: data.activeClients }));
         const squadAcquisitionChurnData = Array.from(squadMetrics.entries()).map(([id, data]) => ({ name: squadNameMap.get(id) || 'N/A', newClients: data.newClients, churns: data.churns }));
 
-        // Retorno dos dados calculados
         return {
             totalActiveClients: activeClientsNow.length,
             newClientsInPeriod,
@@ -246,17 +231,16 @@ const Dashboard = () => {
             totalRevenue: totalRecurrenceForPeriod,
             totalRevenueComission: totalRecurrenceForPeriod + totalCommissionForPeriod,
             totalCommission: totalCommissionForPeriod,
-            entries,
             squadRevenueData,
             activeClientsBySquadData,
             squadAcquisitionChurnData,
-            churnedClientsDetails: clientsCancelledInPeriod,
             churnRate,
-            lifetimeValue
+            lifetimeValue,
+            entries,
+            churnedClientsDetails: clientsCancelledInPeriod
         };
     }, [clients, squads, dateRange]);
 
-    // Dados para o gráfico histórico, memoizado para performance
     const historicalChartData = useMemo(() => {
         if (!clients.length) return [];
 
@@ -272,7 +256,7 @@ const Dashboard = () => {
             let churnForThisMonth = 0;
             const yearKey = getYear(monthDate).toString();
             const monthKey = format(monthDate, 'MMMM', { locale: enUS }).toLowerCase();
-
+    
             clients.forEach(client => {
                 const createdAt = parseISO(client.created_at);
                 const statusChangedAt = client.status_changed_at ? parseISO(client.status_changed_at) : null;
@@ -280,7 +264,7 @@ const Dashboard = () => {
 
                 const monthData = client.monthly_data?.[yearKey]?.[monthKey];
 
-                if (client.status === 'Inativo' && client.status_changed_at && isWithinInterval(parseISO(client.status_changed_at), { start: startOfMonth(monthDate), end: endOfMonth(monthDate) })) {
+                if (client.status === 'Inativo' && client.status_changed_at && isWithinInterval(parseISO(client.status_changed_at), { start: startDate, end: endDate })) {
                     churnForThisMonth += parseFloat(client.plan_value || '0');
                 }
 
@@ -300,7 +284,7 @@ const Dashboard = () => {
 
                         if (hasSpecial) {
                             if (revenue > threshold) {
-                                revenueComission = revenue - threshold;
+                                revenueComission = revenue - threshold; 
                                 isCommissionable = true;
                             }
                         } else {
@@ -324,11 +308,12 @@ const Dashboard = () => {
         });
 
         return data;
+
     }, [clients, selectedYearInitial, selectedYearEnd]);
 
 
     if (loading) return <div className="flex justify-center items-center h-screen"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
-    if (error) return <div className="flex justify-center items-center h-screen text-destructive"><AlertCircle className="h-12 w-12 mr-4" /> {error}</div>;
+    if (error) return <div className="flex justify-center items-center h-screen text-destructive"><AlertCircle className="h-12 w-12 mr-4"/> {error}</div>;
 
     const COLORS = ['#10B981', '#F59E0B', '#3B82F6', '#EF4444', '#8B5CF6'];
 
@@ -337,7 +322,7 @@ const Dashboard = () => {
             <div className="max-w-7xl mx-auto">
                 <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-[#00f2ff] via-[#00d4e6] to-[#00f2ff] hover:from-[#006b73] hover:via-[#00f2ff] hover:to-[#006b73] bg-clip-text text-transparent bg-[length:400%_100%] transition-all duration-500 cursor-pointer" style={{ animation: 'cyanDrift 4s ease-in-out infinite' }} onMouseEnter={(e) => { e.currentTarget.style.animation = 'cyanHoverWave 1.5s ease-in-out infinite'; }} onMouseLeave={(e) => { e.currentTarget.style.animation = 'cyanDrift 4s ease-in-out infinite'; }}>Dashboard de Gerenciamento</h1>
+                        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-[#00f2ff] via-[#00d4e6] to-[#00f2ff] hover:from-[#006b73] hover:via-[#00f2ff] hover:to-[#006b73] bg-clip-text text-transparent bg-[length:400%_100%] transition-all duration-500 cursor-pointer" style={{animation: 'cyanDrift 4s ease-in-out infinite'}} onMouseEnter={(e) => {e.target.style.animation = 'cyanHoverWave 1.5s ease-in-out infinite';}} onMouseLeave={(e) => {e.target.style.animation = 'cyanDrift 4s ease-in-out infinite';}}>Dashboard de Gerenciamento</h1>
                         <p className="text-[#AAA]">Monitore o desempenho de seus contratos e squads.</p>
                     </div>
                     <Popover>
@@ -353,15 +338,81 @@ const Dashboard = () => {
                     </Popover>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6 mb-8">
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group"><div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div><div className="relative z-10"><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Clientes Ativos</CardTitle><Users className="h-4 w-4 text-[#00F5FF]" /></CardHeader><CardContent><div className="text-2xl font-bold text-white">{businessLogic.totalActiveClients}</div><p className="text-xs text-[#AAA] text-green-400">+{businessLogic.newClientsInPeriod} novos no período</p></CardContent></div></Card>
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group"><div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div><div className="relative z-10"><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Cancelamentos</CardTitle><div className="flex items-center gap-2"><TrendingDown className="h-4 w-4 text-red-400" /><TooltipProvider><ShadTooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="h-5 w-5 hover:bg-[#00F5FF]/20 transition-all duration-300" onClick={() => setIsChurnModalOpen(true)}><HelpCircle className="h-4 w-4 text-[#00F5FF]" /></Button></TooltipTrigger><TooltipContent><p>Clique para ver os detalhes.</p></TooltipContent></ShadTooltip></TooltipProvider></div></CardHeader><CardContent><div className="text-2xl font-bold text-white">{businessLogic.cancelledClientsInPeriod}</div><p className="text-xs text-[#AAA] text-red-400">No período selecionado</p></CardContent></div></Card>
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group"><div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div><div className="relative z-10"><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Churn Rate</CardTitle><TrendingDown className="h-4 w-4 text-red-400" /></CardHeader><CardContent><div className="text-2xl font-bold text-white">{businessLogic.churnRate.toFixed(2).replace('.', ',')}%</div><p className="text-xs text-[#AAA] text-red-400">Proporcional aos ativos</p></CardContent></div></Card>
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group"><div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div><div className="relative z-10"><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Perdas (Churn)</CardTitle><DollarSign className="h-4 w-4 text-red-400" /></CardHeader><CardContent><div className="text-2xl font-bold text-white">R$ {businessLogic.totalChurnRevenueLoss.toLocaleString('pt-BR')}</div><p className="text-xs text-[#AAA] text-red-400">Com base no plano</p></CardContent></div></Card>
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group"><div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div><div className="relative z-10"><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Entradas no Período</CardTitle><DollarSign className="h-4 w-4 text-[#00F5FF]" /></CardHeader><CardContent><div className="text-2xl font-bold text-white">R$ {businessLogic.entries.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-[#AAA]">Soma dos novos planos</p></CardContent></div></Card>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-8">
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div>
+                        <div className="relative z-10">
+                            <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Clientes Ativos</CardTitle><Users className="h-4 w-4 text-[#00F5FF]" /></CardHeader>
+                            <CardContent><div className="text-2xl font-bold text-white">{businessLogic.totalActiveClients}</div><p className="text-xs text-[#AAA] text-green-400">+{businessLogic.newClientsInPeriod} novos no período</p></CardContent>
+                        </div>
+                    </Card>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div>
+                        <div className="relative z-10">
+                            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                <CardTitle className="text-sm font-medium text-white">Cancelamentos</CardTitle>
+                                <div className="flex items-center gap-2">
+                                    <TrendingDown className="h-4 w-4 text-red-400" />
+                                    <TooltipProvider>
+                                        <ShadTooltip>
+                                            <TooltipTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="h-5 w-5 hover:bg-[#00F5FF]/20 transition-all duration-300" onClick={() => setIsChurnModalOpen(true)}>
+                                                    <HelpCircle className="h-4 w-4 text-[#00F5FF]" />
+                                                </Button>
+                                            </TooltipTrigger>
+                                            <TooltipContent><p>Clique aqui para receber os detalhes.</p></TooltipContent>
+                                        </ShadTooltip>
+                                    </TooltipProvider>
+                                </div>
+                            </CardHeader>
+                            <CardContent><div className="text-2xl font-bold text-white">{businessLogic.cancelledClientsInPeriod}</div><p className="text-xs text-[#AAA] text-red-400">No período selecionado</p></CardContent>
+                        </div>
+                    </Card>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div>
+                        <div className="relative z-10">
+                            <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Perdas (Churn)</CardTitle><DollarSign className="h-4 w-4 text-red-400" /></CardHeader>
+                            <CardContent><div className="text-2xl font-bold text-white">R$ {businessLogic.totalChurnRevenueLoss.toLocaleString('pt-BR')}</div><p className="text-xs text-[#AAA] text-red-400">Com base no plano</p></CardContent>
+                        </div>
+                    </Card>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500">
+                        </div>
+                        <div className="relative z-10">
+                            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                <CardTitle className="text-sm font-medium text-white">
+                                    Churn Rate
+                                </CardTitle>
+                                <TrendingDown className="h-4 w-4 text-red-400" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold text-white">
+                                    {businessLogic.churnRate.toFixed(2).replace('.', ',')}%
+                                </div>
+                                <p className="text-xs text-[#AAA] text-red-400">
+                                    Proporcional aos ativos
+                                </p>
+                            </CardContent>
+                        </div>
+                    </Card>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500">
+                        </div>
+                        <div className="relative z-10">
+                            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                <CardTitle className="text-sm font-medium text-white">Entradas no Período</CardTitle>
+                                <DollarSign className="h-4 w-4 text-[#00F5FF]" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold text-white">
+                                    R$ {businessLogic.entries.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                </div>
+                                <p className="text-xs text-[#AAA]">Soma dos novos planos</p>
+                            </CardContent>
+                        </div>
+                    </Card>
                     <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group"><div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div><div className="relative z-10"><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Lifetime Value (LTV)</CardTitle><Award className="h-4 w-4 text-[#eab308]" /></CardHeader><CardContent><div className="text-2xl font-bold text-white">R$ {businessLogic.lifetimeValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div><p className="text-xs text-[#AAA]">Valor projetado por cliente</p></CardContent></div></Card>
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group"><div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div><div className="relative z-10"><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Comissão Total</CardTitle><Target className="h-4 w-4 text-[#00F5FF]" /></CardHeader><CardContent><div className="text-2xl font-bold text-white">R$ {businessLogic.totalCommission.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-[#AAA]">Com base na performance</p></CardContent></div></Card>
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group"><div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div><div className="relative z-10"><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Recorrência Total</CardTitle><DollarSign className="h-4 w-4 text-[#00F5FF]" /></CardHeader><CardContent><div className="text-2xl font-bold text-white">R$ {businessLogic.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-[#AAA]">Com base no plano</p></CardContent></div></Card>
+
                     <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
                         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div>
                         <div className="relative z-10">
@@ -369,8 +420,22 @@ const Dashboard = () => {
                             <CardContent><div className="text-2xl font-bold text-white">R$ {businessLogic.totalRevenueComission.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-[#AAA]">Recorrência + Comissão</p></CardContent>
                         </div>
                     </Card>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div>
+                        <div className="relative z-10">
+                            <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Comissão Total</CardTitle><Target className="h-4 w-4 text-[#00F5FF]" /></CardHeader>
+                            <CardContent><div className="text-2xl font-bold text-white">R$ {businessLogic.totalCommission.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-[#AAA]">Com base na performance</p></CardContent>
+                        </div>
+                    </Card>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div>
+                        <div className="relative z-10">
+                            <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Recorrência Total</CardTitle><DollarSign className="h-4 w-4 text-[#00F5FF]" /></CardHeader>
+                            <CardContent><div className="text-2xl font-bold text-white">R$ {businessLogic.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-[#AAA]">Com base no plano</p></CardContent>
+                        </div>
+                    </Card>
                 </div>
-
+                
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
                         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div>
@@ -378,41 +443,41 @@ const Dashboard = () => {
                             <CardHeader>
                                 <CardTitle className="text-lg font-semibold flex items-center gap-2 text-white">
                                     <DollarSign className="text-[#00F5FF]" />
-                                    Histórico Financeiro
+                                    Histórico de Recorrência e Comissão
                                 </CardTitle>
-                                <CardTitle className="text-sm font-medium flex items-center gap-2 justify-items-end">
-                                    <Select value={selectedYearInitial.toString()} onValueChange={v => setSelectedYearInitial(parseInt(v))}>
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {availableYearsInitial.map(y => <SelectItem key={y} value={y.toString()}>{y}</SelectItem>)}
-                                        </SelectContent>
-                                    </Select>
-                                    Até:
-                                    <Select value={selectedYearEnd.toString()} onValueChange={v => setSelectedYearEnd(parseInt(v))}>
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {availableYearsEnd.map(y => <SelectItem key={y} value={y.toString()}>{y}</SelectItem>)}
-                                        </SelectContent>
-                                    </Select>
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <ResponsiveContainer width="100%" height={300}>
-                                    <LineChart data={historicalChartData}>
-                                        <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="month" />
-                                        <YAxis />
-                                        <Tooltip formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} />
-                                        <Legend />
-                                        <Line type="monotone" dataKey="revenue" stroke="#3B82F6" name="Recorrência" />
-                                        <Line type="monotone" dataKey="churn" stroke="#b91b48" name="Perdas (Churn)" />
-                                        <Line type="monotone" dataKey="commission" stroke="#10B981" name="Comissão" />
-                                    </LineChart>
-                                </ResponsiveContainer>
+                            <CardTitle className="text-sm font-medium flex items-center gap-2 justify-items-end">
+                                <Select value={selectedYearInitial.toString()} onValueChange={v => setSelectedYearInitial(parseInt(v))}>
+                                    <SelectTrigger className="w-[180px]">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {availableYearsInitial.map(y => <SelectItem key={y} value={y.toString()}>{y}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+
+                                Até:
+                                <Select value={selectedYearEnd.toString()} onValueChange={v => setSelectedYearEnd(parseInt(v))}>
+                                    <SelectTrigger className="w-[180px]">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {availableYearsEnd.map(y => <SelectItem key={y} value={y.toString()}>{y}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <ResponsiveContainer width="100%" height={300}>
+                                <LineChart data={historicalChartData}>
+                                <CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" />
+                                <YAxis />
+                                <Tooltip formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} />
+                                <Legend />
+                                <Line type="monotone" dataKey="revenue" stroke="#3B82F6" name="Recorrência" />
+                                <Line type="monotone" dataKey="churn" stroke="#b91b48" name="Perdas (Churn)" />
+                                <Line type="monotone" dataKey="commission" stroke="#10B981" name="Comissão" />
+                                </LineChart>
+                            </ResponsiveContainer>
                             </CardContent>
                         </div>
                     </Card>
@@ -422,21 +487,19 @@ const Dashboard = () => {
                             <CardHeader>
                                 <CardTitle className="text-lg font-semibold flex items-center gap-2 text-white">
                                     <TrendingUp className="text-[#00F5FF]" />
-                                    Recorrência por Squad
+                                    Desempenho de Recorrência por Squad
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <ResponsiveContainer width="100%" height={300}>
                                     <BarChart data={businessLogic.squadRevenueData}>
-                                        <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="name" />
-                                        <YAxis />
-                                        <Tooltip formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`} />
-                                        <Bar dataKey="revenue" name="Recorrência">
-                                            {businessLogic.squadRevenueData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                            ))}
-                                        </Bar>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="name" />
+                                    <YAxis />
+                                    <Tooltip formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`} />
+                                    {businessLogic.activeClientsBySquadData.map((entry, index) => (
+                                        <Bar dataKey={`revenue-${index}`} fill={COLORS[index % COLORS.length]} name="Recorrência" />
+                                    ))}
                                     </BarChart>
                                 </ResponsiveContainer>
                             </CardContent>
@@ -445,49 +508,26 @@ const Dashboard = () => {
                     <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
                         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div>
                         <div className="relative z-10">
-                            <CardHeader>
-                                <CardTitle className="text-lg font-semibold flex items-center gap-2 text-white">
-                                    <Users className="text-[#00F5FF]" />
-                                    Clientes Ativos por Squad
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <ResponsiveContainer width="100%" height={300}>
-                                    <PieChart>
-                                        <Pie data={businessLogic.activeClientsBySquadData} cx="50%" cy="50%" labelLine={false} label={({ name, value }) => `${name}: ${value}`} outerRadius={80} fill="#8884d8" dataKey="value">
-                                            {businessLogic.activeClientsBySquadData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip formatter={(value: number) => `${value} cliente(s)`} />
-                                        <Legend />
-                                    </PieChart>
-                                </ResponsiveContainer>
+                            <CardHeader><CardTitle className="text-lg font-semibold flex items-center gap-2 text-white"><Users className="text-[#00F5FF]" />Clientes Ativos por Squad</CardTitle></CardHeader>
+                        <CardContent>
+                            <ResponsiveContainer width="100%" height={300}>
+                                <PieChart>
+                                    <Pie data={businessLogic.activeClientsBySquadData} cx="50%" cy="50%" labelLine={false} label={({ name, value }) => `${name}: ${value}`} outerRadius={80} fill="#8884d8" dataKey="value" >
+                                        {businessLogic.activeClientsBySquadData.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}
+                                    </Pie>
+                                    <Tooltip formatter={(value: number) => `${value} cliente(s)`} />
+                                    <Legend />
+                                </PieChart>
+                            </ResponsiveContainer>
                             </CardContent>
                         </div>
                     </Card>
                     <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[#00F5FF] shadow-lg hover:shadow-2xl hover:shadow-[#00F5FF]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
                         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[#00F5FF]/8 group-hover:via-transparent group-hover:to-[#00F5FF]/12 pointer-events-none transition-all duration-500"></div>
                         <div className="relative z-10">
-                            <CardHeader>
-                                <CardTitle className="text-lg font-semibold flex items-center gap-2 text-white">
-                                    <UserPlus className="text-[#00F5FF]" />
-                                    Novos Clientes vs. Cancelamentos
-                                    <TrendingDown className="text-red-400" />
-                                </CardTitle>
-                            </CardHeader>
+                            <CardHeader><CardTitle className="text-lg font-semibold flex items-center gap-2 text-white"><UserPlus className="text-[#00F5FF]" />Novos Clientes vs. Cancelamentos<TrendingDown className="text-red-400" /></CardTitle></CardHeader>
                             <CardContent>
-                                <ResponsiveContainer width="100%" height={300}>
-                                    <BarChart data={businessLogic.squadAcquisitionChurnData}>
-                                        <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="name" />
-                                        <YAxis allowDecimals={false} />
-                                        <Tooltip />
-                                        <Legend />
-                                        <Bar dataKey="newClients" fill="#10B981" name="Novos Clientes" />
-                                        <Bar dataKey="churns" fill="#EF4444" name="Cancelamentos" />
-                                    </BarChart>
-                                </ResponsiveContainer>
+                                <ResponsiveContainer width="100%" height={300}><BarChart data={businessLogic.squadAcquisitionChurnData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" /><YAxis allowDecimals={false} /><Tooltip /><Legend /><Bar dataKey="newClients" fill="#10B981" name="Novos Clientes" /><Bar dataKey="churns" fill="#EF4444" name="Cancelamentos" /></BarChart></ResponsiveContainer>
                             </CardContent>
                         </div>
                     </Card>
@@ -499,4 +539,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
