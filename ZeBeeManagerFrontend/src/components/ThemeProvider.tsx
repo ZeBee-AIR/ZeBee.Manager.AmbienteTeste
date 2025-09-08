@@ -1,7 +1,8 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
-type Theme = "dark" | "light" | "system";
+type Theme = "dark" | "light" | "system" | "fenix" | "pegaso" | "grifo";
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -27,6 +28,7 @@ export function ThemeProvider({
   storageKey = "vite-ui-theme",
   ...props
 }: ThemeProviderProps) {
+  const { user } = useAuth();
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
   );
@@ -34,9 +36,27 @@ export function ThemeProvider({
   useEffect(() => {
     const root = window.document.documentElement;
 
-    root.classList.remove("light", "dark");
+    root.classList.remove("light", "dark", "fenix", "pegaso", "grifo");
 
-    if (theme === "system") {
+    let currentTheme = theme;
+
+    if (user?.squad_name) {
+      switch (user.squad_name) {
+        case "Fênix":
+          currentTheme = "fenix";
+          break;
+        case "Pégaso":
+          currentTheme = "pegaso";
+          break;
+        case "Grifo":
+          currentTheme = "grifo";
+          break;
+        default:
+          break;
+      }
+    }
+
+    if (currentTheme === "system") {
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
         .matches
         ? "dark"
@@ -46,8 +66,8 @@ export function ThemeProvider({
       return;
     }
 
-    root.classList.add(theme);
-  }, [theme]);
+    root.classList.add(currentTheme);
+  }, [theme, user]);
 
   const value = {
     theme,

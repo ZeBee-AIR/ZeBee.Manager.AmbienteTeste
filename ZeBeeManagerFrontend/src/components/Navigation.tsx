@@ -19,7 +19,6 @@ const Navigation = () => {
     const [expandedItem, setExpandedItem] = useState<string | null>(null);
     const [isMobile, setIsMobile] = useState(false);
 
-    // ... (O resto dos seus hooks e funções handle... permanecem iguais)
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
         checkMobile();

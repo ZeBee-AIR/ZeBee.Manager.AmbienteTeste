@@ -92,6 +92,81 @@
     --sidebar-border: 0 0% 11%; /* #1c1c1c */
     --sidebar-ring: 185 100% 50%; /* #00f2ff - Ciano */
   }
+
+  .fenix {
+    --color-copper-50: #fcf8ee;
+    --color-copper-100: #f4ebd1;
+    --color-copper-200: #e9d69e;
+    --color-copper-300: #debc6b;
+    --color-copper-400: #d6a649;
+    --color-copper-500: #cc8b34;
+    --color-copper-600: #ba702c;
+    --color-copper-700: #965127;
+    --color-copper-800: #7b4125;
+    --color-copper-900: #663621;
+    --color-copper-950: #3a1b0e;
+    --color-flame-pea-50: #fdf6ef;
+    --color-flame-pea-100: #fae9da;
+    --color-flame-pea-200: #f4d0b4;
+    --color-flame-pea-300: #edb084;
+    --color-flame-pea-400: #e48753;
+    --color-flame-pea-500: #de6831;
+    --color-flame-pea-600: #d35227;
+    --color-flame-pea-700: #ac3d22;
+    --color-flame-pea-800: #8a3222;
+    --color-flame-pea-900: #6f2c1f;
+    --color-flame-pea-950: #3c140e;
+  }
+
+  .pegaso {
+    --color-emerald-50: #f1fcf5;
+    --color-emerald-100: #defaea;
+    --color-emerald-200: #bff3d4;
+    --color-emerald-300: #8ce9b4;
+    --color-emerald-400: #3ed07d;
+    --color-emerald-500: #2cbb6b;
+    --color-emerald-600: #1e9b54;
+    --color-emerald-700: #1b7a45;
+    --color-emerald-800: #1b603a;
+    --color-emerald-900: #184f32;
+    --color-emerald-950: #072c18;
+    --color-forest-green-50: #f3fbf2;
+    --color-forest-green-100: #e3f6e2;
+    --color-forest-green-200: #c8ecc6;
+    --color-forest-green-300: #9cdb9a;
+    --color-forest-green-400: #68c266;
+    --color-forest-green-500: #44a641;
+    --color-forest-green-600: #31832f;
+    --color-forest-green-700: #2a6c29;
+    --color-forest-green-800: #255625;
+    --color-forest-green-900: #204720;
+    --color-forest-green-950: #0d260d;
+  }
+
+  .grifo {
+    --color-azure-50: #f3f6fc;
+    --color-azure-100: #e6edf8;
+    --color-azure-200: #c8d9ef;
+    --color-azure-300: #97b9e2;
+    --color-azure-400: #5f94d1;
+    --color-azure-500: #3b76bc;
+    --color-azure-600: #2c60a5;
+    --color-azure-700: #234a81;
+    --color-azure-800: #21406b;
+    --color-azure-900: #20385a;
+    --color-azure-950: #15233c;
+    --color-governor-bay-50: #eff2fe;
+    --color-governor-bay-100: #e2e8fd;
+    --color-governor-bay-200: #cad5fb;
+    --color-governor-bay-300: #aab8f7;
+    --color-governor-bay-400: #8792f2;
+    --color-governor-bay-500: #6a6fea;
+    --color-governor-bay-600: #544edd;
+    --color-governor-bay-700: #433bba;
+    --color-governor-bay-800: #3b369d;
+    --color-governor-bay-900: #34327d;
+    --color-governor-bay-950: #1f1e48;
+  }
 }
 
 @layer base {
