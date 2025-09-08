@@ -265,10 +265,9 @@ const Dashboard = () => {
 
                 const monthData = client.monthly_data?.[yearKey]?.[monthKey];
 
-                if (client.status === 'Inativo' && client.status_changed_at && isWithinInterval(parseISO(client.status_changed_at), { start: startDate, end: endDate })) {
+                if (client.status === 'Inativo' && client.status_changed_at && isWithinInterval(parseISO(client.status_changed_at), { start: startOfMonth(monthDate), end: endOfMonth(monthDate) })) {
                     churnForThisMonth += parseFloat(client.plan_value || '0');
                 }
-
 
                 if (wasActiveInMonth && !monthData?.waiveMonthlyFee) {
                     recurrenceForThisMonth += parseFloat(client.plan_value || '0');
