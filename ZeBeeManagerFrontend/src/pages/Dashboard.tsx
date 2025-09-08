@@ -88,8 +88,8 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [dateRange, setDateRange] = useState<DateRange | undefined>({
-        from: startOfMonth(subMonths(new Date(), 1)),
-        to: endOfMonth(new Date()),
+        from: startOfMonth(new Date()),
+        to: (new Date()),
     });
 
     const [selectedYearInitial, setSelectedYearInitial] = useState(new Date().getFullYear());

@@ -10,6 +10,7 @@ const Navigation = () => {
     const { user } = useAuth();
     const isSuperuser = user?.is_superuser;
     const username = user?.username;
+    console.log(user?.profile);
 
     const location = useLocation();
     const navigate = useNavigate();
