@@ -113,8 +113,8 @@ const Dashboard = () => {
                     api.get('/clients/'),
                     api.get('/squads/')
                 ]);
-                setClients(clientsRes.data);
-                setSquads(squadsRes.data);
+                setClients(Array.isArray(clientsRes.data) ? clientsRes.data : []);
+                setSquads(Array.isArray(squadsRes.data) ? squadsRes.data : []);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Ocorreu um erro desconhecido.');
             } finally {
