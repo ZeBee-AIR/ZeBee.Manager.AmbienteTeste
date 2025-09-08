@@ -41,17 +41,17 @@ export function ThemeProvider({
     let currentTheme = theme;
 
     if (user?.squad_name) {
-      switch (user.squad_name) {
+      console.log(user?.squad_name);
+      switch (user?.squad_name) {
         case "Fênix":
-          console.log(user.squad_name);
           currentTheme = "fenix";
           break;
         case "Pégaso":
-          console.log(user.squad_name);
+          console.log(user?.squad_name);
           currentTheme = "pegaso";
           break;
         case "Grifo":
-          console.log(user.squad_name);
+          console.log(user?.squad_name);
           currentTheme = "grifo";
           break;
         default:
