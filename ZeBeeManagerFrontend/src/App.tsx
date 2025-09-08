@@ -18,31 +18,31 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="dark" storageKey="contract-manager-theme">
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AuthProvider>
-            <Routes>
-              <Route element={<PublicRoute />}>
-                <Route path="/" element={<Login />} />
-              </Route>
-
-              <Route element={<ProtectedRoute />}>
-                <Route element={<MainLayout />}>
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/registrar" element={<ClientRegistration />} />
-                  <Route path="/lista-clientes" element={<ListingClient />} />
+      <AuthProvider>
+      <ThemeProvider defaultTheme="dark" storageKey="contract-manager-theme">
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+              <Routes>
+                <Route element={<PublicRoute />}>
+                  <Route path="/" element={<Login />} />
                 </Route>
-              </Route>
-              
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
+
+                <Route element={<ProtectedRoute />}>
+                  <Route element={<MainLayout />}>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/registrar" element={<ClientRegistration />} />
+                    <Route path="/lista-clientes" element={<ListingClient />} />
+                  </Route>
+                </Route>
+                
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
