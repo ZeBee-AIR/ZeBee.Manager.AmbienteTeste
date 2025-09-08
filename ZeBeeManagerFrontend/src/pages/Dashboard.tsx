@@ -499,7 +499,7 @@ const Dashboard = () => {
                                     <YAxis />
                                     <Tooltip formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`} />
                                     <Bar dataKey="revenue"
-                                        {...businessLogic.squadRevenueData.map((entry, index) => ({fill: COLORS[index]}))}
+                                        {...businessLogic.squadRevenueData.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}
                                     name="Recorrência" />
                                     </BarChart>
                                 </ResponsiveContainer>
