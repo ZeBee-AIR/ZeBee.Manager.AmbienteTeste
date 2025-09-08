@@ -116,6 +116,33 @@
     --color-flame-pea-800: #8a3222;
     --color-flame-pea-900: #6f2c1f;
     --color-flame-pea-950: #3c140e;
+
+    --background: var(--color-copper-950);
+    --foreground: var(--color-copper-50);
+    --card: var(--color-copper-900);
+    --card-foreground: var(--color-copper-50);
+    --popover: var(--color-copper-900);
+    --popover-foreground: var(--color-copper-50);
+    --primary: var(--color-flame-pea-500);
+    --primary-foreground: var(--color-copper-950);
+    --secondary: var(--color-copper-800);
+    --secondary-foreground: var(--color-copper-100);
+    --muted: var(--color-copper-800);
+    --muted-foreground: var(--color-copper-200);
+    --accent: var(--color-flame-pea-400);
+    --accent-foreground: var(--color-copper-950);
+    --border: var(--color-copper-800);
+    --input: var(--color-copper-800);
+    --ring: var(--color-flame-pea-500);
+
+    --sidebar-background: var(--background);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--accent);
+    --sidebar-accent-foreground: var(--accent-foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
   }
 
   .pegaso {
@@ -141,6 +168,33 @@
     --color-forest-green-800: #255625;
     --color-forest-green-900: #204720;
     --color-forest-green-950: #0d260d;
+
+    --background: var(--color-forest-green-950);
+    --foreground: var(--color-emerald-50);
+    --card: var(--color-forest-green-900);
+    --card-foreground: var(--color-emerald-50);
+    --popover: var(--color-forest-green-900);
+    --popover-foreground: var(--color-emerald-50);
+    --primary: var(--color-emerald-500);
+    --primary-foreground: var(--color-forest-green-950);
+    --secondary: var(--color-forest-green-800);
+    --secondary-foreground: var(--color-emerald-100);
+    --muted: var(--color-forest-green-800);
+    --muted-foreground: var(--color-emerald-200);
+    --accent: var(--color-emerald-400);
+    --accent-foreground: var(--color-forest-green-950);
+    --border: var(--color-forest-green-800);
+    --input: var(--color-forest-green-800);
+    --ring: var(--color-emerald-500);
+
+    --sidebar-background: var(--background);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--accent);
+    --sidebar-accent-foreground: var(--accent-foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
   }
 
   .grifo {
@@ -166,6 +220,33 @@
     --color-governor-bay-800: #3b369d;
     --color-governor-bay-900: #34327d;
     --color-governor-bay-950: #1f1e48;
+
+    --background: var(--color-governor-bay-950);
+    --foreground: var(--color-azure-50);
+    --card: var(--color-governor-bay-900);
+    --card-foreground: var(--color-azure-50);
+    --popover: var(--color-governor-bay-900);
+    --popover-foreground: var(--color-azure-50);
+    --primary: var(--color-azure-500);
+    --primary-foreground: var(--color-governor-bay-950);
+    --secondary: var(--color-governor-bay-800);
+    --secondary-foreground: var(--color-azure-100);
+    --muted: var(--color-governor-bay-800);
+    --muted-foreground: var(--color-azure-200);
+    --accent: var(--color-governor-bay-400);
+    --accent-foreground: var(--color-governor-bay-950);
+    --border: var(--color-governor-bay-800);
+    --input: var(--color-governor-bay-800);
+    --ring: var(--color-azure-500);
+
+    --sidebar-background: var(--background);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--accent);
+    --sidebar-accent-foreground: var(--accent-foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
   }
 }
 
