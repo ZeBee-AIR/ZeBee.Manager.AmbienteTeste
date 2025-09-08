@@ -16,9 +16,12 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'is_superuser', 'squad_name']
 
     def get_squad_name(self, obj):
-        if hasattr(obj, 'userprofile') and obj.userprofile.squad:
-            return obj.userprofile.squad.name
-        return "Super"
+        if obj.is_superuser:
+            return "Super"
+        profile, created = UserProfile.objects.get_or_create(user=obj)
+        if profile.squad:
+            return profile.squad.name
+        return None
 
 class SquadSerializer(serializers.ModelSerializer):
     class Meta:
