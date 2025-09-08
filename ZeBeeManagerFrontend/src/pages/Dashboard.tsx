@@ -113,8 +113,8 @@ const Dashboard = () => {
                     api.get('/clients/'),
                     api.get('/squads/')
                 ]);
-                setClients(Array.isArray(clientsRes.data) ? clientsRes.data : []);
-                setSquads(Array.isArray(squadsRes.data) ? squadsRes.data : []);
+                setClients(clientsRes.data);
+                setSquads(squadsRes.data);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Ocorreu um erro desconhecido.');
             } finally {
@@ -138,7 +138,8 @@ const Dashboard = () => {
         const interval = { start: dateRange.from, end: dateRange.to || dateRange.from };
 
         const activeClientsNow = clients.filter(c => c.status === 'Ativo');
-        const newClientsInPeriod = clients.filter(c => isWithinInterval(parseISO(c.created_at), interval)).length;
+        const newClientsInPeriodArray = clients.filter(c => isWithinInterval(parseISO(c.created_at), interval));
+        const newClientsInPeriod = newClientsInPeriodArray.length;
         const clientsCancelledInPeriod = clients.filter(c => c.status === 'Inativo' && c.status_changed_at && isWithinInterval(parseISO(c.status_changed_at), interval));
         const totalChurnRevenueLoss = clientsCancelledInPeriod.reduce((sum, c) => sum + parseFloat(c.plan_value || '0'), 0);
 
@@ -158,7 +159,7 @@ const Dashboard = () => {
         const averageNewClientsFrequency = monthsInRange > 0 ? newClientsInPeriod / monthsInRange : 0;
         const lifetimeValue = averageRecurrenceValue * averageNewClientsFrequency * averageClientLifespan;
 
-        const entries = newClientsInPeriod.reduce((sum, c) => sum + parseFloat(c.plan_value || '0'), 0);
+        const entries = newClientsInPeriodArray.reduce((sum, c) => sum + parseFloat(c.plan_value || '0'), 0);
 
         const squadNameMap = new Map(squads.map(s => [s.id, s.name]));
 
