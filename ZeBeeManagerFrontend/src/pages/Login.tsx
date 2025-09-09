@@ -47,8 +47,8 @@ const Login = () => {
         <div className="relative flex items-center justify-center min-h-screen w-full bg-[#121212] overflow-hidden">
             {/* Efeitos de gradiente com motion grain personalizados */}
             <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-[10%] right-[10%] w-96 h-96 bg-[var(--primary)]/15 rounded-full filter blur-3xl" style={{animation: 'floatSmoothX 12s ease-in-out infinite'}}></div>
-                <div className="absolute bottom-[15%] left-[15%] w-80 h-80 bg-[var(--primary)]/10 rounded-full filter blur-2xl" style={{animation: 'floatSmoothY 15s ease-in-out infinite'}}></div>
+                <div className="absolute top-[10%] right-[10%] w-96 h-96 bg-[--primary]/15 rounded-full filter blur-3xl" style={{animation: 'floatSmoothX 12s ease-in-out infinite'}}></div>
+                <div className="absolute bottom-[15%] left-[15%] w-80 h-80 bg-[--primary]/10 rounded-full filter blur-2xl" style={{animation: 'floatSmoothY 15s ease-in-out infinite'}}></div>
                 <div className="absolute top-[60%] right-[70%] w-64 h-64 bg-[var(--primary)]/8 rounded-full filter blur-xl" style={{animation: 'floatSmoothZ 18s ease-in-out infinite'}}></div>
             </div>
             
