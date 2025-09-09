@@ -45,7 +45,7 @@ type ClientData = {
 const ListingClient = () => {
     const { user } = useAuth();
     const isSuperuser = user?.is_superuser;
-    const userSquadName = user?.profile?.squad;
+    const userSquadName = user?.squad_name;
     const [userSquadId, setUserSquadId] = useState(0);
 
     const [clients, setClients] = useState<ClientData[]>([]);
