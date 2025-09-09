@@ -45,7 +45,8 @@ type ClientData = {
 const ListingClient = () => {
     const { user } = useAuth();
     const isSuperuser = user?.is_superuser;
-    const userSquadId = user?.profile?.squad;
+    const userSquadName = user?.profile?.squad;
+    const [userSquadId, setUserSquadId] = useState(0);
 
     const [clients, setClients] = useState<ClientData[]>([]);
     const [squads, setSquads] = useState<Squad[]>([]);
@@ -72,7 +73,21 @@ const ListingClient = () => {
                     api.get('/clients/'),
                     api.get('/squads/')
                 ]);
-                if (userSquadId || !isSuperuser) {
+                if (userSquadName || !isSuperuser) {
+                    switch(userSquadName){
+                        case 'Pegaso':
+                            setUserSquadId(1);
+                            break;
+                        case 'Fênix':
+                            setUserSquadId(2);
+                            break;
+                        case 'Grifo':
+                            setUserSquadId(3);
+                            break;
+                        default:
+                            setUserSquadId(0);
+                            break;
+                    }
                     const filteredClients = clientsRes.data.filter(c => c.squad === userSquadId);
                     setClients(filteredClients);
                 }else{
