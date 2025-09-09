@@ -72,13 +72,13 @@ const ListingClient = () => {
                     api.get('/clients/'),
                     api.get('/squads/')
                 ]);
-                setClients(clientsRes.data);
                 if (userSquadId || !isSuperuser) {
-                    const filteredClients = squadsRes.data.filter(c => c.squad_id === userSquadId);
-                    setSquads(filteredClients);
+                    const filteredClients = clientsRes.data.filter(c => c.squad === userSquadId);
+                    setClients(filteredClients);
                 }else{
-                    setSquads(squadsRes.data);
+                    setClients(clientsRes.data);
                 }
+                setSquads(squadsRes.data);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Ocorreu um erro.');
             } finally {
