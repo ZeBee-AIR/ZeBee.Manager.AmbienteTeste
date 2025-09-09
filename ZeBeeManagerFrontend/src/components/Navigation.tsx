@@ -81,7 +81,15 @@ const Navigation = () => {
                 {/* GRUPO DA ESQUERDA: LOGO */}
                 <div className="flex items-center">
                     {/* MUDANÇA 2: Aumentamos a logo para h-12 */}
-                    <img src='/azazuucentral.png' className="h-14 w-auto object-contain" alt="Azazuu central Logo" />
+                    {user?.squad_name == "Pégaso" && (
+                        <img src='/azazuucentral_pegaso.png' className="h-14 w-auto object-contain" alt="Azazuu central Logo" />
+                    ) || user?.squad_name == "Fênix" && (
+                        <img src='/azazuucentral_fenix.png' className="h-14 w-auto object-contain" alt="Azazuu central Logo" />
+                    ) || user?.squad_name == "Grifo" && (
+                        <img src='/azazuucentral_grifo.png' className="h-14 w-auto object-contain" alt="Azazuu central Logo" />
+                    ) || (
+                        <img src='/azazuucentral.png' className="h-14 w-auto object-contain" alt="Azazuu central Logo" />
+                    )}
                 </div>
 
                 {/* MUDANÇA 3: BARRA DE BUSCA ABSOLUTAMENTE CENTRALIZADA */}
