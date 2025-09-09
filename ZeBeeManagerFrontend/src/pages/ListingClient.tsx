@@ -25,6 +25,7 @@ import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { DateRange } from 'react-day-picker';
 import api from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
 
 type Squad = {
     id: number;
@@ -42,6 +43,10 @@ type ClientData = {
 };
 
 const ListingClient = () => {
+    const { user } = useAuth();
+    const isSuperuser = user?.is_superuser;
+    const userSquadId = user?.profile?.squad;
+
     const [clients, setClients] = useState<ClientData[]>([]);
     const [squads, setSquads] = useState<Squad[]>([]);
     const [loading, setLoading] = useState(true);
@@ -68,7 +73,12 @@ const ListingClient = () => {
                     api.get('/squads/')
                 ]);
                 setClients(clientsRes.data);
-                setSquads(squadsRes.data);
+                if (userSquadId || !isSuperuser) {
+                    const filteredClients = squadsRes.data.filter(c => c.squad_id === userSquadId);
+                    setSquads(filteredClients);
+                }else{
+                    setSquads(squadsRes.data);
+                }
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Ocorreu um erro.');
             } finally {
