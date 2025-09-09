@@ -4,7 +4,8 @@ import Footer from './Footer';
 
 const MainLayout = () => {
     return (
-        <div className="relative flex flex-col min-h-screen bg-black overflow-hidden">
+        // CORREÇÃO: trocando 'bg-black' por 'bg-background' para usar a cor do tema
+        <div className="relative flex flex-col min-h-screen bg-background overflow-hidden">
             {/* Movimento de fundo com partículas */}
             <div className="fixed inset-0 pointer-events-none z-0">
                 {/* Partículas flutuantes de fundo */}
