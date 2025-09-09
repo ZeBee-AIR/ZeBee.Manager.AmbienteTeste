@@ -46,7 +46,6 @@ const ListingClient = () => {
     const { user } = useAuth();
     const isSuperuser = user?.is_superuser;
     const userSquadName = user?.squad_name;
-    const [userSquadId, setUserSquadId] = useState(0);
 
     const [clients, setClients] = useState<ClientData[]>([]);
     const [squads, setSquads] = useState<Squad[]>([]);
@@ -66,6 +65,11 @@ const ListingClient = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        if (!user) {
+            setLoading(false);
+            return;
+        }
+
         const fetchData = async () => {
             setLoading(true);
             try {
@@ -73,27 +77,21 @@ const ListingClient = () => {
                     api.get('/clients/'),
                     api.get('/squads/')
                 ]);
-                if (userSquadName || !isSuperuser) {
-                    switch(userSquadName){
-                        case 'Pegaso':
-                            setUserSquadId(1);
-                            break;
-                        case 'Fênix':
-                            setUserSquadId(2);
-                            break;
-                        case 'Grifo':
-                            setUserSquadId(3);
-                            break;
-                        default:
-                            setUserSquadId(0);
-                            break;
+
+                const allSquads: Squad[] = squadsRes.data;
+                setSquads(allSquads);
+                let clientsData: ClientData[] = clientsRes.data;
+
+                if (!user.is_superuser) {
+                    const userSquad = allSquads.find(s => s.name === user.squad_name);
+                    if (userSquad) {
+                        clientsData = clientsData.filter(c => c.squad === userSquad.id);
+                    } else {
+                        clientsData = [];
                     }
-                    const filteredClients = clientsRes.data.filter(c => c.squad === userSquadId);
-                    setClients(filteredClients);
-                }else{
-                    setClients(clientsRes.data);
                 }
-                setSquads(squadsRes.data);
+                
+                setClients(clientsData);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Ocorreu um erro.');
             } finally {
@@ -101,7 +99,8 @@ const ListingClient = () => {
             }
         };
         fetchData();
-    }, []);
+    }, [user]);
+
 
     useEffect(() => {
         setQuery(searchParams.get('q') || '');
