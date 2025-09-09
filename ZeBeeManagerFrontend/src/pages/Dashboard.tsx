@@ -322,7 +322,7 @@ const Dashboard = () => {
             <div className="max-w-7xl mx-auto">
                 <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-[var(--primary)] via-[var(--secondary-foreground)] to-[var(--primary)] hover:from-[var(--tertiary)] hover:via-[var(--primary)] hover:to-[var(--tertiary)] bg-clip-text text-transparent bg-[length:400%_100%] transition-all duration-500 cursor-pointer" style={{animation: 'cyanDrift 4s ease-in-out infinite'}} onMouseEnter={(e) => {e.target.style.animation = 'cyanHoverWave 1.5s ease-in-out infinite';}} onMouseLeave={(e) => {e.target.style.animation = 'cyanDrift 4s ease-in-out infinite';}}>Dashboard de Gerenciamento</h1>
+                        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary via-secondary-foreground to-primary hover:from-tertiary hover:via-primary hover:to-tertiary bg-clip-text text-transparent bg-[length:400%_100%] transition-all duration-500 cursor-pointer" style={{animation: 'cyanDrift 4s ease-in-out infinite'}} onMouseEnter={(e) => {e.target.style.animation = 'cyanHoverWave 1.5s ease-in-out infinite';}} onMouseLeave={(e) => {e.target.style.animation = 'cyanDrift 4s ease-in-out infinite';}}>Dashboard de Gerenciamento</h1>
                         <p className="text-[#AAA]">Monitore o desempenho de seus contratos e squads.</p>
                     </div>
                     <Popover>
@@ -339,15 +339,15 @@ const Dashboard = () => {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-8">
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[var(--secondary)] shadow-lg hover:shadow-2xl hover:shadow-[var(--secondary)]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[var(--secondary)]/8 group-hover:via-transparent group-hover:to-[var(--secondary)]/12 pointer-events-none transition-all duration-500"></div>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-secondary shadow-lg hover:shadow-2xl hover:shadow-secondary/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-secondary/8 group-hover:via-transparent group-hover:to-secondary/12 pointer-events-none transition-all duration-500"></div>
                         <div className="relative z-10">
-                            <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Clientes Ativos</CardTitle><Users className="h-4 w-4 text-[var(--secondary)]" /></CardHeader>
+                            <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Clientes Ativos</CardTitle><Users className="h-4 w-4 text-secondary" /></CardHeader>
                             <CardContent><div className="text-2xl font-bold text-white">{businessLogic.totalActiveClients}</div><p className="text-xs text-[#AAA] text-green-400">+{businessLogic.newClientsInPeriod} novos no período</p></CardContent>
                         </div>
                     </Card>
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[var(--secondary)] shadow-lg hover:shadow-2xl hover:shadow-[var(--secondary)]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[var(--secondary)]/8 group-hover:via-transparent group-hover:to-[var(--secondary)]/12 pointer-events-none transition-all duration-500"></div>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-secondary shadow-lg hover:shadow-2xl hover:shadow-secondary/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-secondary/8 group-hover:via-transparent group-hover:to-secondary/12 pointer-events-none transition-all duration-500"></div>
                         <div className="relative z-10">
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
                                 <CardTitle className="text-sm font-medium text-white">Cancelamentos</CardTitle>
@@ -356,8 +356,8 @@ const Dashboard = () => {
                                     <TooltipProvider>
                                         <ShadTooltip>
                                             <TooltipTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-5 w-5 hover:bg-[var(--secondary)]/20 transition-all duration-300" onClick={() => setIsChurnModalOpen(true)}>
-                                                    <HelpCircle className="h-4 w-4 text-[var(--secondary)]" />
+                                                <Button variant="ghost" size="icon" className="h-5 w-5 hover:bg-secondary/20 transition-all duration-300" onClick={() => setIsChurnModalOpen(true)}>
+                                                    <HelpCircle className="h-4 w-4 text-secondary" />
                                                 </Button>
                                             </TooltipTrigger>
                                             <TooltipContent><p>Clique aqui para receber os detalhes.</p></TooltipContent>
@@ -368,15 +368,15 @@ const Dashboard = () => {
                             <CardContent><div className="text-2xl font-bold text-white">{businessLogic.cancelledClientsInPeriod}</div><p className="text-xs text-[#AAA] text-red-400">No período selecionado</p></CardContent>
                         </div>
                     </Card>
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[var(--secondary)] shadow-lg hover:shadow-2xl hover:shadow-[var(--secondary)]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[var(--secondary)]/8 group-hover:via-transparent group-hover:to-[var(--secondary)]/12 pointer-events-none transition-all duration-500"></div>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-secondary shadow-lg hover:shadow-2xl hover:shadow-secondary/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-secondary/8 group-hover:via-transparent group-hover:to-secondary/12 pointer-events-none transition-all duration-500"></div>
                         <div className="relative z-10">
                             <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Perdas (Churn)</CardTitle><DollarSign className="h-4 w-4 text-red-400" /></CardHeader>
                             <CardContent><div className="text-2xl font-bold text-white">R$ {businessLogic.totalChurnRevenueLoss.toLocaleString('pt-BR')}</div><p className="text-xs text-[#AAA] text-red-400">Com base no plano</p></CardContent>
                         </div>
                     </Card>
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[var(--secondary)] shadow-lg hover:shadow-2xl hover:shadow-[var(--secondary)]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[var(--secondary)]/8 group-hover:via-transparent group-hover:to-[var(--secondary)]/12 pointer-events-none transition-all duration-500">
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-secondary shadow-lg hover:shadow-2xl hover:shadow-secondary/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-secondary/8 group-hover:via-transparent group-hover:to-secondary/12 pointer-events-none transition-all duration-500">
                         </div>
                         <div className="relative z-10">
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -395,13 +395,13 @@ const Dashboard = () => {
                             </CardContent>
                         </div>
                     </Card>
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[var(--secondary)] shadow-lg hover:shadow-2xl hover:shadow-[var(--secondary)]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[var(--secondary)]/8 group-hover:via-transparent group-hover:to-[var(--secondary)]/12 pointer-events-none transition-all duration-500">
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-secondary shadow-lg hover:shadow-2xl hover:shadow-secondary/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-secondary/8 group-hover:via-transparent group-hover:to-secondary/12 pointer-events-none transition-all duration-500">
                         </div>
                         <div className="relative z-10">
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
                                 <CardTitle className="text-sm font-medium text-white">Entradas no Período</CardTitle>
-                                <DollarSign className="h-4 w-4 text-[var(--secondary)]" />
+                                <DollarSign className="h-4 w-4 text-secondary" />
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold text-white">
@@ -411,37 +411,37 @@ const Dashboard = () => {
                             </CardContent>
                         </div>
                     </Card>
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[var(--secondary)] shadow-lg hover:shadow-2xl hover:shadow-[var(--secondary)]/30 rounded-2xl overflow-hidden transition-all duration-500 group"><div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[var(--secondary)]/8 group-hover:via-transparent group-hover:to-[var(--secondary)]/12 pointer-events-none transition-all duration-500"></div><div className="relative z-10"><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Lifetime Value (LTV)</CardTitle><Award className="h-4 w-4 text-[#eab308]" /></CardHeader><CardContent><div className="text-2xl font-bold text-white">R$ {businessLogic.lifetimeValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div><p className="text-xs text-[#AAA]">Valor projetado por cliente</p></CardContent></div></Card>
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[var(--secondary)] shadow-lg hover:shadow-2xl hover:shadow-[var(--secondary)]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[var(--secondary)]/8 group-hover:via-transparent group-hover:to-[var(--secondary)]/12 pointer-events-none transition-all duration-500"></div>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-secondary shadow-lg hover:shadow-2xl hover:shadow-secondary/30 rounded-2xl overflow-hidden transition-all duration-500 group"><div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-secondary/8 group-hover:via-transparent group-hover:to-secondary/12 pointer-events-none transition-all duration-500"></div><div className="relative z-10"><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Lifetime Value (LTV)</CardTitle><Award className="h-4 w-4 text-[#eab308]" /></CardHeader><CardContent><div className="text-2xl font-bold text-white">R$ {businessLogic.lifetimeValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div><p className="text-xs text-[#AAA]">Valor projetado por cliente</p></CardContent></div></Card>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-secondary shadow-lg hover:shadow-2xl hover:shadow-secondary/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-secondary/8 group-hover:via-transparent group-hover:to-secondary/12 pointer-events-none transition-all duration-500"></div>
                         <div className="relative z-10">
-                            <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Recorrência + Comissão Total</CardTitle><DollarSign className="h-4 w-4 text-[var(--secondary)]" /></CardHeader>
+                            <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Recorrência + Comissão Total</CardTitle><DollarSign className="h-4 w-4 text-secondary" /></CardHeader>
                             <CardContent><div className="text-2xl font-bold text-white">R$ {businessLogic.totalRevenueComission.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-[#AAA]">Recorrência + Comissão</p></CardContent>
                         </div>
                     </Card>
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[var(--secondary)] shadow-lg hover:shadow-2xl hover:shadow-[var(--secondary)]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[var(--secondary)]/8 group-hover:via-transparent group-hover:to-[var(--secondary)]/12 pointer-events-none transition-all duration-500"></div>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-secondary shadow-lg hover:shadow-2xl hover:shadow-secondary/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-secondary/8 group-hover:via-transparent group-hover:to-secondary/12 pointer-events-none transition-all duration-500"></div>
                         <div className="relative z-10">
-                            <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Comissão Total</CardTitle><Target className="h-4 w-4 text-[var(--secondary)]" /></CardHeader>
+                            <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Comissão Total</CardTitle><Target className="h-4 w-4 text-secondary" /></CardHeader>
                             <CardContent><div className="text-2xl font-bold text-white">R$ {businessLogic.totalCommission.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-[#AAA]">Com base na performance</p></CardContent>
                         </div>
                     </Card>
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[var(--secondary)] shadow-lg hover:shadow-2xl hover:shadow-[var(--secondary)]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[var(--secondary)]/8 group-hover:via-transparent group-hover:to-[var(--secondary)]/12 pointer-events-none transition-all duration-500"></div>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-secondary shadow-lg hover:shadow-2xl hover:shadow-secondary/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-secondary/8 group-hover:via-transparent group-hover:to-secondary/12 pointer-events-none transition-all duration-500"></div>
                         <div className="relative z-10">
-                            <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Recorrência Total</CardTitle><DollarSign className="h-4 w-4 text-[var(--secondary)]" /></CardHeader>
+                            <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-white">Recorrência Total</CardTitle><DollarSign className="h-4 w-4 text-secondary" /></CardHeader>
                             <CardContent><div className="text-2xl font-bold text-white">R$ {businessLogic.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><p className="text-xs text-[#AAA]">Com base no plano</p></CardContent>
                         </div>
                     </Card>
                 </div>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[var(--secondary)] shadow-lg hover:shadow-2xl hover:shadow-[var(--secondary)]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[var(--secondary)]/8 group-hover:via-transparent group-hover:to-[var(--secondary)]/12 pointer-events-none transition-all duration-500"></div>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-secondary shadow-lg hover:shadow-2xl hover:shadow-secondary/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-secondary/8 group-hover:via-transparent group-hover:to-secondary/12 pointer-events-none transition-all duration-500"></div>
                         <div className="relative z-10">
                             <CardHeader>
                                 <CardTitle className="text-lg font-semibold flex items-center gap-2 text-white">
-                                    <DollarSign className="text-[var(--secondary)]" />
+                                    <DollarSign className="text-secondary" />
                                     Histórico de Recorrência e Comissão
                                 </CardTitle>
                             <CardTitle className="text-sm font-medium flex items-center gap-2 justify-items-end">
@@ -480,12 +480,12 @@ const Dashboard = () => {
                             </CardContent>
                         </div>
                     </Card>
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[var(--secondary)] shadow-lg hover:shadow-2xl hover:shadow-[var(--secondary)]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[var(--secondary)]/8 group-hover:via-transparent group-hover:to-[var(--secondary)]/12 pointer-events-none transition-all duration-500"></div>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-secondary shadow-lg hover:shadow-2xl hover:shadow-secondary/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-secondary/8 group-hover:via-transparent group-hover:to-secondary/12 pointer-events-none transition-all duration-500"></div>
                         <div className="relative z-10">
                             <CardHeader>
                                 <CardTitle className="text-lg font-semibold flex items-center gap-2 text-white">
-                                    <TrendingUp className="text-[var(--secondary)]" />
+                                    <TrendingUp className="text-secondary" />
                                     Desempenho de Recorrência por Squad
                                 </CardTitle>
                             </CardHeader>
@@ -508,10 +508,10 @@ const Dashboard = () => {
                             </CardContent>
                         </div>
                     </Card>
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[var(--secondary)] shadow-lg hover:shadow-2xl hover:shadow-[var(--secondary)]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[var(--secondary)]/8 group-hover:via-transparent group-hover:to-[var(--secondary)]/12 pointer-events-none transition-all duration-500"></div>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-secondary shadow-lg hover:shadow-2xl hover:shadow-secondary/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-secondary/8 group-hover:via-transparent group-hover:to-secondary/12 pointer-events-none transition-all duration-500"></div>
                         <div className="relative z-10">
-                            <CardHeader><CardTitle className="text-lg font-semibold flex items-center gap-2 text-white"><Users className="text-[var(--secondary)]" />Clientes Ativos por Squad</CardTitle></CardHeader>
+                            <CardHeader><CardTitle className="text-lg font-semibold flex items-center gap-2 text-white"><Users className="text-secondary" />Clientes Ativos por Squad</CardTitle></CardHeader>
                         <CardContent>
                             <ResponsiveContainer width="100%" height={300}>
                                 <PieChart>
@@ -525,10 +525,10 @@ const Dashboard = () => {
                             </CardContent>
                         </div>
                     </Card>
-                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-[var(--secondary)] shadow-lg hover:shadow-2xl hover:shadow-[var(--secondary)]/30 rounded-2xl overflow-hidden transition-all duration-500 group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-[var(--secondary)]/8 group-hover:via-transparent group-hover:to-[var(--secondary)]/12 pointer-events-none transition-all duration-500"></div>
+                    <Card className="relative bg-white/5 hover:bg-white/8 backdrop-blur-md border border-white/10 hover:border-secondary shadow-lg hover:shadow-2xl hover:shadow-secondary/30 rounded-2xl overflow-hidden transition-all duration-500 group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-secondary/8 group-hover:via-transparent group-hover:to-secondary/12 pointer-events-none transition-all duration-500"></div>
                         <div className="relative z-10">
-                            <CardHeader><CardTitle className="text-lg font-semibold flex items-center gap-2 text-white"><UserPlus className="text-[var(--secondary)]" />Novos Clientes vs. Cancelamentos<TrendingDown className="text-red-400" /></CardTitle></CardHeader>
+                            <CardHeader><CardTitle className="text-lg font-semibold flex items-center gap-2 text-white"><UserPlus className="text-secondary" />Novos Clientes vs. Cancelamentos<TrendingDown className="text-red-400" /></CardTitle></CardHeader>
                             <CardContent>
                                 <ResponsiveContainer width="100%" height={300}><BarChart data={businessLogic.squadAcquisitionChurnData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" /><YAxis allowDecimals={false} /><Tooltip /><Legend /><Bar dataKey="newClients" fill="#10B981" name="Novos Clientes" /><Bar dataKey="churns" fill="#EF4444" name="Cancelamentos" /></BarChart></ResponsiveContainer>
                             </CardContent>
