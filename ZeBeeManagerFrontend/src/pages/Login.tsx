@@ -47,9 +47,9 @@ const Login = () => {
         <div className="relative flex items-center justify-center min-h-screen w-full bg-[#121212] overflow-hidden">
             {/* Efeitos de gradiente com motion grain personalizados */}
             <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-[10%] right-[10%] w-96 h-96 bg-[#00f2ff]/15 rounded-full filter blur-3xl" style={{animation: 'floatSmoothX 12s ease-in-out infinite'}}></div>
-                <div className="absolute bottom-[15%] left-[15%] w-80 h-80 bg-[#00f2ff]/10 rounded-full filter blur-2xl" style={{animation: 'floatSmoothY 15s ease-in-out infinite'}}></div>
-                <div className="absolute top-[60%] right-[70%] w-64 h-64 bg-[#00f2ff]/8 rounded-full filter blur-xl" style={{animation: 'floatSmoothZ 18s ease-in-out infinite'}}></div>
+                <div className="absolute top-[10%] right-[10%] w-96 h-96 bg-[var(--primary)]/15 rounded-full filter blur-3xl" style={{animation: 'floatSmoothX 12s ease-in-out infinite'}}></div>
+                <div className="absolute bottom-[15%] left-[15%] w-80 h-80 bg-[var(--primary)]/10 rounded-full filter blur-2xl" style={{animation: 'floatSmoothY 15s ease-in-out infinite'}}></div>
+                <div className="absolute top-[60%] right-[70%] w-64 h-64 bg-[var(--primary)]/8 rounded-full filter blur-xl" style={{animation: 'floatSmoothZ 18s ease-in-out infinite'}}></div>
             </div>
             
             {/* Efeito grain/noise específico para login com animação suave */}
@@ -59,9 +59,9 @@ const Login = () => {
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(0,242,255,0.03)_0%,transparent_60%)]" style={{animation: 'softBackgroundPulse 15s ease-in-out infinite reverse'}}></div>
             </div>
 
-            <Card className="relative z-10 w-[380px] bg-[#161616]/20 backdrop-blur-xl border-2 border-[#00f2ff]/30 text-white shadow-2xl shadow-[#00f2ff]/20 rounded-2xl overflow-hidden" style={{animation: 'borderGlow 4s ease-in-out infinite'}}>
+            <Card className="relative z-10 w-[380px] bg-[#161616]/20 backdrop-blur-xl border-2 border-[var(--primary)]/30 text-white shadow-2xl shadow-[var(--primary)]/20 rounded-2xl overflow-hidden" style={{animation: 'borderGlow 4s ease-in-out infinite'}}>
                 {/* Glass effect overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#00f2ff]/5 via-transparent to-[#00f2ff]/10 pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/5 via-transparent to-[var(--primary)]/10 pointer-events-none"></div>
                 <div className="relative z-10">
                 <CardHeader className="items-center text-center">
                     <img src='/logo Z azazuu.png' className="h-12 w-auto mb-4 object-contain" alt="Azazuu central Logo" />
@@ -79,7 +79,7 @@ const Login = () => {
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
                                 required
-                                className="bg-[#1c1c1c]/30 backdrop-blur-sm border border-[#00f2ff]/20 text-white placeholder:text-gray-300 focus:border-[#00f2ff] focus:ring-2 focus:ring-[#00f2ff]/30 focus:bg-[#1c1c1c]/50 transition-all duration-300 rounded-lg h-12 px-4 shadow-inner shadow-[#00f2ff]/5"
+                                className="bg-[#1c1c1c]/30 backdrop-blur-sm border border-[var(--primary)]/20 text-white placeholder:text-gray-300 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/30 focus:bg-[#1c1c1c]/50 transition-all duration-300 rounded-lg h-12 px-4 shadow-inner shadow-[var(--primary)]/5"
                             />
                         </div>
                         <div className="space-y-2">
@@ -92,20 +92,20 @@ const Login = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
-                                    className="bg-[#1c1c1c]/30 backdrop-blur-sm border border-[#00f2ff]/20 text-white placeholder:text-gray-300 focus:border-[#00f2ff] focus:ring-2 focus:ring-[#00f2ff]/30 focus:bg-[#1c1c1c]/50 transition-all duration-300 rounded-lg h-12 px-4 pr-12 shadow-inner shadow-[#00f2ff]/5"
+                                    className="bg-[#1c1c1c]/30 backdrop-blur-sm border border-[var(--primary)]/20 text-white placeholder:text-gray-300 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/30 focus:bg-[#1c1c1c]/50 transition-all duration-300 rounded-lg h-12 px-4 pr-12 shadow-inner shadow-[var(--primary)]/5"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#00f2ff] transition-colors duration-200 focus:outline-none focus:text-[#00f2ff]"
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[var(--primary)] transition-colors duration-200 focus:outline-none focus:text-[var(--primary)]"
                                 >
                                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                                 </button>
                             </div>
                         </div>
-                        <Button type="submit" className="relative w-full bg-gradient-to-r from-[#00f2ff] to-[#00d4e6] hover:from-[#00f2ff] hover:to-[#00d4e6] text-[#121212] font-bold transition-all duration-500 hover:shadow-2xl hover:shadow-[#00f2ff]/60 hover:scale-[1.03] active:scale-[0.97] rounded-lg h-12 backdrop-blur-sm border-2 border-[#00f2ff]/70 hover:border-[#00f2ff] overflow-hidden group" disabled={loading}>
+                        <Button type="submit" className="relative w-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary-foreground)] hover:from-[var(--primary)] hover:to-[var(--secondary-foreground)] text-[#121212] font-bold transition-all duration-500 hover:shadow-2xl hover:shadow-[var(--primary)]/60 hover:scale-[1.03] active:scale-[0.97] rounded-lg h-12 backdrop-blur-sm border-2 border-[var(--primary)]/70 hover:border-[var(--primary)] overflow-hidden group" disabled={loading}>
                             {/* Background animado */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-[#00f2ff]/20 via-transparent to-[#00d4e6]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/20 via-transparent to-[var(--secondary-foreground)]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,242,255,0.3)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                             
                             {/* Efeito de brilho que se move */}

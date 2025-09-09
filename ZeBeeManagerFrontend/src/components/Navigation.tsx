@@ -92,14 +92,14 @@ const Navigation = () => {
                             <Input
                                 type="search"
                                 placeholder="Pesquisar..."
-                                className="pl-12 pr-4 py-2.5 w-full bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-lg focus:border-[#00F5FF]/50 focus:shadow-xl focus:shadow-[#00F5FF]/20 transition-all duration-300 text-white placeholder:text-gray-400 focus:bg-white/10"
+                                className="pl-12 pr-4 py-2.5 w-full bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-lg focus:border-[var(--secondary)]/50 focus:shadow-xl focus:shadow-[var(--secondary)]/20 transition-all duration-300 text-white placeholder:text-gray-400 focus:bg-white/10"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
-                            <Button type="submit" variant="ghost" size="icon" className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg hover:bg-[#00F5FF]/20 transition-all duration-300">
-                                <Search className="h-4 w-4 text-gray-400 group-focus-within:text-[#00F5FF] transition-colors duration-300" />
+                            <Button type="submit" variant="ghost" size="icon" className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg hover:bg-[var(--secondary)]/20 transition-all duration-300">
+                                <Search className="h-4 w-4 text-gray-400 group-focus-within:text-[var(--secondary)] transition-colors duration-300" />
                             </Button>
-                            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#00F5FF]/0 via-[#00F5FF]/5 to-[#00F5FF]/0 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[var(--secondary)]/0 via-[var(--secondary)]/5 to-[var(--secondary)]/0 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                         </div>
                     </form>
                 </div>
@@ -118,7 +118,7 @@ const Navigation = () => {
                                     onClick={() => handleItemClick(item.id, item.path)}
                                     className={`group relative inline-flex items-center justify-start transition-all duration-300 ease-in-out hover:scale-105 ${
                                         isActive
-                                            ? 'bg-white/10 border border-[#00F5FF]/50 shadow-lg shadow-[#00F5FF]/25'
+                                            ? 'bg-white/10 border border-[var(--secondary)]/50 shadow-lg shadow-[var(--secondary)]/25'
                                             : 'bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/25'
                                     } rounded-full h-12 ${isExpanded ? 'px-5' : 'w-12 justify-center'}`}
                                     style={{
@@ -126,7 +126,7 @@ const Navigation = () => {
                                         minWidth: '3rem'
                                     }}
                                 >
-                                    <Icon className={`transition-colors duration-300 ${isActive ? 'text-[#00F5FF]' : 'text-white'} h-4 w-4 flex-shrink-0`} />
+                                    <Icon className={`transition-colors duration-300 ${isActive ? 'text-[var(--secondary)]' : 'text-white'} h-4 w-4 flex-shrink-0`} />
                                     <span 
                                         className={`whitespace-nowrap font-medium text-white transition-all duration-300 ease-out overflow-hidden ${
                                             isExpanded ? 'opacity-100 ml-3' : 'opacity-0 w-0 ml-0'
@@ -135,7 +135,7 @@ const Navigation = () => {
                                         {item.label}
                                     </span>
                                     {isActive && (
-                                        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#00F5FF]/0 via-[#00F5FF]/5 to-[#00F5FF]/0 opacity-60"></div>
+                                        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[var(--secondary)]/0 via-[var(--secondary)]/5 to-[var(--secondary)]/0 opacity-60"></div>
                                     )}
                                 </button>
                             </div>
@@ -156,8 +156,8 @@ const Navigation = () => {
                                     minWidth: '3rem'
                                 }}
                             >
-                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-[#00F5FF]/30 to-[#00F5FF]/10 flex items-center justify-center">
-                                    <User className="h-4 w-4 text-[#00F5FF]" />
+                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-[var(--secondary)]/30 to-[var(--secondary)]/10 flex items-center justify-center">
+                                    <User className="h-4 w-4 text-[var(--secondary)]" />
                                 </div>
                                 <div className={`flex items-center whitespace-nowrap transition-all duration-300 ease-out overflow-hidden ${
                                         expandedItem === userMenuItem.id

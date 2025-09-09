@@ -66,9 +66,9 @@
 
     --primary: 185 100% 50%; /* #00f2ff - Ciano */
     --primary-foreground: 0 0% 7.1%; /* #121212 */
-
-    --secondary: 0 0% 11%; /* #1c1c1c */
-    --secondary-foreground: 0 0% 100%;
+    --secondary: #00F5FF;
+    --secondary-foreground: #00d4e6;
+    --tertiary: #006b73;
 
     --muted: 0 0% 11%; /* #1c1c1c */
     --muted-foreground: 0 0% 70%;
@@ -127,6 +127,7 @@
     --primary-foreground: var(--color-copper-950);
     --secondary: var(--color-copper-800);
     --secondary-foreground: var(--color-copper-100);
+    --tertiary: var(--color-copper-900);
     --muted: var(--color-copper-800);
     --muted-foreground: var(--color-copper-200);
     --accent: var(--color-flame-pea-400);
@@ -179,6 +180,7 @@
     --primary-foreground: var(--color-forest-green-950);
     --secondary: var(--color-forest-green-800);
     --secondary-foreground: var(--color-emerald-100);
+    --tertiary: var(--color-forest-green-900);
     --muted: var(--color-forest-green-800);
     --muted-foreground: var(--color-emerald-200);
     --accent: var(--color-emerald-400);
@@ -231,6 +233,7 @@
     --primary-foreground: var(--color-governor-bay-950);
     --secondary: var(--color-governor-bay-800);
     --secondary-foreground: var(--color-azure-100);
+    --tertiary: var(--color-governor-bay-900);
     --muted: var(--color-governor-bay-800);
     --muted-foreground: var(--color-azure-200);
     --accent: var(--color-governor-bay-400);
