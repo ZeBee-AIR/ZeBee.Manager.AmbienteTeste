@@ -172,14 +172,14 @@
   --popover-foreground: var(--color-emerald-50);
   --primary: var(--color-emerald-500);
   --primary-foreground: var(--color-forest-green-950);
-  --secondary: var(--color-forest-green-800);
+  --secondary: #4ca678;
   --secondary-foreground: var(--color-emerald-100);
   --tertiary: var(--color-forest-green-900);
   --muted: var(--color-forest-green-800);
   --muted-foreground: var(--color-emerald-200);
   --accent: var(--color-emerald-400);
   --accent-foreground: var(--color-forest-green-950);
-  --border: var(--color-forest-green-800);
+  --border: #2f532f;
   --input: var(--color-forest-green-800);
   --ring: var(--color-emerald-500);
 
