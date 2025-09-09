@@ -202,18 +202,20 @@ const ListingClient = () => {
                                                 </SelectContent>
                                             </Select>
                                         </div>
-                                        <div className="grid grid-cols-3 items-center gap-4">
-                                            <Label htmlFor="squad">Squad</Label>
-                                            <Select value={squadFilter} onValueChange={setSquadFilter}>
-                                                <SelectTrigger id="squad" className="col-span-2 h-8"><SelectValue /></SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="todos">Todos</SelectItem>
-                                                    {squads.map(squad => (
-                                                        <SelectItem key={squad.id} value={String(squad.id)}>{squad.name}</SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
+                                        {isSuperuser && (
+                                            <div className="grid grid-cols-3 items-center gap-4">
+                                                <Label htmlFor="squad">Squad</Label>
+                                                <Select value={squadFilter} onValueChange={setSquadFilter}>
+                                                    <SelectTrigger id="squad" className="col-span-2 h-8"><SelectValue /></SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="todos">Todos</SelectItem>
+                                                        {squads.map(squad => (
+                                                            <SelectItem key={squad.id} value={String(squad.id)}>{squad.name}</SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        )}
                                         <div className="grid grid-cols-3 items-center gap-4">
                                             <Label htmlFor="date-range">Cadastrados:</Label>
                                             <div className="col-span-2">
